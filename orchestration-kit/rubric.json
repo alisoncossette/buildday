@@ -1,0 +1,39 @@
+{
+  "name": "Red Rover — definition of done (revocable voice-clone consent)",
+  "note": "Swap these per project. grade.py runs every check with NO human and exits 0 only when all required pass.",
+  "checks": [
+    {
+      "id": "skeleton",
+      "type": "file_exists",
+      "path": "consent_agent/__init__.py",
+      "desc": "consent state-machine contract exists",
+      "weight": 1,
+      "required": true
+    },
+    {
+      "id": "consent-state-machine",
+      "type": "pytest",
+      "path": "tests",
+      "desc": "grant -> speak-as-clone; REVOKE -> shift-to-generic; zero clone utterances after revoke; audit logs grant+revoke",
+      "weight": 4,
+      "required": true
+    },
+    {
+      "id": "service-up",
+      "type": "http",
+      "url": "http://localhost:8000/",
+      "expect_status": 200,
+      "desc": "Red Rover demo responds 200 offline (own-your-network, no venue wifi)",
+      "weight": 2,
+      "required": true
+    },
+    {
+      "id": "self-correction-evidence",
+      "type": "file_exists",
+      "path": "evidence/self-correction.md",
+      "desc": "log excerpt: a verifier sub-agent caught a failure and the loop self-corrected (Autonomy 15%)",
+      "weight": 2,
+      "required": false
+    }
+  ]
+}

@@ -70,14 +70,19 @@ The bridge between them is consent.
 
 ## Demo
 
-**▶ Live app:** https://reef-night-across-pets.trycloudflare.com
+**▶ Live app (Cloud Run — always-on, Neon-backed):** **https://stead-650440848480.us-central1.run.app**
 
-> ⚠️ That link is a **temporary Cloudflare quick-tunnel** to the local server — it's only up while the
-> laptop is running, and free quick-tunnels drop on any network blip (which is exactly what bit us on
-> demo day — judges hit a dead tunnel, not a dead app). **The reliable way to see Stead is to run it
-> yourself — it's a one-command start (see [Run it](#run-it)).** Everything below is real and verifiable
-> locally: the consent engine, the Neon-backed shared brain, the real Vapi pizza call, and the MARS
-> skill + agent.
+| Page | Link |
+|---|---|
+| 🏠 Control panel (Mom's dashboard) | https://stead-650440848480.us-central1.run.app/ |
+| 🤖 MARS — the interaction point | https://stead-650440848480.us-central1.run.app/mars.html |
+| 🎙️ Talk to Stead (voice → action) | https://stead-650440848480.us-central1.run.app/voice.html |
+| 🔗 Connect Mom + Ruby's calendar/email | https://stead-650440848480.us-central1.run.app/connect.html |
+
+> The public instance is **call-safe + spend-safe** (Vapi/card keys stripped from the cloud box) — the
+> consent engine, the Neon-backed shared brain, the MARS mock, and the live Claude voice agent are all
+> real and verifiable. **Sister tool:** [**Plumbline**](https://github.com/alisoncossette/plumbline) — the
+> open-source intent-boundary analyzer that hardens any agent acting on someone's behalf.
 
 <!-- DEMO VIDEO: drag the .mp4 into GitHub's README editor (it hosts it and gives a player URL),
      or commit it to docs/demo.mp4 and replace the line below with:

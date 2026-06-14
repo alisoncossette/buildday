@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="theme-color" content="#f4efe6" />
+<title>Stead</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --cream:#f6f1e7; --cream-2:#efe8da; --paper:#fffdf8;
+  --ink:#2f2a24; --ink-soft:#6f665a; --ink-faint:#9a8f80;
+  --sage:#7d9079; --sage-deep:#5f7459; --sage-soft:#e4ece0;
+  --accent:#c4663b; --accent-soft:#f4ddd0; --accent-deep:#a8522d;
+  --gold:#d8a657;
+  --halt:#c5362b; --halt-deep:#8f231b; --halt-soft:#fbe2df;
+  --line:rgba(60,50,40,.09);
+  --shadow-sm:0 1px 2px rgba(60,45,30,.05), 0 2px 8px rgba(60,45,30,.05);
+  --shadow-md:0 2px 6px rgba(60,45,30,.06), 0 12px 28px rgba(60,45,30,.10);
+  --shadow-lg:0 8px 18px rgba(60,45,30,.08), 0 26px 60px rgba(60,45,30,.16);
+  --r-lg:26px; --r-md:20px; --r-sm:14px;
+  --tab-h:74px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  color:var(--ink);
+  background:#e8e0d0;
+  min-height:100vh;
+  display:flex;justify-content:center;
+  overscroll-behavior:none;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+h1,h2,h3,.serif{font-family:'Fraunces',Georgia,serif;font-weight:500;letter-spacing:-.01em}
+
+/* ===== phone frame ===== */
+#phone{
+  position:relative;width:100%;max-width:430px;min-height:100vh;
+  background:
+    radial-gradient(120% 70% at 50% -10%, #fbf6ec 0%, var(--cream) 42%, var(--cream-2) 100%);
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(60,45,30,.05), 0 40px 90px rgba(40,30,20,.28);
+}
+@media(min-width:480px){
+  body{align-items:center;padding:22px 0}
+  #phone{min-height:0;height:min(916px,calc(100vh - 44px));border-radius:46px;overflow:hidden}
+}
+
+/* ===== header ===== */
+header{
+  position:relative;z-index:5;flex:none;
+  padding:max(14px,env(safe-area-inset-top)) 20px 12px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .seed{
+  width:34px;height:34px;border-radius:50%;flex:none;
+  background:radial-gradient(circle at 32% 28%, #9fb09a, var(--sage) 55%, var(--sage-deep));
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.5), 0 4px 10px rgba(95,116,89,.35);
+  position:relative;
+}
+.brand .seed::after{content:"";position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 68% 72%, rgba(255,255,255,.35), transparent 45%)}
+.brand .wm{display:flex;flex-direction:column;line-height:1}
+.brand .wm b{font-family:'Fraunces',serif;font-weight:600;font-size:21px;letter-spacing:-.02em}
+.brand .wm span{font-size:10.5px;color:var(--ink-faint);letter-spacing:.14em;text-transform:uppercase;margin-top:3px;font-weight:600}
+
+/* role switcher */
+.role{position:relative}
+.role-btn{
+  display:flex;align-items:center;gap:8px;
+  background:var(--paper);border:1px solid var(--line);
+  padding:6px 8px 6px 10px;border-radius:999px;box-shadow:var(--shadow-sm);
+  transition:transform .15s, box-shadow .2s;
+}
+.role-btn:active{transform:scale(.96)}
+.role-btn .av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff}
+.role-btn .nm{font-size:12.5px;font-weight:600;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.role-btn .cv{color:var(--ink-faint);transition:transform .2s}
+.role.open .cv{transform:rotate(180deg)}
+.role-menu{
+  position:absolute;top:calc(100% + 8px);right:0;z-index:30;width:248px;
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);
+  box-shadow:var(--shadow-lg);padding:7px;
+  opacity:0;transform:translateY(-8px) scale(.97);pointer-events:none;
+  transition:opacity .2s, transform .2s;transform-origin:top right;
+}
+.role.open .role-menu{opacity:1;transform:none;pointer-events:auto}
+.role-menu .lbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:700;padding:8px 10px 6px}
+.role-opt{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:10px;border-radius:13px;transition:background .15s}
+.role-opt:active,.role-opt:hover{background:var(--cream)}
+.role-opt .av{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;flex:none}
+.role-opt .meta b{display:block;font-size:13.5px;font-weight:600}
+.role-opt .meta span{font-size:11px;color:var(--ink-soft)}
+.role-opt[aria-current="true"]{background:var(--sage-soft)}
+.role-opt .tick{margin-left:auto;color:var(--sage-deep);opacity:0}
+.role-opt[aria-current="true"] .tick{opacity:1}
+
+/* ===== views ===== */
+main{flex:1;position:relative;overflow:hidden}
+.view{
+  position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+  padding:6px 18px calc(var(--tab-h) + 26px);
+  -webkit-overflow-scrolling:touch;
+  opacity:0;transform:translateY(10px);pointer-events:none;
+  transition:opacity .32s ease, transform .32s cubic-bezier(.22,1,.36,1);
+}
+.view.active{opacity:1;transform:none;pointer-events:auto}
+.view::-webkit-scrollbar{width:0}
+
+/* ===== HOME ===== */
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 4px 4px}
+.hello{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+
+/* the orb — Stead's living presence */
+.orb-wrap{position:relative;width:212px;height:212px;margin:18px 0 8px;display:grid;place-items:center}
+.orb-halo{position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle,rgba(125,144,121,.32),transparent 64%);
+  filter:blur(4px);animation:breathe 6s ease-in-out infinite}
+.orb{
+  position:relative;width:148px;height:148px;border-radius:50%;
+  background:
+    radial-gradient(circle at 34% 30%, #b7c6b1 0%, var(--sage) 46%, var(--sage-deep) 100%);
+  box-shadow:
+    inset 0 3px 10px rgba(255,255,255,.5),
+    inset 0 -10px 22px rgba(70,90,66,.5),
+    0 18px 40px rgba(95,116,89,.4);
+  animation:breathe 6s ease-in-out infinite;
+  display:grid;place-items:center;
+}
+.orb::before{content:"";position:absolute;top:18px;left:26px;width:46px;height:30px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.6),transparent 70%);filter:blur(2px)}
+.orb .core{display:flex;gap:13px;align-items:center}
+.orb .eye{width:11px;height:11px;border-radius:50%;background:#fbf7ee;box-shadow:0 0 12px rgba(255,255,255,.7);animation:blink 5.5s infinite}
+.orb .eye:nth-child(2){animation-delay:.12s}
+.ring{position:absolute;border-radius:50%;border:1.5px solid rgba(125,144,121,.4)}
+.ring.r1{width:178px;height:178px;animation:spin 22s linear infinite}
+.ring.r2{width:206px;height:206px;border-style:dashed;border-color:rgba(196,102,59,.28);animation:spin 34s linear infinite reverse}
+.ring .node{position:absolute;width:30px;height:30px;border-radius:50%;background:var(--paper);
+  display:grid;place-items:center;box-shadow:var(--shadow-sm);font-size:14px;
+  top:50%;left:50%;transform:translate(-50%,-50%)}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+
+.greeting{font-size:25px;line-height:1.24;margin:6px 14px 4px;max-width:340px}
+.greeting em{font-style:italic;color:var(--sage-deep)}
+.sub{font-size:14px;color:var(--ink-soft);line-height:1.5;margin:0 18px;max-width:330px}
+
+/* status chips orbiting */
+.status-row{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin:20px 2px 4px}
+.chip{
+  display:flex;align-items:center;gap:7px;background:var(--paper);
+  border:1px solid var(--line);padding:9px 13px;border-radius:999px;box-shadow:var(--shadow-sm);
+  font-size:12.5px;font-weight:550;
+}
+.chip .dot{width:8px;height:8px;border-radius:50%;flex:none}
+.chip.ok .dot{background:var(--sage)}
+.chip.warn .dot{background:var(--accent)}
+.chip i{font-style:normal;color:var(--ink-faint);font-weight:500}
+
+/* big ask CTA */
+.ask-cta{
+  display:flex;align-items:center;gap:14px;width:100%;margin:22px 0 4px;
+  background:linear-gradient(135deg,#fffdf8,#f3ece0);
+  border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px;
+  box-shadow:var(--shadow-md);transition:transform .15s, box-shadow .2s;text-align:left;
+}
+.ask-cta:active{transform:scale(.98)}
+.ask-cta .ic{width:46px;height:46px;border-radius:15px;flex:none;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,#9fb09a,var(--sage-deep));color:#fff;box-shadow:0 6px 14px rgba(95,116,89,.35)}
+.ask-cta .tx b{display:block;font-family:'Fraunces',serif;font-size:16.5px;font-weight:600}
+.ask-cta .tx span{font-size:12.5px;color:var(--ink-soft)}
+.ask-cta .go{margin-left:auto;color:var(--ink-faint)}
+
+/* trend card */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-md);padding:18px}
+.section-h{display:flex;align-items:baseline;justify-content:space-between;margin:26px 2px 12px}
+.section-h h2{font-size:19px}
+.section-h .more{font-size:12.5px;color:var(--sage-deep);font-weight:600}
+.trend-card .tt{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-soft);font-weight:550;margin-bottom:14px}
+.trend-pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.02em}
+.trend-pill.declining{background:var(--accent-soft);color:var(--accent-deep)}
+.trend-pill.steady,.trend-pill.improving{background:var(--sage-soft);color:var(--sage-deep)}
+.spark{display:flex;align-items:flex-end;gap:9px;height:84px;padding:0 2px}
+.spark .bar{flex:1;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,var(--sage),var(--sage-deep));position:relative;transition:height .6s cubic-bezier(.22,1,.36,1);min-height:8px}
+.spark .bar.low{background:linear-gradient(180deg,#daa07f,var(--accent))}
+.spark .bar span{position:absolute;bottom:-19px;left:0;right:0;text-align:center;font-size:10px;color:var(--ink-faint);font-weight:600}
+.trend-foot{margin-top:30px;font-size:12.5px;color:var(--ink-soft);line-height:1.5}
+
+/* ===== ASK view ===== */
+.ask-head{padding:14px 2px 6px}
+.ask-head h1{font-size:27px;margin:0}
+.ask-head p{font-size:13.5px;color:var(--ink-soft);margin:6px 0 0;line-height:1.5}
+.chat{display:flex;flex-direction:column;gap:14px;padding:18px 0 8px}
+.msg{max-width:84%;padding:13px 16px;border-radius:20px;font-size:14px;line-height:1.5;box-shadow:var(--shadow-sm);animation:rise .4s cubic-bezier(.22,1,.36,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.msg.stead{align-self:flex-start;background:var(--paper);border:1px solid var(--line);border-bottom-left-radius:7px}
+.msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--sage),var(--sage-deep));color:#fff;border-bottom-right-radius:7px}
+.msg.stead .who{display:flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--sage-deep);font-weight:700;margin-bottom:7px}
+.msg.stead .who .d{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#9fb09a,var(--sage-deep))}
+.typing{display:flex;gap:5px;padding:4px 2px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--ink-faint);animation:tdot 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.18s}.typing i:nth-child(3){animation-delay:.36s}
+@keyframes tdot{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+.sugs{display:flex;gap:8px;flex-wrap:wrap;padding:2px 0 6px}
+.sug{background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-size:12.5px;font-weight:550;color:var(--sage-deep);box-shadow:var(--shadow-sm);transition:transform .15s,background .15s;animation:rise .4s both}
+.sug:active{transform:scale(.95);background:var(--sage-soft)}
+.ask-bar{position:absolute;left:0;right:0;bottom:calc(var(--tab-h) + 6px);padding:8px 18px;display:flex;gap:9px;align-items:center;
+  background:linear-gradient(180deg,transparent,var(--cream) 30%)}
+.ask-input{flex:1;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:13px 18px;font-size:14px;color:var(--ink);box-shadow:var(--shadow-md);outline:none}
+.ask-input:focus{border-color:var(--sage)}
+.send{width:46px;height:46px;border-radius:50%;flex:none;background:radial-gradient(circle at 35% 30%,#9fb09a,var(--sage-deep));color:#fff;display:grid;place-items:center;box-shadow:var(--shadow-md);transition:transform .15s}
+.send:active{transform:scale(.9)}
+
+/* ===== DAY / timeline ===== */
+.day-head{padding:14px 2px 4px}
+.day-head h1{font-size:27px;margin:0}
+.day-head p{font-size:13.5px;color:var(--ink-soft);margin:6px 0 0}
+.tl{position:relative;padding:20px 0 0 10px;margin-left:14px}
+.tl::before{content:"";position:absolute;left:0;top:24px;bottom:10px;width:2px;background:linear-gradient(var(--line),transparent)}
+.ev{position:relative;padding:0 0 22px 30px}
+.ev .ic{position:absolute;left:-19px;top:-2px;width:38px;height:38px;border-radius:13px;display:grid;place-items:center;font-size:17px;background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.ev-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);padding:13px 15px;box-shadow:var(--shadow-sm)}
+.ev-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.ev-top b{font-size:14.5px;font-weight:600}
+.ev-top .ts{font-size:11.5px;color:var(--ink-faint);font-weight:600;flex:none}
+.ev-card p{margin:5px 0 0;font-size:13px;color:var(--ink-soft);line-height:1.45}
+.ev-by{display:inline-flex;align-items:center;gap:6px;margin-top:9px;font-size:11px;color:var(--ink-faint);font-weight:600}
+.ev-by .av{width:17px;height:17px;border-radius:5px;display:grid;place-items:center;color:#fff;font-size:9px;font-weight:700}
+
+/* ===== CONSENT ===== */
+.consent-head{padding:14px 2px 4px}
+.consent-head .kick{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.consent-head h1{font-size:27px;margin:6px 0 0}
+.consent-head p{font-size:13.5px;color:var(--ink-soft);margin:6px 0 0;line-height:1.5}
+
+.grant-card{margin-top:18px;background:linear-gradient(150deg,#fffdf8,#f3ece0);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-md);padding:20px;position:relative;overflow:hidden}
+.grant-card .veg{position:absolute;right:-30px;top:-30px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,var(--sage-soft),transparent 70%);pointer-events:none}
+.grant-top{display:flex;align-items:center;gap:13px;position:relative}
+.grant-top .vlogo{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:22px;background:var(--accent-soft);flex:none}
+.grant-top .vmeta b{font-family:'Fraunces',serif;font-size:18px;font-weight:600;display:block}
+.grant-top .vmeta span{font-size:12.5px;color:var(--ink-soft)}
+.grant-state{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:var(--sage-soft);color:var(--sage-deep)}
+.grant-state.revoked{background:var(--halt-soft);color:var(--halt-deep)}
+
+.cap-block{margin-top:22px;text-align:center}
+.cap-label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+.stepper{display:flex;align-items:center;justify-content:center;gap:20px;margin-top:10px}
+.step-btn{width:50px;height:50px;border-radius:50%;background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow-md);font-size:24px;color:var(--sage-deep);display:grid;place-items:center;transition:transform .12s;font-weight:300}
+.step-btn:active{transform:scale(.88)}
+.step-btn:disabled{opacity:.4}
+.cap-amt{font-family:'Fraunces',serif;font-size:52px;font-weight:500;line-height:1;min-width:128px}
+.cap-amt small{font-size:26px;color:var(--ink-faint);font-weight:400;vertical-align:14px}
+.cap-hint{font-size:12px;color:var(--ink-soft);margin-top:12px}
+
+.consent-actions{display:flex;gap:11px;margin-top:22px}
+.btn{flex:1;border-radius:16px;padding:15px;font-size:14.5px;font-weight:650;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow-md);transition:transform .14s,filter .2s}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.5;box-shadow:none}
+.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-deep));color:#fff}
+.btn.ghost{flex:0 0 auto;padding:15px 20px;background:var(--paper);border:1px solid var(--halt-soft);color:var(--halt)}
+
+/* result */
+.result{margin-top:18px;border-radius:var(--r-lg);padding:0;overflow:hidden;box-shadow:var(--shadow-md);animation:rise .4s both}
+.result.done{background:linear-gradient(150deg,#eef3e9,#e2ecdc);border:1px solid #cdddc6}
+.result.done .rin{padding:20px;display:flex;gap:14px;align-items:flex-start}
+.result.done .em{width:46px;height:46px;border-radius:14px;background:var(--sage);color:#fff;display:grid;place-items:center;font-size:22px;flex:none;box-shadow:0 6px 14px rgba(95,116,89,.4)}
+.result.done b{font-family:'Fraunces',serif;font-size:17px;display:block;color:var(--sage-deep)}
+.result.done p{margin:5px 0 0;font-size:13px;color:#4d5d49;line-height:1.5}
+
+/* HALT — the money shot */
+.result.halt{background:var(--halt);border:none;position:relative;animation:haltIn .5s cubic-bezier(.34,1.56,.64,1) both, pulse 1.8s ease-in-out .5s infinite}
+@keyframes haltIn{0%{opacity:0;transform:scale(.85)}100%{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(197,54,43,.45),var(--shadow-lg)}50%{box-shadow:0 0 0 14px rgba(197,54,43,0),var(--shadow-lg)}}
+.result.halt .rin{padding:24px 22px;text-align:center;color:#fff;position:relative;z-index:2}
+.result.halt .seal{width:62px;height:62px;border-radius:50%;border:3px solid rgba(255,255,255,.85);display:grid;place-items:center;font-size:30px;margin:0 auto 14px;animation:shake .5s .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.result.halt .tag{font-size:11px;letter-spacing:.3em;font-weight:800;text-transform:uppercase;opacity:.85}
+.result.halt h3{font-family:'Fraunces',serif;font-size:30px;margin:6px 0 10px;color:#fff;letter-spacing:.04em}
+.result.halt p{font-size:13.5px;line-height:1.55;margin:0;color:rgba(255,255,255,.95)}
+.result.halt .stripes{position:absolute;inset:0;opacity:.14;z-index:1;
+  background:repeating-linear-gradient(45deg,#fff 0 14px,transparent 14px 30px)}
+
+/* locked / scoped states */
+.gate{margin-top:30px;text-align:center;background:var(--paper);border:1px dashed var(--line);border-radius:var(--r-lg);padding:34px 24px;box-shadow:var(--shadow-sm)}
+.gate .ic{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:26px;margin:0 auto 16px;background:var(--cream-2)}
+.gate h3{font-size:19px;margin:0 0 8px}
+.gate p{font-size:13.5px;color:var(--ink-soft);line-height:1.55;margin:0 auto;max-width:280px}
+.gate .who{display:inline-flex;align-items:center;gap:7px;margin-top:14px;font-size:11.5px;font-weight:600;color:var(--ink-faint);background:var(--cream);padding:6px 12px;border-radius:999px}
+
+/* audit strip */
+.audit{margin-top:24px}
+.audit .row{display:flex;align-items:center;gap:11px;padding:11px 14px;background:var(--paper);border:1px solid var(--line);border-radius:14px;margin-bottom:8px;box-shadow:var(--shadow-sm);animation:rise .35s both}
+.audit .row .lt{width:9px;height:9px;border-radius:50%;flex:none}
+.audit .row .tx{flex:1;min-width:0}
+.audit .row .tx b{font-size:13px;font-weight:600;display:block}
+.audit .row .tx span{font-size:11px;color:var(--ink-faint)}
+.audit .row .st{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:999px}
+.st.ok{background:var(--sage-soft);color:var(--sage-deep)} .lt.ok{background:var(--sage)}
+.st.stop{background:var(--halt-soft);color:var(--halt-deep)} .lt.stop{background:var(--halt)}
+.st.info{background:var(--cream-2);color:var(--ink-soft)} .lt.info{background:var(--ink-faint)}
+
+/* ===== bottom tab bar ===== */
+nav{
+  position:absolute;left:0;right:0;bottom:0;z-index:20;height:calc(var(--tab-h) + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);
+  display:flex;align-items:stretch;justify-content:space-around;
+  background:rgba(252,248,240,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-top:1px solid var(--line);
+}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink-faint);transition:color .2s;position:relative}
+.tab svg{width:24px;height:24px;transition:transform .2s}
+.tab span{font-size:10.5px;font-weight:600;letter-spacing:.01em}
+.tab.active{color:var(--sage-deep)}
+.tab.active svg{transform:translateY(-1px)}
+.tab.active::before{content:"";position:absolute;top:9px;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.tab .badge{position:absolute;top:14px;right:50%;transform:translateX(22px);background:var(--accent);color:#fff;font-size:9px;font-weight:700;min-width:15px;height:15px;border-radius:999px;display:grid;place-items:center;padding:0 3px}
+
+/* skeleton */
+.sk{background:linear-gradient(90deg,var(--cream-2) 25%,#f0ead e 37%,var(--cream-2) 63%);background-size:400% 100%;animation:sh 1.3s infinite;border-radius:8px}
+@keyframes sh{0%{background-position:100% 0}100%{background-position:-100% 0}}
+
+.toast{position:absolute;left:50%;bottom:calc(var(--tab-h) + 22px);transform:translate(-50%,16px);z-index:40;
+  background:var(--ink);color:#fff;font-size:13px;font-weight:550;padding:11px 18px;border-radius:999px;box-shadow:var(--shadow-lg);
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.fade-in{animation:rise .45s both}
+</style>
+</head>
+<body>
+<div id="phone">
+  <header>
+    <div class="brand">
+      <div class="seed"></div>
+      <div class="wm"><b>Stead</b><span>Care, together</span></div>
+    </div>
+    <div class="role" id="role">
+      <button class="role-btn" id="roleBtn" aria-haspopup="true">
+        <span class="av" id="roleAv">M</span>
+        <span class="nm" id="roleName">Mom</span>
+        <svg class="cv" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="role-menu" id="roleMenu">
+        <div class="lbl">Acting as</div>
+        <div id="roleOpts"></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section class="view active" id="v-home"></section>
+    <!-- ASK -->
+    <section class="view" id="v-ask">
+      <div class="ask-head">
+        <h1>Ask Stead</h1>
+        <p>I'm watching over Ruby's day. Ask me anything — I'll keep it warm and honest.</p>
+      </div>
+      <div class="chat" id="chat"></div>
+      <div class="sugs" id="sugs"></div>
+    </section>
+    <div class="ask-bar" id="askBar" style="display:none">
+      <input class="ask-input" id="askInput" placeholder="Ask about Ruby's day…" autocomplete="off" />
+      <button class="send" id="sendBtn" aria-label="send">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+    <!-- DAY -->
+    <section class="view" id="v-day"></section>
+    <!-- CONSENT -->
+    <section class="view" id="v-consent"></section>
+  </main>
+
+  <nav>
+    <button class="tab active" data-tab="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="tab" data-tab="ask">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12 7.6L3 21l1.9-6A8.5 8.5 0 1 1 21 11.5Z"/></svg>
+      <span>Stead</span>
+    </button>
+    <button class="tab" data-tab="day">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="3"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>
+      <span>Day</span>
+    </button>
+    <button class="tab" data-tab="consent">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6Z"/><path d="M9 12l2 2 4-4"/></svg>
+      <span>Consent</span>
+    </button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const el = (t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const api = (p,o)=>fetch(p,o).then(r=>r.json().then(j=>({ok:r.ok,status:r.status,data:j})).catch(()=>({ok:r.ok,status:r.status,data:{}})));
+
+const ACTORS = [
+  {id:"mom", name:"Mom", sub:"Owner · full control", av:"M", color:"linear-gradient(135deg,#7d9079,#5f7459)"},
+  {id:"jane:pca", name:"Jane · PCA", sub:"Care aide · logs & reads", av:"J", color:"linear-gradient(135deg,#c4663b,#a8522d)"},
+  {id:"agent:ruby", name:"Ruby's agent", sub:"AI · acts on Ruby's behalf", av:"R", color:"linear-gradient(135deg,#d8a657,#b5832f)"},
+];
+const KIND = {
+  meds:{ic:"💊",lbl:"Medication"}, meal:{ic:"🍽️",lbl:"Meal"}, mood:{ic:"🫶",lbl:"Mood"},
+  activity:{ic:"🚶",lbl:"Activity"}, visit:{ic:"🏡",lbl:"Visit"}, note:{ic:"📝",lbl:"Note"}, order:{ic:"📦",lbl:"Order"}
+};
+
+let STATE = { actor:"mom", data:null, timeline:null, cap:30, chatStarted:false, lastResult:null };
+
+/* ---------- role switcher ---------- */
+function actorMeta(id){ return ACTORS.find(a=>a.id===id) || ACTORS[0]; }
+function renderRole(){
+  const m = actorMeta(STATE.actor);
+  $("#roleAv").textContent = m.av; $("#roleAv").style.background = m.color;
+  $("#roleName").textContent = m.name;
+  $("#roleOpts").innerHTML = "";
+  ACTORS.forEach(a=>{
+    const b = el("button","role-opt");
+    b.setAttribute("aria-current", a.id===STATE.actor);
+    b.innerHTML = `<span class="av" style="background:${a.color}">${a.av}</span>
+      <span class="meta"><b>${esc(a.name)}</b><span>${esc(a.sub)}</span></span>
+      <svg class="tick" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    b.onclick = ()=>{ $("#role").classList.remove("open"); if(a.id!==STATE.actor){ STATE.actor=a.id; switchActor(); } };
+    $("#roleOpts").appendChild(b);
+  });
+}
+$("#roleBtn").onclick = e=>{ e.stopPropagation(); $("#role").classList.toggle("open"); };
+document.addEventListener("click", ()=>$("#role").classList.remove("open"));
+
+function toast(t){ const e=$("#toast"); e.textContent=t; e.classList.add("show"); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove("show"),2200); }
+
+/* ---------- data ---------- */
+async function loadAll(){
+  const [s,t] = await Promise.all([
+    api(`/api/state?actor=${encodeURIComponent(STATE.actor)}`),
+    api(`/api/timeline?actor=${encodeURIComponent(STATE.actor)}`),
+  ]);
+  STATE.data = s.data || {};
+  STATE.timeline = t.data || {events:[]};
+  if(STATE.data.grant && typeof STATE.data.grant.cap === "number") STATE.cap = STATE.data.grant.cap;
+  renderRole();
+}
+async function switchActor(){
+  STATE.chatStarted=false; STATE.lastResult=null;
+  showSkeletons();
+  await loadAll();
+  renderHome(); renderDay(); renderConsent();
+  if(currentTab==="ask") renderAsk();
+}
+
+/* ---------- HOME ---------- */
+function firstName(label){ return (label||"").split(/[·:]/)[0].trim(); }
+function greetingFor(){
+  const d = STATE.data || {};
+  if(!d.can_view_today || !d.day){
+    return {hi:"Hello,", big:`I'm here, but Ruby's day is <em>outside this view.</em>`,
+      sub:"This role doesn't include Ruby's daily details. Switch to Mom to see everything."};
+  }
+  const day = d.day;
+  const concerns = [];
+  if(day.mood_low) concerns.push("mood");
+  if(!day.meals_ok) concerns.push("appetite");
+  let big, sub;
+  if(concerns.length===0){
+    big = `Ruby's having a <em>calm, steady day.</em>`;
+    sub = "Meds on time, she's eaten, and her spirits are good. Nothing needs you right now.";
+  } else {
+    big = `Ruby's okay — I'm keeping a <em>gentle eye on her ${concerns[0]}.</em>`;
+    sub = `Meds are on track. ${day.trend==="declining"?"Her appetite has dipped a little this week — ":""}nothing alarming, but I'll let you know if that changes.`;
+  }
+  return {hi:`Good ${hourGreet()}, ${firstName(d.label)}`, big, sub};
+}
+function hourGreet(){ const h=new Date().getHours(); return h<12?"morning":h<18?"afternoon":"evening"; }
+
+function renderHome(){
+  const v=$("#v-home"); const d=STATE.data||{}; const day=d.day; const g=greetingFor();
+  let chips="";
+  if(d.can_view_today && day){
+    chips = `<div class="status-row fade-in">
+      <div class="chip ${day.meds_ok?'ok':'warn'}"><span class="dot"></span>Meds <i>${esc(day.meds)}</i></div>
+      <div class="chip ${day.meals_ok?'ok':'warn'}"><span class="dot"></span>Appetite <i>${esc(day.meals)}</i></div>
+      <div class="chip ${day.mood_low?'warn':'ok'}"><span class="dot"></span>Mood <i>${day.mood_low?'Low today':'Settled'}</i></div>
+    </div>`;
+  }
+  let trend = "";
+  if(d.can_view_today && day){
+    const bars = [
+      {h:.9,l:"Wed"},{h:.6,l:"Thu"},{h:(day.meals_ok?.8:.4),l:"Today"}
+    ];
+    const decl = day.trend==="declining";
+    trend = `
+    <div class="section-h"><h2>Appetite, lately</h2><span class="more" data-go="day">Full day →</span></div>
+    <div class="card trend-card fade-in">
+      <div class="tt">Last few days <span class="trend-pill ${esc(day.trend||'steady')}">${esc((day.trend||'steady').toUpperCase())}</span></div>
+      <div class="spark">
+        ${bars.map((b,i)=>`<div class="bar ${i===2&&!day.meals_ok?'low':''}" style="height:${Math.round(b.h*100)}%"><span>${b.l}</span></div>`).join("")}
+      </div>
+      <p class="trend-foot">${decl?"She's eaten lighter three days running. If you'd like, ask me to help with an easy dinner she likes.":"Eating has held steady. I'll flag it the moment that changes."}</p>
+    </div>`;
+  }
+  v.innerHTML = `
+    <div class="hero fade-in">
+      <div class="hello">${esc(g.hi)}</div>
+      <div class="orb-wrap">
+        <div class="orb-halo"></div>
+        <div class="ring r2"><div class="node" style="top:0">🍽️</div><div class="node" style="bottom:0;top:auto">💊</div></div>
+        <div class="ring r1"><div class="node" style="left:0">🫶</div><div class="node" style="right:0;left:auto">🚶</div></div>
+        <div class="orb"><div class="core"><div class="eye"></div><div class="eye"></div></div></div>
+      </div>
+      <div class="greeting serif">${g.big}</div>
+      <p class="sub">${esc(g.sub)}</p>
+    </div>
+    ${chips}
+    <button class="ask-cta fade-in" data-go="ask">
+      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12 7.6L3 21l1.9-6A8.5 8.5 0 1 1 21 11.5Z"/></svg></div>
+      <div class="tx"><b>Talk to Stead</b><span>${d.can_view_today?'“How was Ruby today?”':'Ask about care & consent'}</span></div>
+      <div class="go"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></div>
+    </button>
+    ${trend}`;
+  v.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+}
+
+/* ---------- ASK ---------- */
+function renderAsk(){
+  $("#askBar").style.display = currentTab==="ask" ? "flex" : "none";
+  const d=STATE.data||{};
+  if(!d.can_view_today){
+    $("#chat").innerHTML = `<div class="msg stead"><div class="who"><span class="d"></span>Stead</div>Ruby's daily details aren't in this role's scope. I can still help Mom with consent and orders — switch roles to ask about her day.</div>`;
+    $("#sugs").innerHTML=""; return;
+  }
+  if(STATE.chatStarted) return;
+  STATE.chatStarted = true;
+  $("#chat").innerHTML="";
+  pushMsg("stead", `Hi ${esc(firstName(d.label))} — I'm right here. I've been with Ruby all day. What would you like to know?`);
+  renderSugs(["Did she take her meds?","Is she eating enough?","How's her mood?","Should I be worried?"]);
+}
+function pushMsg(who, html){
+  const m = el("div","msg "+who);
+  if(who==="stead") m.innerHTML = `<div class="who"><span class="d"></span>Stead</div>`+html;
+  else m.innerHTML = html;
+  $("#chat").appendChild(m);
+  $("#v-ask").scrollTop = $("#v-ask").scrollHeight;
+  return m;
+}
+function renderSugs(list){
+  const c=$("#sugs"); c.innerHTML="";
+  (list||[]).forEach((s,i)=>{ const b=el("button","sug",esc(s)); b.style.animationDelay=(i*40)+"ms"; b.onclick=()=>send(s); c.appendChild(b); });
+}
+async function send(text){
+  const q=(text||$("#askInput").value).trim(); if(!q) return;
+  $("#askInput").value=""; $("#sugs").innerHTML="";
+  pushMsg("me", esc(q));
+  const t = pushMsg("stead", `<div class="typing"><i></i><i></i><i></i></div>`);
+  const r = await api("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({q,actor:STATE.actor})});
+  const a = r.data||{};
+  t.innerHTML = `<div class="who"><span class="d"></span>Stead</div>${esc(a.answer||"I'm not sure how to answer that just now.")}`;
+  $("#v-ask").scrollTop = $("#v-ask").scrollHeight;
+  renderSugs(a.suggestions&&a.suggestions.length?a.suggestions:["Anything else I should watch?"]);
+}
+$("#sendBtn").onclick=()=>send();
+$("#askInput").addEventListener("keydown",e=>{if(e.key==="Enter")send();});
+
+/* ---------- DAY ---------- */
+function renderDay(){
+  const v=$("#v-day"); const tl=STATE.timeline||{events:[]}; const d=STATE.data||{};
+  if(tl.scoped_out || !d.can_view_today){
+    v.innerHTML = gateHTML("🔒","Ruby's day is private here","This role can't see Ruby's care timeline. Mom and Jane (her aide) can view today's events. The agent only acts within its granted scope.");
+    return;
+  }
+  const ev = tl.events||[];
+  let rows = ev.map((e,i)=>{
+    const k=KIND[e.kind]||{ic:"•"};
+    const by = e.logged_by||"—";
+    const av = by.charAt(0).toUpperCase();
+    const ac = by.toLowerCase().startsWith("mom")?"linear-gradient(135deg,#7d9079,#5f7459)":by.toLowerCase().startsWith("jane")?"linear-gradient(135deg,#c4663b,#a8522d)":"linear-gradient(135deg,#d8a657,#b5832f)";
+    return `<div class="ev" style="animation:rise .4s ${i*55}ms both">
+      <div class="ic">${k.ic}</div>
+      <div class="ev-card">
+        <div class="ev-top"><b>${esc(e.title)}</b><span class="ts">${esc(e.ts)}</span></div>
+        ${e.detail?`<p>${esc(e.detail)}</p>`:""}
+        <div class="ev-by"><span class="av" style="background:${ac}">${esc(av)}</span>${esc(by)}</div>
+      </div></div>`;
+  }).join("");
+  if(!ev.length) rows = `<p class="sub" style="margin:20px 0">No care events logged yet today.</p>`;
+  const canLog = d.can_log;
+  v.innerHTML = `
+    <div class="day-head fade-in">
+      <h1>Ruby's day</h1>
+      <p>${esc((d.day&&d.day.date)||"Today")} · ${ev.length} moment${ev.length===1?"":"s"} logged${canLog?", by you and Jane":""}</p>
+    </div>
+    <div class="tl">${rows}</div>
+    ${canLog?`<button class="ask-cta" id="quickLog" style="margin-top:14px"><div class="ic" style="background:radial-gradient(circle at 35% 30%,#d8a657,#b5832f)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><div class="tx"><b>Log a quick check-in</b><span>Mark a meal, mood, or note</span></div></button>`:""}`;
+  if(canLog) $("#quickLog").onclick=quickLog;
+}
+async function quickLog(){
+  const r = await api("/api/checkin",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({actor:STATE.actor,kind:"note",title:"Check-in",detail:"All settled — quick note from the app.",value:null})});
+  if(r.ok && r.data.ok){ toast("Check-in logged"); await loadAll(); renderDay(); }
+  else toast(r.data.error||"Couldn't log that");
+}
+
+/* ---------- CONSENT ---------- */
+function gateHTML(ic,h,p,who){
+  return `<div class="gate fade-in"><div class="ic">${ic}</div><h3 class="serif">${esc(h)}</h3><p>${esc(p)}</p>${who?`<div class="who">${who}</div>`:""}</div>`;
+}
+function renderConsent(){
+  const v=$("#v-consent"); const d=STATE.data||{};
+  const head = `<div class="consent-head fade-in">
+      <div class="kick">The trust dial</div>
+      <h1>Consent</h1>
+      <p>Real authority, narrowly granted to Ruby's agent — and revocable in a tap.</p>
+    </div>`;
+
+  // AGENT: out of scope
+  if(STATE.actor==="agent:ruby"){
+    v.innerHTML = head + gateHTML("🤖","Acting within your grant",
+      "You're Ruby's agent. You may order food from Tony's Pizza up to the cap Mom set — nothing more. Daily care details and consent controls are out of scope.",
+      `Scope: order:food · Tony's Pizza · cap $${esc(STATE.cap)}`);
+    return;
+  }
+  // grant card always (for mom + jane)
+  const g = d.grant;
+  const grantCard = `
+    <div class="grant-card fade-in">
+      <div class="veg"></div>
+      <div class="grant-top">
+        <div class="vlogo">🍕</div>
+        <div class="vmeta"><b>${esc(g?g.vendor:"Tony's Pizza")}</b><span>order:food · card on file · for Ruby</span></div>
+        <span class="grant-state ${g?'' :'revoked'}">${g?'Active':'Revoked'}</span>
+      </div>`;
+
+  // JANE: read-only lock
+  if(STATE.actor==="jane:pca"){
+    v.innerHTML = head + grantCard + `
+      <div class="cap-block" style="opacity:.65">
+        <div class="cap-label">Authorized cap</div>
+        <div class="cap-amt"><small>$</small>${esc(STATE.cap)}</div>
+      </div></div>` +
+      gateHTML("🔒","Consent is Mom's to hold","As Ruby's care aide you can see the grant, but only Mom — the owner — can change the cap, place an order, or revoke. That's the point of the consent layer.","Role: care:read · cannot change consent");
+    return;
+  }
+
+  // MOM: full control
+  v.innerHTML = head + grantCard + `
+      <div class="cap-block">
+        <div class="cap-label">Authorized spend cap</div>
+        <div class="stepper">
+          <button class="step-btn" id="capDown">–</button>
+          <div class="cap-amt"><small>$</small><span id="capVal">${esc(STATE.cap)}</span></div>
+          <button class="step-btn" id="capUp">+</button>
+        </div>
+        <div class="cap-hint">Raise or lower it anytime — even mid-order.</div>
+      </div>
+    </div>
+    <div class="consent-actions">
+      <button class="btn primary" id="orderBtn">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13 5.4 5M7 13l-2 4h12"/><circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/></svg>
+        Order dinner on Ruby's behalf
+      </button>
+      <button class="btn ghost" id="revokeBtn" ${g?'':'disabled'}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Revoke
+      </button>
+    </div>
+    <div id="resultSlot"></div>
+    <div class="audit" id="auditSlot"></div>`;
+
+  $("#capDown").onclick=()=>nudgeCap(-2);
+  $("#capUp").onclick=()=>nudgeCap(2);
+  $("#orderBtn").onclick=placeOrder;
+  $("#revokeBtn").onclick=revoke;
+  if(STATE.lastResult) showResult(STATE.lastResult);
+  loadAudit();
+  $("#revokeBtn").disabled = !g;
+}
+let capTimer=null;
+function nudgeCap(delta){
+  STATE.cap = Math.max(0, STATE.cap + delta);
+  const cv=$("#capVal"); if(cv) cv.textContent=STATE.cap;
+  clearTimeout(capTimer);
+  capTimer=setTimeout(async()=>{
+    await api("/api/cap",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount:STATE.cap})});
+    toast(`Cap set to $${STATE.cap}`); loadAudit();
+  },420);
+}
+async function placeOrder(){
+  const btn=$("#orderBtn"); btn.disabled=true;
+  // Demo: order $34 dinner — over a $30 cap it HALTS, raise to $34+ and it clears. Mirrors the PRD money-shot.
+  const amount = 34;
+  const r = await api("/api/order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({vendor:(STATE.data.grant&&STATE.data.grant.vendor)||"Tony's Pizza",amount})});
+  btn.disabled=false;
+  const res = {...r.data, amount};
+  STATE.lastResult=res; showResult(res); loadAudit();
+}
+function showResult(res){
+  const slot=$("#resultSlot"); if(!slot) return;
+  if(res.status==="halted"){
+    slot.innerHTML = `<div class="result halt">
+      <div class="stripes"></div>
+      <div class="rin">
+        <div class="seal">✕</div>
+        <div class="tag">Consent boundary</div>
+        <h3>HALTED</h3>
+        <p>${esc(res.message||"Stead tried to act outside its live grant — and was stopped before anything happened. Raise the cap or revoke to control it.")}</p>
+      </div></div>`;
+    if(navigator.vibrate) navigator.vibrate([40,60,40]);
+  } else {
+    slot.innerHTML = `<div class="result done"><div class="rin">
+      <div class="em">✓</div>
+      <div><b>Authorized & on its way</b><p>${esc(res.message||"Order placed within Ruby's grant.")}</p></div>
+    </div></div>`;
+  }
+  slot.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+async function revoke(){
+  const r = await api("/api/revoke",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
+  if(r.ok){
+    toast("Consent revoked");
+    STATE.lastResult=null;
+    await loadAll(); renderConsent();
+    const slot=$("#resultSlot");
+    if(slot) slot.innerHTML=`<div class="result halt"><div class="stripes"></div><div class="rin"><div class="seal">⏻</div><div class="tag">Owner action</div><h3>REVOKED</h3><p>Stead can no longer order on Ruby's behalf. Every attempt from here is blocked and logged.</p></div></div>`;
+  }
+}
+async function loadAudit(){
+  const slot=$("#auditSlot"); if(!slot) return;
+  const r = await api("/api/audit");
+  const rows = (r.data&&r.data.audit)||[];
+  if(!rows.length){ slot.innerHTML=""; return; }
+  const head = `<div class="section-h" style="margin:24px 2px 12px"><h2>Live audit</h2><span class="more">every decision, logged</span></div>`;
+  slot.innerHTML = head + rows.slice(0,8).map((a,i)=>{
+    const st = a.status || a.decision || "";
+    const stop = /halt|revok|deni|block|error/i.test(st);
+    const ok = /done|grant|updat|queu|call|ok|authoriz|complete/i.test(st);
+    const cls = stop?"stop":ok?"ok":"info";
+    const amt = (a.amount!=null && a.amount!=="")?` · $${Math.round(a.amount)}`:"";
+    const cap = (a.cap!=null && a.cap!=="")?` · cap $${Math.round(a.cap)}`:"";
+    const when = a.ts? String(a.ts).replace("T"," ").slice(11,16) : "";
+    return `<div class="row" style="animation-delay:${i*45}ms">
+      <span class="lt ${cls}"></span>
+      <div class="tx"><b>${esc(actorShort(a.actor))} · ${esc(a.action||"")}</b>
+        <span>${esc(a.scope||"")}${esc(a.vendor?(" · "+a.vendor):"")}${amt}${cap}${when?(" · "+when):""}</span></div>
+      <span class="st ${cls}">${esc((st||"").toUpperCase())}</span>
+    </div>`;
+  }).join("");
+}
+function actorShort(a){ if(!a) return "—"; if(a==="mom")return "Mom"; if(a==="agent:ruby")return "Agent"; if(a==="jane:pca")return "Jane"; return a; }
+
+/* ---------- tabs ---------- */
+let currentTab="home";
+function go(tab){
+  const t=document.querySelector(`.tab[data-tab="${tab}"]`); if(t) t.click();
+}
+document.querySelectorAll(".tab").forEach(t=>{
+  t.onclick=()=>{
+    currentTab=t.dataset.tab;
+    document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===t));
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+    $("#v-"+currentTab).classList.add("active");
+    $("#askBar").style.display = currentTab==="ask" ? "flex":"none";
+    if(currentTab==="ask") renderAsk();
+    if(currentTab==="consent") loadAudit();
+    $("#v-"+currentTab).scrollTop=0;
+  };
+});
+
+/* ---------- skeletons / boot ---------- */
+function showSkeletons(){
+  $("#v-home").innerHTML = `
+    <div class="hero">
+      <div class="orb-wrap"><div class="orb-halo"></div><div class="orb"><div class="core"><div class="eye"></div><div class="eye"></div></div></div></div>
+      <div class="sk" style="height:26px;width:220px;border-radius:10px;margin:10px"></div>
+      <div class="sk" style="height:46px;width:300px;border-radius:12px;margin:6px"></div>
+    </div>
+    <div class="status-row">${'<div class="sk" style="height:36px;width:108px;border-radius:999px"></div>'.repeat(3)}</div>
+    <div class="sk" style="height:78px;border-radius:24px;margin-top:22px"></div>
+    <div class="sk" style="height:170px;border-radius:24px;margin-top:24px"></div>`;
+}
+
+(async function boot(){
+  renderRole();
+  showSkeletons();
+  await loadAll();
+  renderHome(); renderDay(); renderConsent();
+})();
+</script>
+</body>
+</html>

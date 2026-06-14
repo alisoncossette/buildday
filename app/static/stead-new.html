@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#f4efe6" />
+<title>Stead — care, with consent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#f4efe6; --cream-2:#efe8db; --card:#fffdf9; --ink:#26241f; --ink-2:#5b574d;
+  --muted:#8c8678; --line:#e7e0d2; --line-2:#efe9dd;
+  --sage:#5e7a64; --sage-deep:#3f5a46; --sage-soft:#e8efe7; --sage-line:#cfe0d1;
+  --gold:#c79a4b; --gold-soft:#f4ead2;
+  --halt:#c0392b; --halt-deep:#8e2018; --halt-soft:#fbeae7;
+  --ok:#3f7a52;
+  --r-lg:26px; --r-md:18px; --r-sm:13px;
+  --sh-1:0 1px 2px rgba(45,40,30,.05), 0 4px 14px rgba(45,40,30,.05);
+  --sh-2:0 2px 6px rgba(45,40,30,.06), 0 18px 40px rgba(45,40,30,.10);
+  --sh-card:0 1px 0 rgba(255,255,255,.7) inset, 0 1px 3px rgba(45,40,30,.05), 0 10px 30px rgba(45,40,30,.07);
+  --maxw:430px;
+  --tab-h:74px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  color:var(--ink);
+  background:radial-gradient(120% 60% at 50% -10%, #faf6ee 0%, var(--cream) 46%, var(--cream-2) 100%) fixed;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+@media (min-width:740px){
+  body{background:radial-gradient(140% 90% at 50% -20%, #f9f4ec 0%, #ece4d6 55%, #e6ddcc 100%) fixed; padding:26px 0 30px}
+}
+h1,h2,h3{font-family:"Fraunces",Georgia,serif; font-weight:600; letter-spacing:-.01em; margin:0}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+#app{position:relative; width:100%; max-width:var(--maxw); margin:0 auto; min-height:100vh; display:flex; flex-direction:column; background:transparent;}
+@media (min-width:740px){
+  #app{
+    min-height:auto; height:min(872px,calc(100vh - 56px)); border-radius:46px; overflow:hidden; background:var(--cream);
+    box-shadow:0 0 0 11px #1f1d18, 0 0 0 13px #2c2a23, 0 40px 90px rgba(31,29,24,.5), 0 14px 30px rgba(31,29,24,.3);
+  }
+}
+
+header{
+  position:sticky; top:0; z-index:40; padding:14px 20px 12px;
+  background:linear-gradient(180deg, rgba(244,239,230,.96), rgba(244,239,230,.82));
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(231,224,210,.7);
+}
+.hrow{display:flex;align-items:center;gap:11px}
+.logo{width:40px;height:40px;border-radius:13px;flex:0 0 auto;display:grid;place-items:center;
+  background:linear-gradient(150deg,var(--sage),var(--sage-deep));
+  box-shadow:0 6px 16px rgba(63,90,70,.32), inset 0 1px 0 rgba(255,255,255,.25);}
+.logo svg{width:21px;height:21px}
+.brand{display:flex;flex-direction:column;line-height:1.05}
+.brand b{font-family:"Fraunces";font-weight:600;font-size:21px;letter-spacing:-.02em}
+.brand span{font-size:11.5px;color:var(--muted);font-weight:500;letter-spacing:.02em;margin-top:1px}
+.who{margin-left:auto;display:flex;align-items:center;gap:8px}
+.role-pill{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--line);
+  padding:6px 9px 6px 8px;border-radius:999px;box-shadow:var(--sh-1);}
+.role-pill .av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff}
+.role-pill .nm{font-size:12px;font-weight:600;color:var(--ink-2);max-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.role-pill .chev{color:var(--muted);font-size:10px;margin-left:-2px}
+
+.sheet-back{position:absolute;inset:0;z-index:60;background:rgba(38,36,31,.34);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .25s}
+.sheet-back.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:61;background:var(--card);
+  border-radius:26px 26px 0 0;padding:10px 16px calc(20px + env(safe-area-inset-bottom));
+  box-shadow:0 -18px 50px rgba(38,36,31,.25);transform:translateY(102%);transition:transform .34s cubic-bezier(.22,1,.36,1)}
+.sheet.on{transform:translateY(0)}
+.grab{width:38px;height:4px;border-radius:4px;background:var(--line);margin:6px auto 12px}
+.sheet h3{font-size:17px;margin:2px 4px 4px}
+.sheet .sub{font-size:12.5px;color:var(--muted);margin:0 4px 12px}
+.role-opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px;border-radius:16px;
+  border:1.5px solid var(--line);background:var(--cream);margin-bottom:9px;transition:.15s}
+.role-opt:active{transform:scale(.99)}
+.role-opt.sel{border-color:var(--sage);background:var(--sage-soft);box-shadow:0 6px 18px rgba(63,90,70,.12)}
+.role-opt .av{width:38px;height:38px;border-radius:12px;flex:0 0 auto;display:grid;place-items:center;font-weight:700;color:#fff;font-size:14px}
+.role-opt .meta b{font-family:"Inter";font-size:14.5px;font-weight:600;display:block}
+.role-opt .meta span{font-size:12px;color:var(--muted)}
+.role-opt .tick{margin-left:auto;color:var(--sage);font-weight:800;opacity:0}
+.role-opt.sel .tick{opacity:1}
+.a-mom{background:linear-gradient(150deg,#6f8c74,#3f5a46)}
+.a-jane{background:linear-gradient(150deg,#c79a4b,#a87b2e)}
+.a-agent{background:linear-gradient(150deg,#7a6fa8,#534784)}
+
+main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  padding:18px 18px calc(var(--tab-h) + 26px + env(safe-area-inset-bottom))}
+.view{display:none;animation:rise .4s cubic-bezier(.22,1,.36,1)}
+.view.active{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.card{background:var(--card);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--sh-card)}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+
+.hero{padding:22px 20px 20px;margin-bottom:14px;position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;right:-50px;top:-60px;width:190px;height:190px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(94,122,100,.16),transparent 70%);pointer-events:none}
+.hero-top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.pulse{width:9px;height:9px;border-radius:50%;background:var(--sage);position:relative}
+.pulse:after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--sage);opacity:.5;animation:pulse 2.4s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.6);opacity:.6}100%{transform:scale(1.8);opacity:0}}
+.hero h1{font-size:27px;line-height:1.13;letter-spacing:-.02em;margin-bottom:7px}
+.hero h1 em{font-style:normal;color:var(--sage-deep)}
+.hero p{font-size:14px;line-height:1.55;color:var(--ink-2);margin:0;max-width:36ch}
+.hero .stamp{font-size:11.5px;color:var(--muted);margin-top:13px;display:flex;align-items:center;gap:6px;font-weight:500}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.stat{padding:15px 15px 14px;display:flex;flex-direction:column;gap:9px;min-height:118px}
+.stat .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(0,0,0,.02)}
+.stat .ic svg{width:19px;height:19px}
+.stat .lbl{font-size:11.5px;font-weight:600;color:var(--muted);letter-spacing:.01em}
+.stat .val{font-family:"Fraunces";font-weight:600;font-size:18px;line-height:1.15;color:var(--ink);letter-spacing:-.01em;margin-top:auto}
+.stat .val.sm{font-size:14.5px;line-height:1.3}
+.ic.tint-ok{background:var(--sage-soft);color:var(--sage-deep)}
+.ic.tint-warn{background:var(--gold-soft);color:#9a6f22}
+.ic.tint-low{background:#f3e7e4;color:#a8493d}
+.ic.tint-neutral{background:#eef0ef;color:#4a5a50}
+.tagdot{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;align-self:flex-start}
+.tagdot.ok{background:var(--sage-soft);color:var(--sage-deep)}
+.tagdot.warn{background:var(--gold-soft);color:#946b1f}
+.tagdot.low{background:var(--halt-soft);color:var(--halt-deep)}
+
+.trend{padding:17px 18px 16px;margin-bottom:14px}
+.trend .hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px}
+.trend .hd .t{font-family:"Fraunces";font-weight:600;font-size:16.5px}
+.trend .hd .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.trend-flag{font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px;display:flex;align-items:center;gap:5px}
+.trend-flag svg{width:14px;height:14px}
+.trend-flag.declining{background:var(--halt-soft);color:var(--halt-deep)}
+.trend-flag.steady{background:var(--sage-soft);color:var(--sage-deep)}
+.spark{margin-top:10px;width:100%;height:74px;display:block}
+.spark-x{display:flex;justify-content:space-between;margin-top:5px;font-size:10.5px;color:var(--muted);font-weight:500}
+
+.askcard{margin-bottom:6px;padding:17px 17px;display:flex;align-items:center;gap:13px;cursor:pointer;
+  background:linear-gradient(135deg,#fffdf9,#f7f2e9);transition:.18s}
+.askcard:active{transform:scale(.99)}
+.askcard .orb{width:46px;height:46px;border-radius:14px;flex:0 0 auto;display:grid;place-items:center;
+  background:linear-gradient(150deg,var(--sage),var(--sage-deep));box-shadow:0 8px 18px rgba(63,90,70,.3);position:relative}
+.askcard .orb:after{content:"";position:absolute;inset:0;border-radius:14px;border:1.5px solid rgba(255,255,255,.25)}
+.askcard .orb svg{width:22px;height:22px}
+.askcard .tx b{font-family:"Fraunces";font-weight:600;font-size:15.5px;display:block;letter-spacing:-.01em}
+.askcard .tx span{font-size:12.5px;color:var(--ink-2);line-height:1.4}
+.askcard .go{margin-left:auto;color:var(--sage);font-size:18px;flex:0 0 auto}
+
+.ask-head{padding:6px 2px 4px;margin-bottom:8px}
+.ask-head .eyebrow{margin-bottom:6px;display:block}
+.ask-head h2{font-size:23px;letter-spacing:-.02em}
+.ask-head p{font-size:13px;color:var(--ink-2);margin:5px 0 0;line-height:1.5}
+.chat{display:flex;flex-direction:column;gap:13px;padding:4px 0 8px}
+.bubble{max-width:86%;padding:13px 15px;border-radius:18px;font-size:14px;line-height:1.52;box-shadow:var(--sh-1);animation:rise .35s ease}
+.bubble.stead{align-self:flex-start;background:var(--card);border:1px solid var(--line-2);border-bottom-left-radius:6px;color:var(--ink)}
+.bubble.me{align-self:flex-end;background:linear-gradient(150deg,var(--sage),var(--sage-deep));color:#fff;border-bottom-right-radius:6px;box-shadow:0 8px 20px rgba(63,90,70,.28)}
+.bubble .by{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--sage-deep);margin-bottom:6px;text-transform:uppercase}
+.bubble .by .mini{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;background:linear-gradient(150deg,var(--sage),var(--sage-deep))}
+.bubble .by .mini svg{width:10px;height:10px}
+.bubble b{font-weight:700}
+.typing{display:flex;gap:4px;padding:4px 2px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--sage);opacity:.55;animation:blink 1.3s infinite}
+.typing i:nth-child(2){animation-delay:.18s}.typing i:nth-child(3){animation-delay:.36s}
+@keyframes blink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:.9;transform:translateY(-3px)}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:6px 0 4px}
+.chip{font-size:12.5px;font-weight:600;color:var(--sage-deep);background:var(--card);border:1.5px solid var(--sage-line);
+  padding:9px 13px;border-radius:999px;box-shadow:var(--sh-1);transition:.15s}
+.chip:active{transform:scale(.96);background:var(--sage-soft)}
+.composer{position:sticky;bottom:0;display:flex;gap:9px;align-items:center;padding:10px 0 2px;
+  background:linear-gradient(180deg,transparent,var(--cream) 34%)}
+.composer .box{flex:1;display:flex;align-items:center;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:4px 4px 4px 16px;box-shadow:var(--sh-1)}
+.composer input{flex:1;border:none;background:none;outline:none;font-size:14.5px;color:var(--ink);padding:9px 0;font-family:inherit}
+.composer input::placeholder{color:var(--muted)}
+.send{width:40px;height:40px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;background:linear-gradient(150deg,var(--sage),var(--sage-deep));box-shadow:0 6px 16px rgba(63,90,70,.34)}
+.send svg{width:18px;height:18px}
+.send:active{transform:scale(.93)}
+.send:disabled{opacity:.5}
+
+.tl-head{padding:6px 2px 12px}
+.tl-head .eyebrow{display:block;margin-bottom:6px}
+.tl-head h2{font-size:23px;letter-spacing:-.02em}
+.tl-head p{font-size:13px;color:var(--ink-2);margin:5px 0 0}
+.tl{position:relative;padding-left:6px}
+.tl:before{content:"";position:absolute;left:24px;top:8px;bottom:14px;width:2px;background:linear-gradient(var(--line),var(--line-2))}
+.ev{position:relative;display:flex;gap:14px;padding:0 0 16px 0}
+.ev .node{position:absolute;left:13px;top:2px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--card);box-shadow:0 0 0 4px var(--cream),var(--sh-1);z-index:2}
+.ev .node svg{width:13px;height:13px}
+.ev .body{margin-left:42px;background:var(--card);border:1px solid var(--line-2);border-radius:var(--r-md);padding:12px 14px;flex:1;box-shadow:var(--sh-1)}
+.ev .ts{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.03em}
+.ev .ti{font-family:"Fraunces";font-weight:600;font-size:15px;margin:2px 0 3px;letter-spacing:-.01em}
+.ev .de{font-size:13px;color:var(--ink-2);line-height:1.5}
+.ev .who{display:inline-flex;align-items:center;gap:6px;margin-top:9px;font-size:11px;font-weight:600;color:var(--ink-2);
+  background:var(--cream);border:1px solid var(--line);padding:3px 9px 3px 4px;border-radius:999px}
+.ev .who .d{width:16px;height:16px;border-radius:5px;display:grid;place-items:center;color:#fff;font-size:9px;font-weight:800}
+.k-meds .node{color:var(--sage-deep)} .k-meal .node{color:#9a6f22} .k-mood .node{color:#a8493d}
+.k-activity .node{color:#4a5a50} .k-visit .node{color:#534784} .k-note .node{color:#5b574d} .k-order .node{color:var(--sage-deep)}
+
+.cs-head{padding:6px 2px 12px}
+.cs-head .eyebrow{display:block;margin-bottom:6px}
+.cs-head h2{font-size:23px;letter-spacing:-.02em}
+.cs-head p{font-size:13px;color:var(--ink-2);margin:5px 0 0;line-height:1.5}
+
+.grant-card{padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.grant-card .gtop{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.grant-card .gav{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;color:#fff;flex:0 0 auto;box-shadow:0 6px 16px rgba(83,71,132,.28)}
+.grant-card .gav svg{width:23px;height:23px}
+.grant-card .gmeta b{font-family:"Fraunces";font-weight:600;font-size:16.5px;display:block;letter-spacing:-.01em}
+.grant-card .gmeta span{font-size:12.5px;color:var(--muted)}
+.state-chip{margin-left:auto;font-size:11px;font-weight:700;padding:5px 11px;border-radius:999px;letter-spacing:.02em}
+.state-chip.live{background:var(--sage-soft);color:var(--sage-deep)}
+.state-chip.off{background:#efeae0;color:var(--muted)}
+
+.scope-row{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink-2);background:var(--cream);
+  border:1px dashed var(--line);border-radius:12px;padding:10px 12px;margin-bottom:18px}
+.scope-row b{color:var(--ink);font-weight:600}
+
+.cap-lab{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.cap-lab .l{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.cap-lab .sublabel{font-size:11.5px;color:var(--muted)}
+.stepper{display:flex;align-items:center;gap:14px;background:var(--cream);border:1px solid var(--line);border-radius:18px;padding:10px 12px}
+.step-btn{width:46px;height:46px;border-radius:14px;flex:0 0 auto;display:grid;place-items:center;background:var(--card);
+  border:1.5px solid var(--line);box-shadow:var(--sh-1);font-size:24px;font-weight:600;color:var(--sage-deep);transition:.12s}
+.step-btn:active{transform:scale(.92);background:var(--sage-soft)}
+.step-btn:disabled{opacity:.4}
+.cap-amt{flex:1;text-align:center}
+.cap-amt .num{font-family:"Fraunces";font-weight:600;font-size:42px;line-height:1;letter-spacing:-.02em;color:var(--ink)}
+.cap-amt .num .cur{font-size:24px;color:var(--sage-deep);vertical-align:8px;margin-right:1px}
+.cap-amt .per{font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:500}
+
+.actions{display:flex;gap:11px;margin-top:18px}
+.btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:15px;border-radius:16px;font-size:14.5px;font-weight:650;transition:.15s;font-family:inherit}
+.btn:active{transform:scale(.98)}
+.btn-save{background:linear-gradient(150deg,var(--sage),var(--sage-deep));color:#fff;box-shadow:0 8px 20px rgba(63,90,70,.3)}
+.btn-save.saved{background:var(--sage-soft);color:var(--sage-deep);box-shadow:none}
+.btn-revoke{background:var(--card);color:var(--halt);border:1.5px solid #ecc9c3;flex:0 0 auto;width:120px}
+.btn-revoke:active{background:var(--halt-soft)}
+.btn-revoke:disabled{opacity:.45}
+.btn svg{width:17px;height:17px}
+
+.order-card{padding:18px;margin-top:14px}
+.order-card .ohd{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.order-card .ohd .vic{width:40px;height:40px;border-radius:13px;background:var(--gold-soft);color:#9a6f22;display:grid;place-items:center;flex:0 0 auto}
+.order-card .ohd .vic svg{width:21px;height:21px}
+.order-card .ohd .t b{font-family:"Fraunces";font-weight:600;font-size:16px;display:block;letter-spacing:-.01em}
+.order-card .ohd .t span{font-size:12px;color:var(--muted)}
+.order-card .od{font-size:13px;color:var(--ink-2);line-height:1.5;margin:6px 0 15px}
+.btn-order{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;padding:16px;border-radius:16px;
+  font-size:15px;font-weight:650;color:#fff;background:linear-gradient(135deg,#6b8a72,var(--sage-deep));
+  box-shadow:0 10px 26px rgba(63,90,70,.34),inset 0 1px 0 rgba(255,255,255,.18);transition:.15s}
+.btn-order:active{transform:scale(.985)}
+.btn-order:disabled{opacity:.55;box-shadow:none}
+.btn-order svg{width:18px;height:18px}
+
+.result{margin-top:14px;border-radius:var(--r-lg);overflow:hidden;display:none}
+.result.show{display:block;animation:popres .42s cubic-bezier(.22,1.3,.4,1)}
+@keyframes popres{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:none}}
+.result.done{background:linear-gradient(150deg,#eef4ec,#e2eee2);border:1.5px solid var(--sage-line);box-shadow:0 14px 36px rgba(63,90,70,.18)}
+.result.done .ri{padding:18px;display:flex;gap:13px;align-items:flex-start}
+.result.done .badge{width:42px;height:42px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;background:var(--sage);color:#fff;box-shadow:0 6px 16px rgba(63,90,70,.4)}
+.result.done .badge svg{width:22px;height:22px}
+.result.done b{font-family:"Fraunces";font-weight:600;font-size:16px;color:var(--sage-deep);display:block;margin-bottom:3px}
+.result.done .msg{font-size:13px;color:#3f5644;line-height:1.5}
+.result.halt{background:linear-gradient(155deg,#c0392b,#9b2417);border:1.5px solid #7e1c12;
+  box-shadow:0 0 0 4px rgba(192,57,43,.14),0 18px 44px rgba(155,36,23,.42)}
+.result.halt.show{animation:haltshake .5s cubic-bezier(.36,.07,.19,.97),popres .42s}
+@keyframes haltshake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(3px)}30%,50%,70%{transform:translateX(-5px)}40%,60%{transform:translateX(5px)}}
+.result.halt .ri{padding:20px 18px;color:#fff}
+.result.halt .htop{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+.result.halt .stop{width:46px;height:46px;border-radius:13px;flex:0 0 auto;display:grid;place-items:center;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.4)}
+.result.halt .stop svg{width:25px;height:25px}
+.result.halt .htitle{font-family:"Fraunces";font-weight:700;font-size:22px;letter-spacing:.04em;color:#fff;line-height:1}
+.result.halt .hsub{font-size:11.5px;color:rgba(255,255,255,.82);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
+.result.halt .msg{font-size:13.5px;line-height:1.55;color:#fff;background:rgba(0,0,0,.16);border:1px solid rgba(255,255,255,.18);padding:12px 13px;border-radius:13px}
+
+.locked{padding:30px 22px;text-align:center;margin-bottom:14px}
+.locked .lic{width:64px;height:64px;border-radius:20px;margin:0 auto 16px;display:grid;place-items:center}
+.locked.read .lic{background:var(--gold-soft);color:#9a6f22}
+.locked.scope .lic{background:#eee9f3;color:#534784}
+.locked .lic svg{width:30px;height:30px}
+.locked h3{font-size:19px;margin-bottom:7px;letter-spacing:-.01em}
+.locked p{font-size:13.5px;color:var(--ink-2);line-height:1.55;max-width:30ch;margin:0 auto}
+.locked .pill{display:inline-flex;align-items:center;gap:7px;margin-top:15px;font-size:12px;font-weight:600;color:var(--ink-2);
+  background:var(--cream);border:1px solid var(--line);padding:7px 13px;border-radius:999px}
+
+.audit-note{font-size:11.5px;color:var(--muted);text-align:center;margin-top:16px;line-height:1.5;padding:0 12px}
+.audit-note svg{width:13px;height:13px;vertical-align:-2px;margin-right:3px;opacity:.7}
+
+.sk{background:linear-gradient(90deg,var(--line-2) 25%,#f3eee4 37%,var(--line-2) 63%);background-size:400% 100%;
+  animation:shimmer 1.4s infinite;border-radius:8px;color:transparent!important}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+
+nav{position:absolute;left:0;right:0;bottom:0;z-index:50;height:calc(var(--tab-h) + env(safe-area-inset-bottom));
+  padding:0 12px env(safe-area-inset-bottom);display:flex;align-items:center;justify-content:space-around;gap:2px;
+  background:linear-gradient(180deg,rgba(252,250,245,.78),rgba(248,244,236,.97));
+  backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);
+  border-top:1px solid rgba(231,224,210,.85);}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px;border-radius:14px;color:var(--muted);transition:.18s;position:relative}
+.tab svg{width:23px;height:23px;transition:.2s}
+.tab .tl{font-size:10.5px;font-weight:600;letter-spacing:.01em}
+.tab.on{color:var(--sage-deep)}
+.tab.on svg{transform:translateY(-1px)}
+.tab.on:before{content:"";position:absolute;top:5px;width:32px;height:32px;border-radius:11px;background:var(--sage-soft);z-index:-1;animation:rise .3s ease}
+.tab .dot{position:absolute;top:7px;right:calc(50% - 16px);width:7px;height:7px;border-radius:50%;background:var(--halt);box-shadow:0 0 0 2px var(--cream);display:none}
+.tab.alert .dot{display:block}
+
+.toast{position:absolute;left:50%;bottom:calc(var(--tab-h) + 18px);transform:translateX(-50%) translateY(20px);z-index:70;
+  background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:11px 17px;border-radius:13px;box-shadow:var(--sh-2);
+  opacity:0;pointer-events:none;transition:.3s;white-space:nowrap;max-width:88%;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="hrow">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10Z" fill="#fff" opacity=".95"/></svg>
+      </div>
+      <div class="brand"><b>Stead</b><span>care, with consent</span></div>
+      <div class="who">
+        <button class="role-pill" id="rolePill" onclick="openSheet()">
+          <span class="av a-mom" id="pillAv">M</span>
+          <span class="nm" id="pillName">Mom</span>
+          <span class="chev">&#9662;</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="view active" id="view-home"></section>
+
+    <section class="view" id="view-ask">
+      <div class="ask-head">
+        <span class="eyebrow">Your companion</span>
+        <h2>Ask Stead</h2>
+        <p id="askIntro">A calm, always-on companion who knows Ruby's day. Ask anything.</p>
+      </div>
+      <div class="chat" id="chat"></div>
+      <div class="chips" id="chips"></div>
+      <div class="composer" id="composer">
+        <div class="box"><input id="askInput" placeholder="Ask about Ruby…" autocomplete="off" /></div>
+        <button class="send" id="sendBtn" onclick="sendAsk()" aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h13M12 5l7 7-7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <section class="view" id="view-timeline">
+      <div class="tl-head">
+        <span class="eyebrow">Today &middot; Sat, Jun 13</span>
+        <h2>Ruby's day</h2>
+        <p id="tlIntro">Everything logged today, and who logged it.</p>
+      </div>
+      <div id="tlBody"></div>
+    </section>
+
+    <section class="view" id="view-consent">
+      <div class="cs-head">
+        <span class="eyebrow">Permissions</span>
+        <h2>Consent</h2>
+        <p id="csIntro">You decide exactly what Ruby's agent can do — and you can pull it back anytime.</p>
+      </div>
+      <div id="csBody"></div>
+    </section>
+  </main>
+
+  <nav>
+    <button class="tab on" data-tab="home" onclick="go('home')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 10.5 12 3l9 7.5M5.5 9.5V20h13V9.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="tl">Home</span>
+    </button>
+    <button class="tab" data-tab="ask" onclick="go('ask')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.5 8 0 0 1-8.5 8 9.4 9.4 0 0 1-3.5-.7L4 20l1.3-4A7.8 7.8 0 0 1 4 11.5a8.5 8 0 1 1 17 0Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+      <span class="tl">Ask Stead</span>
+    </button>
+    <button class="tab" data-tab="timeline" onclick="go('timeline')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M8 6h12M8 12h12M8 18h12" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><circle cx="4" cy="6" r="1.6" fill="currentColor"/><circle cx="4" cy="12" r="1.6" fill="currentColor"/><circle cx="4" cy="18" r="1.6" fill="currentColor"/></svg>
+      <span class="tl">Timeline</span>
+    </button>
+    <button class="tab" data-tab="consent" onclick="go('consent')">
+      <span class="dot"></span>
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v5.5c0 4.3 3 7.6 7 9 4-1.4 7-4.7 7-9V6l-7-3Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M9.2 12l2 2 3.6-4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="tl">Consent</span>
+    </button>
+  </nav>
+
+  <div class="sheet-back" id="sheetBack" onclick="closeSheet()"></div>
+  <div class="sheet" id="sheet">
+    <div class="grab"></div>
+    <h3>Who's looking?</h3>
+    <p class="sub">Switch role to see Stead's consent boundaries in action.</p>
+    <button class="role-opt" data-actor="mom" onclick="pickRole('mom')">
+      <span class="av a-mom">M</span>
+      <span class="meta"><b>Mom</b><span>Owner · full control of consent</span></span>
+      <span class="tick">&#10003;</span>
+    </button>
+    <button class="role-opt" data-actor="jane:pca" onclick="pickRole('jane:pca')">
+      <span class="av a-jane">J</span>
+      <span class="meta"><b>Jane · PCA</b><span>Care aide · can log, can't change consent</span></span>
+      <span class="tick">&#10003;</span>
+    </button>
+    <button class="role-opt" data-actor="agent:ruby" onclick="pickRole('agent:ruby')">
+      <span class="av a-agent">R</span>
+      <span class="meta"><b>Ruby's agent</b><span>Autonomous · scoped to approved tasks</span></span>
+      <span class="tick">&#10003;</span>
+    </button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const ACTORS={
+  "mom":{av:"M",cls:"a-mom"},
+  "jane:pca":{av:"J",cls:"a-jane"},
+  "agent:ruby":{av:"R",cls:"a-agent"}
+};
+
+const ICON={
+  meds:'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="9" width="18" height="6" rx="3" stroke="currentColor" stroke-width="1.9"/><path d="M12 9v6" stroke="currentColor" stroke-width="1.9"/></svg>',
+  meal:'<svg viewBox="0 0 24 24" fill="none"><path d="M6 3v8m0 0a2 2 0 0 0 2-2V3M4 3v6M18 3c-1.5 0-2 2-2 5s.5 4 2 4m0 0v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  mood:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.4" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 14.5c1 .9 5 .9 7 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="10" r="1.1" fill="currentColor"/><circle cx="15" cy="10" r="1.1" fill="currentColor"/></svg>',
+  activity:'<svg viewBox="0 0 24 24" fill="none"><path d="M13 4a1.7 1.7 0 1 0 0-.01M7 21l2.5-5L8 12l-2 1.5M11 10l3 1 1.5 3 2.5 1M9 13l3.5-1 .5-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  visit:'<svg viewBox="0 0 24 24" fill="none"><path d="M3 21v-2a4 4 0 0 1 4-4h3M14 21v-2a4 4 0 0 1 4-4h0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8.5" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/><circle cx="17" cy="9" r="2.4" stroke="currentColor" stroke-width="1.8"/></svg>',
+  note:'<svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l4 4v14H6V3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 11h7M9 15h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  order:'<svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14l-1.2 11.5a1.5 1.5 0 0 1-1.5 1.4H7.7a1.5 1.5 0 0 1-1.5-1.4L5 7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 7a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.8"/></svg>'
+};
+
+let STATE={actor:"mom",data:null};
+let CAP=30, GRANT_LIVE=false, ASKED=false;
+let APPETITE_VALS=[0.9,0.6,0.4];
+
+async function api(path,opts){
+  try{
+    const r=await fetch(path,opts);
+    let json={};
+    try{ json=await r.json(); }catch(e){}
+    return {ok:r.ok,status:r.status,json};
+  }catch(e){ return {ok:false,status:0,json:{}}; }
+}
+
+function openSheet(){ syncSheet(); $("#sheet").classList.add("on"); $("#sheetBack").classList.add("on"); }
+function closeSheet(){ $("#sheet").classList.remove("on"); $("#sheetBack").classList.remove("on"); }
+function syncSheet(){ $$(".role-opt").forEach(o=>o.classList.toggle("sel",o.dataset.actor===STATE.actor)); }
+async function pickRole(actor){
+  STATE.actor=actor; closeSheet();
+  const a=ACTORS[actor];
+  $("#pillAv").className="av "+a.cls; $("#pillAv").textContent=a.av;
+  ASKED=false;
+  await loadState();
+}
+
+function go(tab){
+  $$(".tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===tab));
+  $$(".view").forEach(v=>v.classList.remove("active"));
+  $("#view-"+tab).classList.add("active");
+  $("#main").scrollTo({top:0,behavior:"auto"});
+  if(tab==="ask") initAsk();
+  if(tab==="timeline") loadTimeline();
+  if(tab==="consent") renderConsent();
+}
+function toast(msg){
+  const t=$("#toast"); t.textContent=msg; t.classList.add("on");
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),2300);
+}
+
+async function loadState(){
+  renderHomeSkeleton();
+  const {json}=await api("/api/state?actor="+encodeURIComponent(STATE.actor));
+  STATE.data=json||{};
+  $("#pillName").textContent=STATE.data.label||STATE.actor;
+  if(STATE.data.grant){ CAP=Math.round(STATE.data.grant.cap||30); GRANT_LIVE=true; }
+  else { GRANT_LIVE=false; }
+  $$(".tab").forEach(t=>{ if(t.dataset.tab==="consent") t.classList.toggle("alert", !!STATE.data.is_owner && GRANT_LIVE); });
+  renderHome();
+  if($("#view-timeline").classList.contains("active")) loadTimeline();
+  if($("#view-consent").classList.contains("active")) renderConsent();
+  if($("#view-ask").classList.contains("active")){ ASKED=false; initAsk(); }
+}
+
+function renderHomeSkeleton(){
+  $("#view-home").innerHTML=`
+    <div class="card hero">
+      <div class="hero-top"><span class="pulse"></span><span class="eyebrow">Loading…</span></div>
+      <h1 class="sk" style="width:80%;height:30px">&nbsp;</h1>
+      <p class="sk" style="height:38px;margin-top:8px">&nbsp;</p>
+    </div>
+    <div class="grid">
+      ${'<div class="card stat"><div class="ic sk" style="border-radius:12px"></div><div class="lbl sk" style="width:60%">x</div><div class="val sk" style="width:75%;height:18px">x</div></div>'.repeat(4)}
+    </div>`;
+}
+function trendIcon(dir){
+  return dir==="declining"
+    ? '<svg viewBox="0 0 24 24" fill="none"><path d="M4 7l6 6 4-4 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 15h4v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none"><path d="M4 16l5-5 4 3 7-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+function sparkline(vals,declining){
+  const W=290,H=64,pad=7;
+  let v=(vals&&vals.length)?vals.slice():[0.5];
+  const n=v.length, span=Math.max(1,n-1);
+  const x=i=>pad+(i/span)*(W-pad*2);
+  const y=val=>H-pad-(Math.max(0,Math.min(1,val)))*(H-pad*2);
+  const pts=v.map((val,i)=>[x(i),y(val)]);
+  const d=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  const area=d+" L "+x(n-1).toFixed(1)+" "+H+" L "+pad+" "+H+" Z";
+  const col=declining?"var(--halt)":"var(--sage)";
+  const colSoft=declining?"#e98b7e":"#9bbfa3";
+  const dots=pts.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===n-1?4:2.6}" fill="${i===n-1?col:'#fff'}" stroke="${col}" stroke-width="2"/>`).join("");
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${colSoft}" stop-opacity=".34"/><stop offset="1" stop-color="${colSoft}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${area}" fill="url(#sg)"/>
+    <path d="${d}" fill="none" stroke="${col}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}
+  </svg>`;
+}
+function renderHome(){
+  const d=STATE.data||{};
+  if(!d.can_view_today){
+    $("#view-home").innerHTML=`
+      <div class="card hero">
+        <div class="hero-top"><span class="pulse" style="background:var(--muted)"></span><span class="eyebrow">${esc(d.label||"Agent")}</span></div>
+        <h1>Out of scope.</h1>
+        <p>Ruby's day-to-day care details aren't part of this role's permissions. The agent can act only on tasks Mom has explicitly approved — nothing more.</p>
+      </div>
+      <div class="card locked scope">
+        <div class="lic"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2.4" stroke="currentColor" stroke-width="1.9"/><path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.9"/></svg></div>
+        <h3>Daily details are private</h3>
+        <p>This is consent working as designed — access is scoped to purpose, not handed over wholesale.</p>
+        <span class="pill">Open Consent to see what the agent <em>can</em> do &rarr;</span>
+      </div>`;
+    return;
+  }
+  const day=d.day||{};
+  const trend=day.trend==="declining"?"declining":"steady";
+  const heroLine = trend==="declining"
+    ? `Ruby's having a <em>quieter</em> day. Meds are on track and she's resting — her appetite is the one thing worth a gentle eye.`
+    : `Ruby's having a <em>steady</em> day. Meds on track, eating well, and in good spirits.`;
+  const moodLow=!!day.mood_low;
+  const mealsOk=!!day.meals_ok;
+
+  $("#view-home").innerHTML=`
+    <div class="card hero">
+      <div class="hero-top"><span class="pulse"></span><span class="eyebrow">Stead is watching over Ruby</span></div>
+      <h1>${heroLine}</h1>
+      <p class="stamp"><svg viewBox="0 0 24 24" width="13" height="13" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--muted)" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Updated just now &middot; ${day.event_count||0} care notes today</p>
+    </div>
+
+    <div class="grid">
+      <div class="card stat">
+        <div class="ic tint-ok">${ICON.meds}</div>
+        <div class="lbl">Medications</div>
+        <div class="val">${esc(day.meds||"—")}</div>
+        <span class="tagdot ${day.meds_ok?'ok':'warn'}">${day.meds_ok?'On schedule':'Check'}</span>
+      </div>
+      <div class="card stat">
+        <div class="ic ${mealsOk?'tint-ok':'tint-warn'}">${ICON.meal}</div>
+        <div class="lbl">Appetite today</div>
+        <div class="val sm">${esc(day.meals||"—")}</div>
+        <span class="tagdot ${mealsOk?'ok':'warn'}">${mealsOk?'Eating well':'Light intake'}</span>
+      </div>
+      <div class="card stat" style="grid-column:span 2">
+        <div style="display:flex;gap:13px;align-items:flex-start">
+          <div class="ic ${moodLow?'tint-low':'tint-ok'}">${ICON.mood}</div>
+          <div style="flex:1">
+            <div class="lbl" style="margin-bottom:5px">Mood &amp; spirits</div>
+            <div class="val sm" style="margin-top:0">${esc(day.mood||"Not logged")}</div>
+          </div>
+          <span class="tagdot ${moodLow?'low':'ok'}">${moodLow?'A little low':'Bright'}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card trend">
+      <div class="hd">
+        <div><div class="t">Appetite trend</div><div class="sub">Recent meals logged</div></div>
+        <span class="trend-flag ${trend}">${trendIcon(trend)} ${trend==="declining"?"Declining":"Steady"}</span>
+      </div>
+      ${sparkline(APPETITE_VALS, trend==="declining")}
+      <div class="spark-x"><span>Earlier</span><span>Now</span></div>
+    </div>
+
+    <div class="card askcard" onclick="go('ask')">
+      <div class="orb">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3a7 7 0 0 1 7 7c0 2-1 3.6-2.5 4.8L16 19l-2.2-1.2a7 7 0 1 1-1.8-13.8Z" fill="#fff" opacity=".95"/><circle cx="9" cy="10" r="1" fill="var(--sage-deep)"/><circle cx="12" cy="10" r="1" fill="var(--sage-deep)"/><circle cx="15" cy="10" r="1" fill="var(--sage-deep)"/></svg>
+      </div>
+      <div class="tx">
+        <b>Talk to Stead</b>
+        <span>${trend==="declining"?'&ldquo;Her appetite dipped again — want me to help?&rdquo;':'Ask anything about Ruby&rsquo;s day.'}</span>
+      </div>
+      <span class="go">&rarr;</span>
+    </div>`;
+}
+
+const STEAD_MARK='<svg viewBox="0 0 24 24" fill="none"><path d="M12 3a7 7 0 0 1 5 12l.6 3.2L14.6 17A7 7 0 1 1 12 3Z" fill="#fff"/></svg>';
+function steadBubble(html){
+  return `<div class="bubble stead"><div class="by"><span class="mini">${STEAD_MARK}</span>Stead</div>${html}</div>`;
+}
+function initAsk(){
+  const d=STATE.data||{};
+  const can=!!d.can_view_today;
+  $("#askIntro").textContent = can
+    ? "A calm, always-on companion who knows Ruby's day. Ask anything."
+    : "This role can't see Ruby's daily details, so Stead can't discuss them here.";
+  const inp=$("#askInput"), sb=$("#sendBtn");
+  inp.disabled=!can; sb.disabled=!can;
+  inp.placeholder=can?"Ask about Ruby…":"Out of scope for this role";
+  if(ASKED) return;
+  ASKED=true;
+  const chat=$("#chat"); chat.innerHTML="";
+  if(!can){
+    chat.innerHTML=steadBubble(`<div>I'm here for the family, but Ruby's day-to-day details aren't in this role's scope. Switch to <b>Mom</b> or <b>Jane</b> to chat about her care.</div>`);
+    $("#chips").innerHTML="";
+    return;
+  }
+  const day=d.day||{};
+  const open = day.trend==="declining"
+    ? `Hi — I'm <b>Stead</b>. I've been keeping Ruby company today. She's doing okay: meds on time and she rested well. Her appetite dipped a little again, so that's the one thing I'm gently watching. What's on your mind?`
+    : `Hi — I'm <b>Stead</b>. Ruby's had a steady day: meds on time, eating well, in good spirits. Ask me anything.`;
+  chat.innerHTML=steadBubble(`<div>${open}</div>`);
+  renderChips(["Did she take her meds?","Is she eating enough?","How's her mood?", day.trend==="declining"?"Should I be worried?":"Anything I should know?"]);
+}
+function renderChips(list){
+  $("#chips").innerHTML=(list||[]).map(c=>`<button class="chip" data-q="${esc(c)}">${esc(c)}</button>`).join("");
+  $$("#chips .chip").forEach(b=>b.onclick=()=>{ $("#askInput").value=b.dataset.q; sendAsk(); });
+}
+async function sendAsk(){
+  const inp=$("#askInput"); const q=(inp.value||"").trim();
+  if(!q || inp.disabled) return;
+  const chat=$("#chat");
+  chat.insertAdjacentHTML("beforeend",`<div class="bubble me">${esc(q)}</div>`);
+  inp.value=""; $("#chips").innerHTML="";
+  const tw=document.createElement("div"); tw.className="bubble stead"; tw.id="typing";
+  tw.innerHTML=`<div class="by"><span class="mini">${STEAD_MARK}</span>Stead</div><div class="typing"><i></i><i></i><i></i></div>`;
+  chat.appendChild(tw);
+  $("#main").scrollTo({top:99999,behavior:"smooth"});
+  const {json}=await api("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({q,actor:STATE.actor})});
+  const t=$("#typing"); if(t) t.remove();
+  const ans=esc(json.answer||"I'm here, but I didn't catch that.").replace(/\n+/g,"<br><br>");
+  chat.insertAdjacentHTML("beforeend",steadBubble(`<div>${ans}</div>`));
+  renderChips(json.suggestions&&json.suggestions.length?json.suggestions:["Is she eating enough?","How's her mood?"]);
+  $("#main").scrollTo({top:99999,behavior:"smooth"});
+}
+
+function skelTl(){
+  $("#tlBody").innerHTML='<div class="tl">'+Array(4).fill('<div class="ev"><div class="body sk" style="height:74px;margin-left:42px;border-radius:18px"></div></div>').join("")+'</div>';
+}
+async function loadTimeline(){
+  skelTl();
+  const {json}=await api("/api/timeline?actor="+encodeURIComponent(STATE.actor));
+  if((json&&json.scoped_out) || (STATE.data && !STATE.data.can_view_today)){
+    $("#tlIntro").textContent="This role can't view Ruby's care timeline.";
+    $("#tlBody").innerHTML=`<div class="card locked scope">
+      <div class="lic"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2.4" stroke="currentColor" stroke-width="1.9"/><path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.9"/></svg></div>
+      <h3>Timeline is private</h3>
+      <p>Ruby's care events aren't in this role's scope.</p></div>`;
+    return;
+  }
+  const ev=(json&&json.events)||[];
+  const meals=ev.filter(e=>e.kind==="meal"&&e.value!=null).map(e=>e.value);
+  if(meals.length){
+    APPETITE_VALS=[0.9,0.6].concat(meals).slice(-5);
+    if($("#view-home").classList.contains("active")) renderHome();
+  }
+  $("#tlIntro").textContent=ev.length+" events · logged by Jane and family.";
+  if(!ev.length){ $("#tlBody").innerHTML=`<div class="card locked"><p>Nothing logged yet today.</p></div>`; return; }
+  $("#tlBody").innerHTML='<div class="tl">'+ev.map(e=>{
+    const k=e.kind||"note";
+    const who=loggerAvatar(e.logged_by);
+    return `<div class="ev k-${esc(k)}">
+      <div class="node">${ICON[k]||ICON.note}</div>
+      <div class="body">
+        <div class="ts">${esc(e.ts||"")}</div>
+        <div class="ti">${esc(e.title||"")}</div>
+        <div class="de">${esc(e.detail||"")}</div>
+        <span class="who"><span class="d ${who.cls}">${who.in}</span>${esc(e.logged_by||"—")}</span>
+      </div></div>`;
+  }).join("")+'</div>'
+    +`<div class="audit-note"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v5.5c0 4.3 3 7.6 7 9 4-1.4 7-4.7 7-9V6l-7-3Z" stroke="currentColor" stroke-width="1.8"/></svg>Every entry is attributed. Stead never logs care it didn't witness.</div>`;
+}
+function loggerAvatar(name){
+  const n=(name||"").toLowerCase();
+  if(n.includes("jane")||n.includes("pca")) return {cls:"a-jane",in:"J"};
+  if(n.includes("agent")||n.includes("ruby")||n.includes("stead")) return {cls:"a-agent",in:"R"};
+  return {cls:"a-mom",in:((name||"·")[0]||"·").toUpperCase()};
+}
+
+function renderConsent(){
+  const d=STATE.data||{};
+  $("#csBody").innerHTML="";
+  if(d.is_owner){ renderOwnerConsent(d); $("#csIntro").textContent="You decide exactly what Ruby's agent can do — and you can pull it back anytime."; }
+  else if(STATE.actor==="jane:pca"){ renderReadOnly(); $("#csIntro").textContent="Care aides can see the boundaries, but only the family can change them."; }
+  else { renderAgentConsent(); $("#csIntro").textContent="What the agent itself sees about its own permissions."; }
+}
+function renderOwnerConsent(d){
+  const live=GRANT_LIVE;
+  const vendor=(d.grant&&d.grant.vendor)||"Tony's Pizza";
+  $("#csBody").innerHTML=`
+    <div class="card grant-card">
+      <div class="gtop">
+        <div class="gav a-agent">${ICON.order}</div>
+        <div class="gmeta"><b>Ruby's agent</b><span>Acting on Ruby's behalf</span></div>
+        <span class="state-chip ${live?'live':'off'}">${live?'● Live grant':'○ No grant'}</span>
+      </div>
+      <div class="scope-row">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 7h14l-1 11.5a1.5 1.5 0 0 1-1.5 1.4H7.5A1.5 1.5 0 0 1 6 18.5L5 7Z" stroke="var(--sage-deep)" stroke-width="1.7"/></svg>
+        <span>Scope: <b>order:food</b> at <b>${esc(vendor)}</b>, on the card Mom shared.</span>
+      </div>
+
+      <div class="cap-lab"><span class="l">Spending limit</span><span class="sublabel">per order</span></div>
+      <div class="stepper">
+        <button class="step-btn" id="minus" onclick="stepCap(-5)">&minus;</button>
+        <div class="cap-amt"><div class="num"><span class="cur">$</span><span id="capNum">${CAP}</span></div><div class="per">maximum the agent may spend</div></div>
+        <button class="step-btn" id="plus" onclick="stepCap(5)">+</button>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-save" id="saveBtn" onclick="saveCap()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-11" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="saveTxt">${live?'Update limit':'Set limit & enable'}</span>
+        </button>
+        <button class="btn btn-revoke" id="revokeBtn" onclick="revoke()" ${live?'':'disabled'}>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>
+          Revoke
+        </button>
+      </div>
+    </div>
+
+    <div class="card order-card">
+      <div class="ohd">
+        <div class="vic">${ICON.meal}</div>
+        <div class="t"><b>Order dinner on Ruby's behalf</b><span>The agent attempts a real order</span></div>
+      </div>
+      <div class="od">The agent will try to spend <b>$<span id="tryAmt">${CAP}</span></b> at ${esc(vendor)}. Stead checks it against your live grant <b>before</b> any money moves — over the limit, and it <b>halts</b>.</div>
+      <button class="btn-order" id="orderBtn" onclick="placeOrder()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14l-1 11.5a1.5 1.5 0 0 1-1.5 1.4H7.5A1.5 1.5 0 0 1 6 18.5L5 7Z" stroke="#fff" stroke-width="1.9" stroke-linejoin="round"/><path d="M9 7a3 3 0 0 1 6 0" stroke="#fff" stroke-width="1.9"/></svg>
+        <span id="orderTxt">Place order — $${CAP}</span>
+      </button>
+      <div class="result" id="result"></div>
+    </div>
+
+    <div class="audit-note"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v5.5c0 4.3 3 7.6 7 9 4-1.4 7-4.7 7-9V6l-7-3Z" stroke="currentColor" stroke-width="1.8"/></svg>Every consent change and agent action is written to a tamper-evident audit.</div>`;
+  syncCapUI();
+}
+function syncCapUI(){
+  const cn=$("#capNum"); if(cn) cn.textContent=CAP;
+  const ta=$("#tryAmt"); if(ta) ta.textContent=CAP;
+  const ot=$("#orderTxt"); if(ot) ot.textContent="Place order — $"+CAP;
+  const m=$("#minus"); if(m) m.disabled=CAP<=5;
+}
+function stepCap(n){
+  CAP=Math.max(5,Math.min(200,CAP+n));
+  syncCapUI();
+  const b=$("#saveBtn"); if(b){ b.classList.remove("saved"); const t=$("#saveTxt"); if(t) t.textContent=GRANT_LIVE?"Update limit":"Set limit & enable"; }
+  const r=$("#result"); if(r) r.classList.remove("show");
+}
+async function saveCap(){
+  const t=$("#saveTxt"); if(t) t.textContent="Saving…";
+  const {json}=await api("/api/cap",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount:CAP})});
+  CAP=Math.round((json&&json.cap)||CAP); GRANT_LIVE=true;
+  await loadState();
+  renderConsent();
+  const nb=$("#saveBtn"); if(nb){ nb.classList.add("saved"); const nt=$("#saveTxt"); if(nt) nt.textContent="Saved ✓"; }
+  toast("Limit set to $"+CAP+" · grant is live");
+}
+async function revoke(){
+  await api("/api/revoke",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
+  GRANT_LIVE=false;
+  await loadState();
+  renderConsent();
+  toast("Consent revoked — the agent can't act");
+}
+async function placeOrder(){
+  const ob=$("#orderBtn"), ot=$("#orderTxt"), res=$("#result");
+  if(!res) return;
+  res.classList.remove("show"); ob.disabled=true; ot.textContent="Checking consent…";
+  const vendor=(STATE.data&&STATE.data.grant&&STATE.data.grant.vendor)||"Tony's Pizza";
+  const {json}=await api("/api/order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({vendor,amount:CAP})});
+  ob.disabled=false; ot.textContent="Place order — $"+CAP;
+  const msg=cleanMsg((json&&json.message)||"");
+  if(json&&json.status==="done"){
+    res.className="result done";
+    res.innerHTML=`<div class="ri">
+      <div class="badge"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-11" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><b>Order authorized</b><div class="msg">${esc(msg)}</div></div></div>`;
+    void res.offsetWidth; res.classList.add("show");
+    toast("Within consent — order placed");
+  }else{
+    res.className="result halt";
+    res.innerHTML=`<div class="ri">
+      <div class="htop">
+        <div class="stop"><svg viewBox="0 0 24 24" fill="none"><path d="M8.2 3h7.6L21 8.2v7.6L15.8 21H8.2L3 15.8V8.2L8.2 3Z" stroke="#fff" stroke-width="1.9" stroke-linejoin="round"/><path d="M12 8v5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16.4" r="1.1" fill="#fff"/></svg></div>
+        <div><div class="htitle">HALTED</div><div class="hsub">Blocked before any money moved</div></div>
+      </div>
+      <div class="msg">${esc(msg)}</div></div>`;
+    void res.offsetWidth; res.classList.add("show");
+    toast("Halted — outside the live grant");
+  }
+  res.scrollIntoView({behavior:"smooth",block:"center"});
+}
+function cleanMsg(m){
+  return String(m||"")
+    .replace(/^[^A-Za-z0-9$]+/,"")
+    .replace(/^HALTED:\s*/i,"")
+    .replace(/\(Set VAPI[^)]*\)\s*/,"")
+    .trim() || "The request was outside the live grant. Adjust the limit or re-enable consent.";
+}
+function renderReadOnly(){
+  $("#csBody").innerHTML=`
+    <div class="card grant-card">
+      <div class="gtop">
+        <div class="gav a-agent">${ICON.order}</div>
+        <div class="gmeta"><b>Ruby's agent</b><span>order:food · Tony's Pizza</span></div>
+        <span class="state-chip ${GRANT_LIVE?'live':'off'}">${GRANT_LIVE?'● Live grant':'○ No grant'}</span>
+      </div>
+      <div class="scope-row" style="margin-bottom:0">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 7h14l-1 11.5a1.5 1.5 0 0 1-1.5 1.4H7.5A1.5 1.5 0 0 1 6 18.5L5 7Z" stroke="var(--sage-deep)" stroke-width="1.7"/></svg>
+        <span>Spending limit: <b>${GRANT_LIVE?'$'+CAP+' / order':'not set'}</b></span>
+      </div>
+    </div>
+    <div class="card locked read">
+      <div class="lic"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="10.5" width="14" height="9.5" rx="2.4" stroke="currentColor" stroke-width="1.9"/><path d="M8.2 10.5V8a3.8 3.8 0 0 1 7.6 0v2.5" stroke="currentColor" stroke-width="1.9"/><circle cx="12" cy="15" r="1.4" fill="currentColor"/></svg></div>
+      <h3>View only for care aides</h3>
+      <p>Jane can log Ruby's care, but consent and spending limits belong to the family. Only Mom can change or revoke them.</p>
+      <span class="pill"><span class="d a-jane" style="width:18px;height:18px;border-radius:6px;font-size:9px;display:grid;place-items:center;color:#fff;font-weight:800">J</span> Signed in as Jane · PCA</span>
+    </div>`;
+}
+function renderAgentConsent(){
+  $("#csBody").innerHTML=`
+    <div class="card grant-card">
+      <div class="gtop">
+        <div class="gav a-agent">${ICON.order}</div>
+        <div class="gmeta"><b>My permissions</b><span>What I'm allowed to do</span></div>
+        <span class="state-chip ${GRANT_LIVE?'live':'off'}">${GRANT_LIVE?'● Active':'○ Suspended'}</span>
+      </div>
+      <div class="scope-row" style="margin-bottom:0">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 7h14l-1 11.5a1.5 1.5 0 0 1-1.5 1.4H7.5A1.5 1.5 0 0 1 6 18.5L5 7Z" stroke="var(--sage-deep)" stroke-width="1.7"/></svg>
+        <span>I may <b>order food</b> up to <b>${GRANT_LIVE?'$'+CAP:'$0'}</b> — and nothing else.</span>
+      </div>
+    </div>
+    <div class="card locked scope">
+      <div class="lic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a7 7 0 0 1 5 12l.6 3.2L14.6 17A7 7 0 1 1 12 3Z" stroke="currentColor" stroke-width="1.8"/></svg></div>
+      <h3>I act only with consent</h3>
+      <p>Mom sets my limits; Stead checks every action against them before it happens. I can't see Ruby's private day, and I can't spend beyond my grant.</p>
+    </div>`;
+}
+
+$("#askInput").addEventListener("keydown",e=>{ if(e.key==="Enter") sendAsk(); });
+(async function(){ syncSheet(); await loadState(); })();
+</script>
+</body>
+</html>

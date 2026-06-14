@@ -4,5 +4,12 @@ __pycache__/
 node_modules/
 .env
 .env.local
+app/stead.db
 *.zip
 orchestration-kit/grade-report.json
+
+# stray local screenshots (published copies live in docs/)
+/_*.png
+app/shot.png
+app/ruby-shot.png
+*.mp3

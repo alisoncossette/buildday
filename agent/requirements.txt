@@ -1,0 +1,6 @@
+# Stead care-companion agent — Claude Agent SDK (Claude API + tool runner).
+# anthropic[mcp] pulls the MCP helpers so a live Bolo (@bolospot/mcp) client can be wired in.
+anthropic[mcp]>=0.92.0
+httpx>=0.27          # Vapi outbound-call HTTP (also an anthropic dep)
+python-dotenv>=1.0   # load VAPI_API_KEY / keys from agent/.env
+

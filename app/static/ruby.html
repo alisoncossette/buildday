@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#f3ead9">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg">
+<title>Ruby</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#fbf4e9;--bg2:#f1e1c7;--ink:#2a2520;--ink2:#6a5f53;
+    --brand:#2f9468;--brand-ink:#1f7a52;
+    --pizza1:#ffd89b;--pizza2:#f0a24e;--pizza-ink:#6b3410;
+    --sky1:#bfe3d2;--sky2:#86c7a6;--sky-ink:#1f5a3f;
+    --rose1:#f6cdb5;--rose2:#e89b78;--rose-ink:#7a3a1e;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:"Inter",-apple-system,"Segoe UI",Roboto,system-ui,sans-serif;color:var(--ink);
+    min-height:100%;
+    background:
+      radial-gradient(1100px 700px at 80% -10%, #ffe7c2 0%, rgba(255,231,194,0) 60%),
+      radial-gradient(900px 700px at 0% 100%, #d8efe1 0%, rgba(216,239,225,0) 55%),
+      linear-gradient(170deg,var(--bg1),var(--bg2)) fixed;
+    padding:max(26px,env(safe-area-inset-top)) 22px calc(30px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;
+  }
+  .hi{font-family:"Fraunces",serif;font-weight:600;font-size:40px;letter-spacing:-.02em;margin:6px 4px 2px}
+  .sub{color:var(--ink2);font-size:19px;font-weight:500;margin:0 4px 22px}
+  .grid{display:flex;flex-direction:column;gap:20px;flex:1}
+
+  .tile{
+    border:0;border-radius:36px;cursor:pointer;color:#fff;text-align:left;
+    display:flex;align-items:center;gap:22px;padding:30px 30px;
+    font-family:inherit;transition:transform .12s ease, box-shadow .12s ease;
+    box-shadow:0 20px 44px -20px rgba(74,52,24,.55), inset 0 2px 0 rgba(255,255,255,.4);
+  }
+  .tile:active{transform:scale(.97)}
+  .tile.busy{opacity:.65;pointer-events:none}
+  .tile .emoji{font-size:74px;line-height:1;flex:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.18))}
+  .tile .lbl{font-family:"Fraunces",serif;font-weight:600;font-size:34px;letter-spacing:-.01em;line-height:1.1}
+  .tile .hint{display:block;font-family:"Inter",sans-serif;font-weight:500;font-size:17px;opacity:.92;margin-top:6px}
+
+  .pizza{background:linear-gradient(140deg,var(--pizza1),var(--pizza2));color:var(--pizza-ink);flex:1.4;min-height:230px}
+  .pizza .emoji{font-size:104px}
+  .pizza .lbl{font-size:42px}
+  .okay{background:linear-gradient(140deg,var(--sky1),var(--sky2));color:var(--sky-ink)}
+  .mars{background:linear-gradient(140deg,var(--rose1),var(--rose2));color:var(--rose-ink)}
+  .row{display:flex;gap:20px}
+  .row .tile{flex:1;flex-direction:column;align-items:flex-start;gap:12px;padding:26px 24px;min-height:170px}
+  .row .tile .lbl{font-size:27px}
+
+  /* big friendly confirmation */
+  .veil{position:fixed;inset:0;background:rgba(43,37,32,.55);backdrop-filter:blur(7px);
+    display:none;align-items:center;justify-content:center;padding:30px;z-index:9}
+  .veil.show{display:flex}
+  .card{background:#fffdf9;border-radius:40px;padding:46px 34px;text-align:center;max-width:440px;width:100%;
+    box-shadow:0 40px 90px -30px rgba(0,0,0,.5);animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+  .card .big{font-size:96px;line-height:1;margin-bottom:14px}
+  .card .ttl{font-family:"Fraunces",serif;font-weight:600;font-size:34px;letter-spacing:-.01em;color:var(--ink)}
+  .card .msg{font-size:20px;color:var(--ink2);margin-top:10px;line-height:1.4}
+  .card .dismiss{margin-top:26px;border:0;background:#f1e7d6;color:var(--ink2);font:600 18px "Inter",sans-serif;
+    padding:15px 30px;border-radius:18px;cursor:pointer}
+  .foot{text-align:center;color:#a9988a;font-size:14px;margin-top:18px}
+</style>
+</head>
+<body>
+  <div class="hi" id="hi">Hi Ruby 👋</div>
+  <div class="sub" id="sub">What would you like to do?</div>
+
+  <div class="grid">
+    <button class="tile pizza" id="pizza">
+      <span class="emoji">🍕</span>
+      <span><span class="lbl">Order my pizza</span><span class="hint">One tap — I'll call Folino's for you</span></span>
+    </button>
+    <div class="row">
+      <button class="tile okay" id="okay">
+        <span class="emoji">💛</span>
+        <span class="lbl">I'm okay<span class="hint">Let Mom know</span></span>
+      </button>
+      <button class="tile mars" id="mars">
+        <span class="emoji">🤖</span>
+        <span class="lbl">Talk to MARS<span class="hint">Say hello</span></span>
+      </button>
+    </div>
+  </div>
+  <div class="foot">Stead · everything happens with Mom's okay 💛</div>
+
+  <div class="veil" id="veil">
+    <div class="card">
+      <div class="big" id="vEmoji">🍕</div>
+      <div class="ttl" id="vTtl">Ordering your pizza!</div>
+      <div class="msg" id="vMsg">Calling Folino's now…</div>
+      <button class="dismiss" id="vClose">OK</button>
+    </div>
+  </div>
+
+<script>
+const $=id=>document.getElementById(id);
+const POST=(p,b)=>fetch(p,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(b||{})}).then(r=>r.json());
+let veilTimer;
+function show(emoji,ttl,msg,hold=8000){
+  $("vEmoji").textContent=emoji;$("vTtl").textContent=ttl;$("vMsg").textContent=msg;
+  $("veil").classList.add("show");clearTimeout(veilTimer);veilTimer=setTimeout(hide,hold);
+}
+function hide(){$("veil").classList.remove("show");}
+$("vClose").onclick=hide;$("veil").onclick=e=>{if(e.target===$("veil"))hide();};
+
+async function tap(btn, work){
+  if(btn.classList.contains("busy"))return;
+  btn.classList.add("busy");
+  try{ await work(); }catch(e){ show("🤍","One moment","Let me try that again soon."); }
+  setTimeout(()=>btn.classList.remove("busy"),1500);
+}
+
+$("pizza").onclick=()=>tap($("pizza"), async ()=>{
+  show("🍕","Ordering your pizza!","Calling Folino's now…",12000);
+  const r=await POST("/api/mars/order",{vendor:"Tony's Pizza",amount:22,items:"a cheese pizza"});
+  if(r.status==="done") show("📞","Folino's is on the phone!","Your pizza is on the way 💛",12000);
+  else if(r.status==="needs_consent") show("💛","Asking Mom…","She'll say yes in just a moment.",12000);
+  else show("🤍","I'll check with Mom","Hang tight — I'll get this sorted for you.",10000);
+});
+
+$("okay").onclick=()=>tap($("okay"), async ()=>{
+  await POST("/api/mars/sense",{mood:0.8,note:"Ruby tapped: I'm okay today",activity:"check-in"});
+  show("💛","Thank you, Ruby","I told Mom you're doing okay today.");
+});
+
+$("mars").onclick=()=>tap($("mars"), async ()=>{
+  show("🤖","MARS is listening","Say hello!",10000);
+  await POST("/api/mars/ask",{question:"Hi Ruby! It's so good to see you. How are you feeling today?"});
+});
+
+if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+</script>
+</body>
+</html>

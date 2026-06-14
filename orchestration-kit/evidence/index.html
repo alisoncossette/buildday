@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stead -- Tier Evidence</title>
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c232c;--ink:#e6edf3;--mut:#8b949e;
+--green:#2ea043;--greend:#1a4d2a;--red:#f85149;--redd:#5a1f1f;--line:#30363d;--accent:#58a6ff;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+font:15px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;}
+header{padding:28px 32px 16px;border-bottom:1px solid var(--line);}
+header h1{margin:0 0 6px;font-size:24px;}
+header .sub{color:var(--mut);font-size:14px;}
+.scoreline{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.score{padding:6px 12px;border-radius:8px;font-weight:600;font-size:13px;border:1px solid var(--line);}
+.score.pass{background:var(--greend);color:#7ee787}
+.score.fail{background:var(--redd);color:#ffa198}
+.score.bank{background:#1f2a44;color:#79c0ff}
+main{padding:20px 32px 60px;max-width:1000px;}
+.tier{margin:18px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);}
+.tier.green{border-left:4px solid var(--green);}
+.tier.red{border-left:4px solid var(--red);}
+.tier h2{margin:0;padding:14px 18px;font-size:17px;display:flex;align-items:center;gap:10px;
+background:var(--panel2);border-bottom:1px solid var(--line);}
+.tier h2 .meta{color:var(--mut);font-size:13px;font-weight:400;margin-left:auto;}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block;}
+.dot.green{background:var(--green)} .dot.red{background:var(--red)}
+.pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.4px;}
+.pill.green{background:var(--green);color:#06210f} .pill.red{background:var(--red);color:#2b0808}
+.check{border-top:1px solid var(--line);}
+.check>summary{cursor:pointer;padding:12px 18px;display:flex;align-items:center;gap:10px;
+flex-wrap:wrap;list-style:none;}
+.check>summary::-webkit-details-marker{display:none}
+.check>summary::before{content:"\25B8";color:var(--mut);font-size:12px;}
+.check[open]>summary::before{content:"\25BE";}
+.check>summary code{color:var(--accent);font-size:13px;}
+.check>summary .wt{color:var(--mut);font-size:12px;}
+.check>summary .claim{color:var(--mut);font-size:13px;flex-basis:100%;margin-left:24px;}
+.body{padding:6px 22px 20px 24px;}
+.body h4{margin:16px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);}
+.claimtext{margin:0;color:var(--ink);}
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:8px;padding:12px 14px;
+overflow:auto;font:12.5px/1.5 SFMono-Regular,Consolas,Menlo,monospace;white-space:pre-wrap;
+word-break:break-word;}
+pre.cmd{color:#79c0ff;background:#0b1830;border-color:#1f3a5f;}
+pre.err{border-color:#5a2a2a;color:#ffb4ad;}
+.exit b.green{color:#7ee787} .exit b.red{color:#ffa198}
+.muted{color:var(--mut);font-size:13px;}
+.artifact{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:8px 0;background:#0f141b;}
+.artrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.artrow a{color:var(--accent);text-decoration:none;font-size:13.5px;}
+.artrow a:hover{text-decoration:underline;}
+.artdesc{color:var(--mut);font-size:13px;margin:4px 0 0 2px;}
+.excerpt-label{color:var(--mut);font-size:11px;margin:8px 0 3px;text-transform:uppercase;letter-spacing:.5px;}
+pre.excerpt{margin:0;background:#0a0e14;}
+.probe{margin:6px 0;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#0f141b;}
+.probe>summary{cursor:pointer;display:flex;gap:8px;align-items:center;flex-wrap:wrap;list-style:none;}
+.probe>summary code{color:var(--accent);font-size:12.5px;}
+.probe>summary a{color:var(--mut);font-size:12px;text-decoration:none;}
+.foot{color:var(--mut);font-size:12px;margin-top:30px;border-top:1px solid var(--line);padding-top:14px;}
+</style>
+</head><body>
+<header>
+  <h1>🧾 Stead &mdash; Tier Evidence</h1>
+  <div class="sub">Not a green light. Receipts. Click any tier &rarr; check to drill into the real command, exit code, output, and the files that prove it.</div>
+  <div class="scoreline">
+    <span class="score pass">7 PASS</span>
+    <span class="score fail">0 FAIL</span>
+    <span class="score bank">Highest banked tier: T5</span>
+    <span class="muted">7 checks &middot; generated 2026-06-13 20:52:56 UTC</span>
+  </div>
+</header>
+<main>
+<section class="tier green">
+<h2><span class="dot green"></span>T1 <span class="pill green">GREEN</span> <span class="meta">2/2 checks &middot; required &middot; banked</span></h2>
+<details class="check">
+<summary><span class="pill green">PASS</span> <code>consent-contract</code> <span class="wt">w1 &middot; req</span><span class="claim">consent / RBAC engine contract exists</span></summary>
+<div class="body">
+<h4>What it claims</h4>
+<p class="claimtext">consent / RBAC engine contract exists</p>
+<h4>Command run</h4>
+<pre class="cmd">$ test -s consent_agent/__init__.py</pre>
+<p class="exit">exit code: <b class="green">0</b> &rarr; <b class="green">PASS</b></p>
+<h4>stdout</h4>
+<pre class="out">consent_agent/__init__.py: 9860 bytes</pre>
+<h4>Files that prove it</h4>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/orchestration-kit/consent_agent/__init__.py">orchestration-kit/consent_agent/__init__.py</a> &middot; 9860 bytes</div>
+<div class="artdesc">ConsentEngine: owner-held, parameterized, revocable, audited consent (Bolo-shaped)</div>
+<div class="excerpt-label">excerpt &middot; lines 83-112</div>
+<pre class="excerpt">
+
+class ConsentEngine:
+    def __init__(self, owner=&quot;mom&quot;, bolo=None):
+        &quot;&quot;&quot;`bolo`: a Bolo client adapter over @bolospot/mcp (create_grant / check_access /
+        revoke_grant / request_access). Defaults to an in-memory backend so offline pytest /
+        grade.py stay deterministic; the live app + agent runtime pass the real Bolo MCP client.&quot;&quot;&quot;
+        self.owner = owner
+        self._backend = BoloBackend(bolo) if bolo is not None else InMemoryBackend()
+        self._audit = []
+
+    def _log(self, actor, event, scope, decision, **extra):
+        entry = {&quot;actor&quot;: actor, &quot;event&quot;: event, &quot;scope&quot;: scope, &quot;decision&quot;: decision}
+        entry.update(extra)
+        self._audit.append(entry)
+        # Mirror every consent transition to the tracer (no-op unless Langfuse is configured).
+        # extra may carry grantee, reason, and a `params` dict (vendor/cap/amount/...).
+        params = extra.get(&quot;params&quot;) or {}
+        tracer.event(
+            &quot;consent.&quot; + event,
+            actor=actor,
+            scope=scope,
+            decision=decision,
+            grantee=extra.get(&quot;grantee&quot;),
+            reason=extra.get(&quot;reason&quot;),
+            vendor=params.get(&quot;vendor&quot;),
+            cap=params.get(&quot;cap&quot;),
+            amount=params.get(&quot;amount&quot;),
+        )
+        return entry</pre>
+</div>
+</div>
+</details>
+<details class="check">
+<summary><span class="pill green">PASS</span> <code>rbac-access</code> <span class="wt">w5 &middot; req</span><span class="claim">T1 RBAC: per-actor roles &amp; scopes (Mom full, PCA care:read, agent scoped); owner-held grant/check/revoke effective immediately; audited</span></summary>
+<div class="body">
+<h4>What it claims</h4>
+<p class="claimtext">T1 RBAC: per-actor roles &amp; scopes (Mom full, PCA care:read, agent scoped); owner-held grant/check/revoke effective immediately; audited</p>
+<h4>Command run</h4>
+<pre class="cmd">$ C:\Python314\python.exe -m pytest -v tests/test_rbac.py</pre>
+<p class="exit">exit code: <b class="green">0</b> &rarr; <b class="green">PASS</b></p>
+<h4>stdout</h4>
+<pre class="out">============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.3, pluggy-1.6.0 -- C:\Python314\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\trico\Documents\GitHub\build-day\orchestration-kit
+plugins: anyio-4.11.0
+collecting ... collected 5 items
+
+tests/test_rbac.py::test_owner_has_full_access PASSED                    [ 20%]
+tests/test_rbac.py::test_pca_is_scoped_to_care_read_only PASSED          [ 40%]
+tests/test_rbac.py::test_only_owner_can_grant PASSED                     [ 60%]
+tests/test_rbac.py::test_revoke_takes_effect_immediately PASSED          [ 80%]
+tests/test_rbac.py::test_audit_logs_grant_and_revoke PASSED              [100%]
+
+============================== 5 passed in 0.32s ==============================</pre>
+<h4>Files that prove it</h4>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/orchestration-kit/tests/test_rbac.py">orchestration-kit/tests/test_rbac.py</a> &middot; 1390 bytes</div>
+<div class="artdesc">T1 RBAC test suite: per-actor scopes, owner-only grant/revoke, audit</div>
+</div>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/orchestration-kit/consent_agent/__init__.py">orchestration-kit/consent_agent/__init__.py</a> &middot; 9860 bytes</div>
+<div class="artdesc">grant/check/revoke + can_view + audit log that the RBAC tests exercise</div>
+<div class="excerpt-label">excerpt &middot; lines 106-135</div>
+<pre class="excerpt">            grantee=extra.get(&quot;grantee&quot;),
+            reason=extra.get(&quot;reason&quot;),
+            vendor=params.get(&quot;vendor&quot;),
+            cap=params.get(&quot;cap&quot;),
+            amount=params.get(&quot;amount&quot;),
+        )
+        return entry
+
+    def _require_owner(self, owner, event, grantee, scope):
+        if owner != self.owner:
+            self._log(owner, event, scope, &quot;denied&quot;,
+                      grantee=grantee, reason=&quot;not the resource owner&quot;)
+            raise PermissionError(
+                f&quot;{owner!r} may not {event} {scope!r}: only the owner {self.owner!r} can&quot;
+            )
+
+    def grant(self, owner, grantee, scope, **params):
+        &quot;&quot;&quot;Owner grants `grantee` a `scope` with optional params (vendor, cap, payment) — via Bolo
+        create_grant when a live client is present. Audited. Raises PermissionError if `owner` is
+        not the resource owner.&quot;&quot;&quot;
+        self._require_owner(owner, &quot;grant&quot;, grantee, scope)
+        self._backend.create_grant(grantee, scope, dict(params))
+        self._log(owner, &quot;grant&quot;, scope, &quot;granted&quot;, grantee=grantee, params=dict(params))
+
+    def update_grant(self, owner, grantee, scope, **params):
+        &quot;&quot;&quot;Owner changes a live grant&#x27;s params on the fly (e.g. cap 30 -&gt; 40). Audited.&quot;&quot;&quot;
+        self._require_owner(owner, &quot;update&quot;, grantee, scope)
+        if not self._backend.has_grant(grantee, scope):
+            self._log(owner, &quot;update&quot;, scope, &quot;denied&quot;,
+                      grantee=grantee, reason=&quot;no live grant to update&quot;)</pre>
+</div>
+</div>
+</details>
+</section>
+<section class="tier green">
+<h2><span class="dot green"></span>T2 <span class="pill green">GREEN</span> <span class="meta">1/1 checks &middot; required &middot; banked</span></h2>
+<details class="check">
+<summary><span class="pill green">PASS</span> <code>care-companion</code> <span class="wt">w4 &middot; req</span><span class="claim">T2 care companion: instant PCA handoff summary + longitudinal health tracking, gated by RBAC</span></summary>
+<div class="body">
+<h4>What it claims</h4>
+<p class="claimtext">T2 care companion: instant PCA handoff summary + longitudinal health tracking, gated by RBAC</p>
+<h4>Command run</h4>
+<pre class="cmd">$ C:\Python314\python.exe -m pytest -v tests/test_care.py</pre>
+<p class="exit">exit code: <b class="green">0</b> &rarr; <b class="green">PASS</b></p>
+<h4>stdout</h4>
+<pre class="out">============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.3, pluggy-1.6.0 -- C:\Python314\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\trico\Documents\GitHub\build-day\orchestration-kit
+plugins: anyio-4.11.0
+collecting ... collected 3 items
+
+tests/test_care.py::test_handoff_summary_is_short_and_grounded PASSED    [ 33%]
+tests/test_care.py::test_tracking_trend_declines_over_time PASSED        [ 66%]
+tests/test_care.py::test_pca_can_read_todays_handoff_but_not_full_history PASSED [100%]
+
+============================== 3 passed in 0.24s ==============================</pre>
+<h4>Files that prove it</h4>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/orchestration-kit/tests/test_care.py">orchestration-kit/tests/test_care.py</a> &middot; 1190 bytes</div>
+<div class="artdesc">T2 tests: handoff summary + longitudinal trends, gated by RBAC</div>
+</div>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/orchestration-kit/consent_agent/care.py">orchestration-kit/consent_agent/care.py</a> &middot; 2649 bytes</div>
+<div class="artdesc">CareLog: shift handoff_summary() + longitudinal trends()</div>
+<div class="excerpt-label">excerpt &middot; lines 21-45</div>
+<pre class="excerpt">    def handoff_summary(self, day) -&gt; str:
+        &quot;&quot;&quot;A short shift handoff for `day` — the 20-second briefing that replaces the hour-long one.
+        Grounded in what was actually recorded (meds, food, mood). Always &lt;= 280 chars.&quot;&quot;&quot;
+        entry = self._entries.get(day)
+        if not entry:
+            return f&quot;No observations recorded for {day}.&quot;
+
+        parts = [f&quot;Handoff {day}:&quot;]
+        if &quot;mood&quot; in entry:
+            parts.append(f&quot;mood {entry[&#x27;mood&#x27;]}&quot;)
+        if &quot;meds&quot; in entry:
+            parts.append(f&quot;meds {entry[&#x27;meds&#x27;]}&quot;)
+        if &quot;food_intake&quot; in entry:
+            parts.append(f&quot;food intake {int(round(entry[&#x27;food_intake&#x27;] * 100))}%&quot;)
+        if &quot;hygiene&quot; in entry:
+            parts.append(f&quot;hygiene {entry[&#x27;hygiene&#x27;]}&quot;)
+        if &quot;note&quot; in entry:
+            parts.append(f&quot;note: {entry[&#x27;note&#x27;]}&quot;)
+
+        summary = &quot;; &quot;.join([parts[0]] + parts[1:]) if len(parts) &gt; 1 else parts[0]
+        return summary[:280]
+
+    def trends(self, metric, window) -&gt; dict:
+        &quot;&quot;&quot;Longitudinal trend for `metric` over the last `window` days, to answer the doctor&#x27;s
+        &#x27;how has she been?&#x27;. Returns {&#x27;direction&#x27;: &#x27;up&#x27;|&#x27;down&#x27;|&#x27;flat&#x27;, &#x27;change&#x27;: float, &#x27;values&#x27;: [...]}.&quot;&quot;&quot;</pre>
+</div>
+</div>
+</details>
+</section>
+<section class="tier green">
+<h2><span class="dot green"></span>T3 <span class="pill green">GREEN</span> <span class="meta">1/1 checks &middot; required &middot; banked</span></h2>
+<details class="check">
+<summary><span class="pill green">PASS</span> <code>app-surface</code> <span class="wt">w3 &middot; req</span><span class="claim">T3 the REAL Stead app serves on :8770 offline AND its body contains &#x27;Stead&#x27; (a foreign server on another port cannot satisfy this)</span></summary>
+<div class="body">
+<h4>What it claims</h4>
+<p class="claimtext">T3 the REAL Stead app serves on :8770 offline AND its body contains &#x27;Stead&#x27; (a foreign server on another port cannot satisfy this)</p>
+<h4>Command run</h4>
+<pre class="cmd">$ python -c &quot;import urllib.request,sys; b=urllib.request.urlopen(&#x27;http://localhost:8770/&#x27;,timeout=5).read().decode(&#x27;utf-8&#x27;,&#x27;ignore&#x27;); sys.exit(0 if &#x27;Stead&#x27; in b else 1)&quot;</pre>
+<p class="exit">exit code: <b class="green">0</b> &rarr; <b class="green">PASS</b></p>
+<p class="muted">(no output captured)</p>
+<h4>Live PWA receipts (server already running on :8770)</h4>
+<details class="probe">
+<summary><span class="pill green">OK</span> <code>GET /</code> <a href="http://localhost:8770/" target="_blank">http://localhost:8770/</a></summary>
+<p class="muted">HTTP 200 text/html | 5395 bytes | contains &#x27;Stead&#x27;: True</p>
+<pre class="out">&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, viewport-fit=cover&quot;&gt;
+&lt;meta name=&quot;theme-color&quot; content=&quot;#0c0f14&quot;&gt;
+&lt;link rel=&quot;manifest&quot; href=&quot;/manifest.json&quot;&gt;
+&lt;link rel=&quot;icon&quot; href=&quot;/icon.svg&quot;&gt;
+&lt;title&gt;Stead — care companion&lt;/title&gt;
+&lt;style&gt;
+  :root{color-scheme:dark}
+  *{box-sizing:border-box}
+  body{margin:0;background:#0c0f14;color:#e6edf3;font:16px/1.55 -apple-system,Segoe UI,Roboto,system-ui,sans-serif}
+  .wrap{max-width:520px;margin:0 auto;padding:20px 16px 48px}
+  h1{font-size:22px;margin:0}.tag{color:#8b949e;font-size:13px;margin:2px 0 16px}
+  .actors{display:flex;gap:8px;margin-bottom:18px}
+  .actors button{flex:1;padding:10px;border:1px solid #1c2230;background:#11161f;color:#e6edf3;border-radius:10px;</pre>
+</details>
+<details class="probe">
+<summary><span class="pill green">OK</span> <code>GET /manifest.json</code> <a href="http://localhost:8770/manifest.json" target="_blank">http://localhost:8770/manifest.json</a></summary>
+<p class="muted">HTTP 200 application/json | valid JSON</p>
+<pre class="out">{
+  &quot;name&quot;: &quot;Stead \u2014 care companion&quot;,
+  &quot;short_name&quot;: &quot;Stead&quot;,
+  &quot;description&quot;: &quot;Scoped, revocable, owner-held consent for everyone caring for Ruby.&quot;,
+  &quot;start_url&quot;: &quot;/&quot;,
+  &quot;scope&quot;: &quot;/&quot;,
+  &quot;display&quot;: &quot;standalone&quot;,
+  &quot;orientation&quot;: &quot;portrait&quot;,
+  &quot;background_color&quot;: &quot;#0c0f14&quot;,
+  &quot;theme_color&quot;: &quot;#0c0f14&quot;,
+  &quot;icons&quot;: [
+    {
+      &quot;src&quot;: &quot;/icon.svg&quot;,
+      &quot;sizes&quot;: &quot;any&quot;,
+      &quot;type&quot;: &quot;image/svg+xml&quot;,
+      &quot;purpose&quot;: &quot;any maskable&quot;
+    }
+  ]
+}</pre>
+</details>
+<details class="probe">
+<summary><span class="pill green">OK</span> <code>GET /api/state?actor=mom</code> <a href="http://localhost:8770/api/state?actor=mom" target="_blank">http://localhost:8770/api/state?actor=mom</a></summary>
+<p class="muted">HTTP 200 application/json | valid JSON</p>
+<pre class="out">{
+  &quot;actor&quot;: &quot;mom&quot;,
+  &quot;label&quot;: &quot;Mom (owner) \u00b7 full&quot;,
+  &quot;can_view_today&quot;: true,
+  &quot;mood&quot;: &quot;low&quot;,
+  &quot;handoff&quot;: &quot;Handoff 2026-06-13:; mood low; meds on time; food intake 40%; note: quiet afternoon&quot;,
+  &quot;grant&quot;: null,
+  &quot;trend&quot;: {
+    &quot;direction&quot;: &quot;down&quot;,
+    &quot;change&quot;: -0.5,
+    &quot;values&quot;: [
+      0.9,
+      0.6,
+      0.4
+    ]
+  }
+}</pre>
+</details>
+<details class="probe">
+<summary><span class="pill green">OK</span> <code>GET /api/state?actor=jane:pca</code> <a href="http://localhost:8770/api/state?actor=jane:pca" target="_blank">http://localhost:8770/api/state?actor=jane:pca</a></summary>
+<p class="muted">HTTP 200 application/json | valid JSON</p>
+<pre class="out">{
+  &quot;actor&quot;: &quot;jane:pca&quot;,
+  &quot;label&quot;: &quot;PCA \u00b7 care:read&quot;,
+  &quot;can_view_today&quot;: true,
+  &quot;mood&quot;: &quot;low&quot;,
+  &quot;handoff&quot;: &quot;Handoff 2026-06-13:; mood low; meds on time; food intake 40%; note: quiet afternoon&quot;,
+  &quot;grant&quot;: null,
+  &quot;trend&quot;: {
+    &quot;direction&quot;: &quot;down&quot;,
+    &quot;change&quot;: -0.5,
+    &quot;values&quot;: [
+      0.9,
+      0.6,
+      0.4
+    ]
+  }
+}</pre>
+</details>
+<details class="probe">
+<summary><span class="pill green">OK</span> <code>GET /api/state?actor=agent:ruby</code> <a href="http://localhost:8770/api/state?actor=agent:ruby" target="_blank">http://localhost:8770/api/state?actor=agent:ruby</a></summary>
+<p class="muted">HTTP 200 application/json | valid JSON</p>
+<pre class="out">{
+  &quot;actor&quot;: &quot;agent:ruby&quot;,
+  &quot;label&quot;: &quot;agent \u00b7 order:food&quot;,
+  &quot;can_view_today&quot;: false,
+  &quot;mood&quot;: null,
+  &quot;handoff&quot;: null,
+  &quot;grant&quot;: null,
+  &quot;trend&quot;: {
+    &quot;direction&quot;: &quot;down&quot;,
+    &quot;change&quot;: -0.5,
+    &quot;values&quot;: [
+      0.9,
+      0.6,
+      0.4
+    ]
+  }
+}</pre>
+</details>
+<h4>Files that prove it</h4>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/app/server.py">app/server.py</a> &middot; 5425 bytes</div>
+<div class="artdesc">The real Stead PWA server on :8770, wired to the live ConsentEngine</div>
+<div class="excerpt-label">excerpt &middot; lines 1-35</div>
+<pre class="excerpt">&quot;&quot;&quot;Stead — the care-companion PWA, wired to the REAL consent engine.
+
+Serves an installable PWA (manifest + service worker) at http://localhost:8770 and a small consent API
+backed by orchestration-kit&#x27;s Bolo-shaped ConsentEngine. This is the real T3 artifact; package it for
+Android with PWABuilder (point it at the HTTPS URL) or &quot;Add to Home Screen&quot;.
+
+Run:  python app/server.py     (stdlib only; consent core must be implemented)
+&quot;&quot;&quot;
+import json
+import os
+import sys
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+STATIC = Path(__file__).resolve().parent / &quot;static&quot;
+sys.path.insert(0, str(ROOT / &quot;orchestration-kit&quot;))
+
+from consent_agent import ConsentEngine
+from consent_agent.care import CareLog
+from consent_agent.trace import tracer
+
+PORT = 8770
+OWNER, AGENT, PCA = &quot;mom&quot;, &quot;agent:ruby&quot;, &quot;jane:pca&quot;
+TODAY = &quot;2026-06-13&quot;
+
+consent = ConsentEngine(owner=OWNER)
+consent.grant(OWNER, AGENT, &quot;order:food&quot;, vendor=&quot;Tony&#x27;s Pizza&quot;, cap=30, payment=&quot;card-on-file&quot;)
+consent.grant(OWNER, PCA, &quot;care:read&quot;)
+
+care = CareLog()
+care.record(&quot;2026-06-11&quot;, mood=&quot;ok&quot;, meds=&quot;on time&quot;, food_intake=0.9)
+care.record(&quot;2026-06-12&quot;, mood=&quot;low&quot;, meds=&quot;on time&quot;, food_intake=0.6)
+care.record(TODAY, mood=&quot;low&quot;, meds=&quot;on time&quot;, food_intake=0.4, note=&quot;quiet afternoon&quot;)
+</pre>
+</div>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/app/static/index.html">app/static/index.html</a> &middot; 5406 bytes</div>
+<div class="artdesc">Installable PWA shell (the &#x27;Stead&#x27; UI body)</div>
+</div>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/app/static/manifest.json">app/static/manifest.json</a> &middot; 420 bytes</div>
+<div class="artdesc">PWA manifest -&gt; Add to Home Screen / PWABuilder</div>
+</div>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/app/static/sw.js">app/static/sw.js</a> &middot; 617 bytes</div>
+<div class="artdesc">Service worker -&gt; offline serve</div>
+</div>
+</div>
+</details>
+</section>
+<section class="tier green">
+<h2><span class="dot green"></span>T4 <span class="pill green">GREEN</span> <span class="meta">1/1 checks &middot; stretch &middot; banked</span></h2>
+<details class="check">
+<summary><span class="pill green">PASS</span> <code>act-on-behalf</code> <span class="wt">w4 &middot; opt</span><span class="claim">T4 agent acts on Ruby&#x27;s behalf within grant; HALT on wrong-vendor/over-cap/after-revoke; raise-cap-on-the-fly; zero ungranted actions</span></summary>
+<div class="body">
+<h4>What it claims</h4>
+<p class="claimtext">T4 agent acts on Ruby&#x27;s behalf within grant; HALT on wrong-vendor/over-cap/after-revoke; raise-cap-on-the-fly; zero ungranted actions</p>
+<h4>Command run</h4>
+<pre class="cmd">$ C:\Python314\python.exe -m pytest -v tests/test_agent.py</pre>
+<p class="exit">exit code: <b class="green">0</b> &rarr; <b class="green">PASS</b></p>
+<h4>stdout</h4>
+<pre class="out">============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.3, pluggy-1.6.0 -- C:\Python314\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\trico\Documents\GitHub\build-day\orchestration-kit
+plugins: anyio-4.11.0
+collecting ... collected 6 items
+
+tests/test_agent.py::test_orders_within_grant PASSED                     [ 16%]
+tests/test_agent.py::test_over_cap_halts PASSED                          [ 33%]
+tests/test_agent.py::test_raise_cap_on_the_fly_then_proceeds PASSED      [ 50%]
+tests/test_agent.py::test_wrong_vendor_halts PASSED                      [ 66%]
+tests/test_agent.py::test_revoke_halts_instantly PASSED                  [ 83%]
+tests/test_agent.py::test_no_action_without_a_logged_grant PASSED        [100%]
+
+============================== 6 passed in 0.30s ==============================</pre>
+<h4>Files that prove it</h4>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/orchestration-kit/tests/test_agent.py">orchestration-kit/tests/test_agent.py</a> &middot; 1592 bytes</div>
+<div class="artdesc">T4 tests: act within grant, HALT on wrong-vendor/over-cap/after-revoke, raise-cap-on-fly</div>
+</div>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/orchestration-kit/consent_agent/__init__.py">orchestration-kit/consent_agent/__init__.py</a> &middot; 9860 bytes</div>
+<div class="artdesc">act() -&gt; done|halted with reason; update_grant() raises cap on the fly</div>
+<div class="excerpt-label">excerpt &middot; lines 165-192</div>
+<pre class="excerpt">        if params is None:
+            return False
+        if context:
+            return self._scope_satisfied(params, context)
+        return True
+
+    def can_view(self, actor, resource) -&gt; bool:
+        &quot;&quot;&quot;True iff `actor`&#x27;s read scopes permit viewing `resource`
+        (e.g. care:today needs care:read; care:history / care:trends need more).&quot;&quot;&quot;
+        def _trace(decision, scope=None):
+            tracer.event(&quot;consent.can_view&quot;, actor=actor, scope=scope,
+                         resource=resource, decision=decision)
+
+        if actor == self.owner:
+            _trace(&quot;allowed&quot;, scope=&quot;*&quot;)
+            return True
+        for scope, viewable in _VIEW_RULES.items():
+            if resource in viewable and self._backend.has_grant(actor, scope):
+                _trace(&quot;allowed&quot;, scope=scope)
+                return True
+        _trace(&quot;denied&quot;)
+        return False
+
+    def act(self, actor, action, **params) -&gt; dict:
+        &quot;&quot;&quot;Attempt `action` on the owner&#x27;s behalf. Returns {&#x27;status&#x27;: &#x27;done&#x27; | &#x27;halted&#x27;, &#x27;reason&#x27;: ...}.
+        &#x27;done&#x27; ONLY inside a live grant this call satisfies; otherwise &#x27;halted&#x27; (the agent pauses and
+        asks). Every attempt is audited with its decision.&quot;&quot;&quot;
+        if actor == self.owner:</pre>
+</div>
+</div>
+</details>
+</section>
+<section class="tier green">
+<h2><span class="dot green"></span>T5 <span class="pill green">GREEN</span> <span class="meta">2/2 checks &middot; stretch &middot; banked</span></h2>
+<details class="check">
+<summary><span class="pill green">PASS</span> <code>voice-through-mars</code> <span class="wt">w2 &middot; opt</span><span class="claim">T5 agent vocalizes negotiation + consent events through MARS (offline transcript; real robot = wow)</span></summary>
+<div class="body">
+<h4>What it claims</h4>
+<p class="claimtext">T5 agent vocalizes negotiation + consent events through MARS (offline transcript; real robot = wow)</p>
+<h4>Command run</h4>
+<pre class="cmd">$ C:\Python314\python.exe -m pytest -v tests/test_voice.py</pre>
+<p class="exit">exit code: <b class="green">0</b> &rarr; <b class="green">PASS</b></p>
+<h4>stdout</h4>
+<pre class="out">============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.3, pluggy-1.6.0 -- C:\Python314\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\trico\Documents\GitHub\build-day\orchestration-kit
+plugins: anyio-4.11.0
+collecting ... collected 1 item
+
+tests/test_voice.py::test_vocalizes_negotiation_and_consent_through_mars PASSED [100%]
+
+============================== 1 passed in 0.22s ==============================</pre>
+<h4>Files that prove it</h4>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/orchestration-kit/tests/test_voice.py">orchestration-kit/tests/test_voice.py</a> &middot; 625 bytes</div>
+<div class="artdesc">T5 tests: agent vocalizes negotiation + consent events (offline transcript)</div>
+</div>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/orchestration-kit/consent_agent/voice.py">orchestration-kit/consent_agent/voice.py</a> &middot; 974 bytes</div>
+<div class="artdesc">Vocalizer.say(): speak through MARS / record offline transcript</div>
+<div class="excerpt-label">excerpt &middot; lines 10-22</div>
+<pre class="excerpt">class Vocalizer:
+    def __init__(self, sink=&quot;mars&quot;):
+        self.sink = sink
+        self._spoken = []
+
+    def say(self, text) -&gt; dict:
+        &quot;&quot;&quot;Speak `text` through MARS (or record it offline). Returns {&#x27;sink&#x27;, &#x27;text&#x27;}.&quot;&quot;&quot;
+        utterance = {&quot;sink&quot;: self.sink, &quot;text&quot;: text}
+        self._spoken.append(utterance)
+        return dict(utterance)
+
+    @property
+    def spoken(self) -&gt; list:</pre>
+</div>
+</div>
+</details>
+<details class="check">
+<summary><span class="pill green">PASS</span> <code>self-correction-evidence</code> <span class="wt">w1 &middot; opt</span><span class="claim">log excerpt: a verifier caught a failure and the loop self-corrected (Autonomy)</span></summary>
+<div class="body">
+<h4>What it claims</h4>
+<p class="claimtext">log excerpt: a verifier caught a failure and the loop self-corrected (Autonomy)</p>
+<h4>Command run</h4>
+<pre class="cmd">$ test -s evidence/self-correction.md</pre>
+<p class="exit">exit code: <b class="green">0</b> &rarr; <b class="green">PASS</b></p>
+<h4>stdout</h4>
+<pre class="out">evidence/self-correction.md: 3800 bytes</pre>
+<h4>Files that prove it</h4>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/orchestration-kit/evidence/self-correction.md">orchestration-kit/evidence/self-correction.md</a> &middot; 3800 bytes</div>
+<div class="artdesc">Captured loop log: a fresh-context verifier caught test-gaming, loop self-corrected</div>
+</div>
+<div class="artifact">
+<div class="artrow"><span class="pill green">OK</span> <a href="file:///C:/Users/trico/Documents/GitHub/build-day/orchestration-kit/workflow/build-verify-loop.js">orchestration-kit/workflow/build-verify-loop.js</a> &middot; 5007 bytes</div>
+<div class="artdesc">The grade-&gt;build-&gt;verify-&gt;re-grade loop that produced the self-correction</div>
+</div>
+</div>
+</details>
+</section>
+<div class="foot">Regenerate from current repo state: <code>python orchestration-kit/evidence.py</code> &middot; source: <code>rubric.json</code></div>
+</main>
+</body></html>

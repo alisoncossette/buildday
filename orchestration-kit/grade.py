@@ -88,7 +88,7 @@ def main():
         total += w
         earned += w if ok else 0
         results.append({
-            "id": c["id"], "desc": c.get("desc", ""),
+            "id": c["id"], "desc": c.get("desc", ""), "tier": c.get("tier", 0),
             "required": c.get("required", True), "ok": ok, "weight": w, "detail": detail,
         })
 
@@ -104,10 +104,33 @@ def main():
     required_fail = [r for r in results if r["required"] and not r["ok"]]
     done = not required_fail
     print("  " + "-" * 66)
-    print(f"  SCORE: {earned}/{total} ({pct}%)   REQUIRED REMAINING: {len(required_fail)}   DONE: {done}\n")
+    print(f"  SCORE: {earned}/{total} ({pct}%)   REQUIRED REMAINING: {len(required_fail)}   DONE: {done}")
+
+    # --- verifiable tier/spiral: a tier banks only if it AND every tier below it are fully green ---
+    tiers = sorted({r["tier"] for r in results if r["tier"]})
+    tier_green, banked = {}, 0
+    for t in tiers:
+        ct = [r for r in results if r["tier"] == t]
+        tier_green[t] = all(r["ok"] for r in ct)
+        if tier_green[t] and banked == t - 1:
+            banked = t
+    if tiers:
+        print("  TIER LADDER (spiral):")
+        for t in tiers:
+            ct = [r for r in results if r["tier"] == t]
+            n_ok = sum(1 for r in ct if r["ok"])
+            mark = "GREEN" if tier_green[t] else " red "
+            tag = "  <- banked" if t <= banked else ""
+            print(f"    T{t} [{mark}] {n_ok}/{len(ct)}{tag}")
+        print(f"  HIGHEST BANKED TIER: T{banked}")
+    print()
 
     (ROOT / "grade-report.json").write_text(
-        json.dumps({"score": earned, "total": total, "pct": pct, "done": done, "results": results}, indent=2),
+        json.dumps({
+            "score": earned, "total": total, "pct": pct, "done": done,
+            "banked_tier": banked, "tiers": {str(t): tier_green[t] for t in tiers},
+            "results": results,
+        }, indent=2),
         encoding="utf-8",
     )
     sys.exit(0 if done else 1)

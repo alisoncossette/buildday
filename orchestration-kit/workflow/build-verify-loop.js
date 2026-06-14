@@ -1,32 +1,33 @@
 export const meta = {
   name: 'build-verify-loop',
-  description: 'Project-agnostic build-until-green loop: grade -> build -> adversarially verify -> re-grade, until grade.py exits 0',
+  description: 'Verifiable tier/spiral: grade -> build the lowest red tier -> adversarially verify -> re-grade, banking each tier, until grade.py exits 0',
   phases: [
-    { title: 'Grade', detail: 'run grade.py (the done oracle), read failing checks' },
-    { title: 'Build', detail: 'implement minimal real behavior for the red checks' },
-    { title: 'Verify', detail: 'independent sub-agents confirm the fix is real, not test-gaming' },
+    { title: 'Grade', detail: 'run grade.py (the done oracle), read banked tier + failing checks' },
+    { title: 'Build', detail: 'implement the lowest red tier without breaking banked tiers' },
+    { title: 'Verify', detail: 'independent sub-agents confirm the fix is real and lower tiers still green' },
   ],
 }
 
-// Swap nothing here between projects — only BRIEF.md / GOAL.md / rubric.json change.
+// Swap nothing here between projects — only BRIEF.md / GOAL.md / rubric.json (+ contracts/tests) change.
 const KIT = 'orchestration-kit'
-const MAX_ROUNDS = (args && args.maxRounds) || 6
+const MAX_ROUNDS = (args && args.maxRounds) || 12
 
 const GRADE_SCHEMA = {
   type: 'object', additionalProperties: false,
   properties: {
     done: { type: 'boolean' },
     pct: { type: 'number' },
+    bankedTier: { type: 'number' },
     failures: {
       type: 'array',
       items: {
         type: 'object', additionalProperties: false,
-        properties: { id: { type: 'string' }, why: { type: 'string' } },
-        required: ['id', 'why'],
+        properties: { id: { type: 'string' }, tier: { type: 'number' }, why: { type: 'string' } },
+        required: ['id', 'tier', 'why'],
       },
     },
   },
-  required: ['done', 'pct', 'failures'],
+  required: ['done', 'pct', 'bankedTier', 'failures'],
 }
 
 const VERDICT_SCHEMA = {
@@ -37,9 +38,9 @@ const VERDICT_SCHEMA = {
 
 function grade(round) {
   return agent(
-    `Run \`python grade.py\` inside the ${KIT} directory. Parse its scorecard and ${KIT}/grade-report.json. ` +
-    `Return done (true ONLY if it exits 0 / "DONE: True"), the pct, and every failing check with a one-line why. ` +
-    `Do NOT fix anything — just report what the grader said.`,
+    `Run \`python grade.py\` inside the ${KIT} directory. Parse its scorecard, the TIER LADDER, and ${KIT}/grade-report.json. ` +
+    `Return done (true ONLY if it exits 0 / "DONE: True"), pct, bankedTier (the "HIGHEST BANKED TIER" / banked_tier value), ` +
+    `and every failing check with its tier and a one-line why. Do NOT fix anything — just report what the grader said.`,
     { label: `grade r${round}`, phase: 'Grade', schema: GRADE_SCHEMA }
   )
 }
@@ -49,36 +50,44 @@ let round = 0
 
 while (!last.done && round < MAX_ROUNDS) {
   round++
-  const failures = last.failures.map(f => `- ${f.id}: ${f.why}`).join('\n')
-  log(`Round ${round}: ${last.pct}% — ${last.failures.length} red check(s)`)
+  const target = last.bankedTier + 1
+  const tierFails = last.failures.filter(f => f.tier === target)
+  const focus = tierFails.length ? tierFails : last.failures
+  const failures = focus.map(f => `- [T${f.tier}] ${f.id}: ${f.why}`).join('\n')
+  log(`Round ${round}: ${last.pct}% — banked T${last.bankedTier}; climbing to T${target} (${focus.length} red)`)
 
   const diff = await agent(
-    `The definition-of-done grader (${KIT}/grade.py) reports these RED checks:\n${failures}\n\n` +
-    `Implement the MINIMAL real code to make them pass. Honor the contract in ${KIT}/consent_agent/__init__.py ` +
-    `and the tests in ${KIT}/tests/. Do NOT hardcode test return values, weaken/delete assertions, or skip tests — ` +
-    `build the actual behavior. After editing, run the relevant tests yourself. ` +
+    `SPIRAL build for project STEAD (a care companion + Bolo consent layer; see ${KIT}/../PRD.md). ` +
+    `The grader (${KIT}/grade.py) has banked tier T${last.bankedTier}. ` +
+    `Implement the MINIMAL real code to make TIER T${target} green, WITHOUT breaking any banked tier (<= T${last.bankedTier}):\n${failures}\n\n` +
+    `Honor the contracts in ${KIT}/consent_agent/ and the tests in ${KIT}/tests/. ` +
+    `Back the consent engine with the BOLO MCP (@bolospot/mcp: create_grant / check_access / revoke_grant / request_access) ` +
+    `via a thin adapter, but keep an in-memory backend as the DEFAULT so the offline pytest checks stay deterministic. ` +
+    `Do NOT hardcode test return values, weaken/delete assertions, skip tests, or fake the HTTP endpoint — build the real behavior. ` +
+    `After editing, run T${target}'s tests AND re-run all lower-tier tests to confirm no regression. ` +
     `Return a terse summary of which files you changed and what each fix does.`,
-    { label: `build r${round}`, phase: 'Build' }
+    { label: `build T${target} r${round}`, phase: 'Build' }
   )
 
-  // Adversarial verification: independent agents try to REFUTE that the fix is real.
+  // Adversarial verification: independent agents try to REFUTE that the fix is real AND non-regressing.
   // Models are weak at self-critique; a fresh context grades better than self-review.
   const votes = await parallel([0, 1, 2].map(i => () =>
     agent(
-      `A builder claims it fixed these checks:\n${failures}\n\nIts summary:\n${diff}\n\n` +
-      `Adversarially verify against the ACTUAL code/tests in ${KIT}. Did it implement REAL behavior, or game the tests ` +
-      `(hardcoded expected values, weakened/removed assertions, skipped tests, faked the HTTP endpoint, behavior that only ` +
-      `passes the exact test inputs)? Default to real=false if uncertain. One-line reason.`,
-      { label: `verify r${round}.${i}`, phase: 'Verify', schema: VERDICT_SCHEMA }
+      `A builder claims it made TIER T${target} of project Stead green:\n${failures}\n\nIts summary:\n${diff}\n\n` +
+      `Adversarially verify against the ACTUAL code/tests in ${KIT}. Two questions: ` +
+      `(1) did it implement REAL behavior, or game the tests (hardcoded expected values, weakened/removed assertions, ` +
+      `skipped tests, faked the HTTP endpoint, behavior that only passes the exact test inputs)? ` +
+      `(2) did it REGRESS any banked tier (<= T${last.bankedTier})? Default to real=false if uncertain. One-line reason.`,
+      { label: `verify T${target} r${round}.${i}`, phase: 'Verify', schema: VERDICT_SCHEMA }
     )
   ))
 
   const realVotes = votes.filter(Boolean).filter(v => v.real).length
   if (realVotes < 2) {
-    log(`Round ${round}: verifiers rejected the fix as test-gaming (${realVotes}/3) — forcing a real rebuild`)
+    log(`Round ${round}: verifiers rejected T${target} (${realVotes}/3) — gamed tests or regressed a banked tier; forcing a real rebuild`)
     last = {
-      done: false, pct: last.pct,
-      failures: [{ id: 'integrity', why: 'verifiers say the last change gamed the tests; implement real behavior' }, ...last.failures],
+      done: false, pct: last.pct, bankedTier: last.bankedTier,
+      failures: [{ id: 'integrity', tier: target, why: 'verifiers say the change gamed tests or regressed a banked tier; implement real behavior' }, ...last.failures],
     }
     continue
   }
@@ -86,4 +95,4 @@ while (!last.done && round < MAX_ROUNDS) {
   last = await grade(round)
 }
 
-return { done: last.done, finalPct: last.pct, rounds: round, remaining: last.failures }
+return { done: last.done, finalPct: last.pct, bankedTier: last.bankedTier, rounds: round, remaining: last.failures }

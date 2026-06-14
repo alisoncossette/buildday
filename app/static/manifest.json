@@ -1,0 +1,14 @@
+{
+  "name": "Stead — care companion",
+  "short_name": "Stead",
+  "description": "Scoped, revocable, owner-held consent for everyone caring for Ruby.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0c0f14",
+  "theme_color": "#0c0f14",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,338 @@
+{
+  "name": "Stead \u2014 definition of done (SUBJECT to PRD.md)",
+  "generated": "2026-06-13 20:52:56 UTC",
+  "n_pass": 7,
+  "n_fail": 0,
+  "n_total": 7,
+  "banked_tier": 5,
+  "tiers": [
+    {
+      "tier": 1,
+      "green": true,
+      "n_ok": 2,
+      "n": 2,
+      "required": true
+    },
+    {
+      "tier": 2,
+      "green": true,
+      "n_ok": 1,
+      "n": 1,
+      "required": true
+    },
+    {
+      "tier": 3,
+      "green": true,
+      "n_ok": 1,
+      "n": 1,
+      "required": true
+    },
+    {
+      "tier": 4,
+      "green": true,
+      "n_ok": 1,
+      "n": 1,
+      "required": false
+    },
+    {
+      "tier": 5,
+      "green": true,
+      "n_ok": 2,
+      "n": 2,
+      "required": false
+    }
+  ],
+  "checks": [
+    {
+      "id": "consent-contract",
+      "type": "file_exists",
+      "tier": 1,
+      "desc": "consent / RBAC engine contract exists",
+      "required": true,
+      "weight": 1,
+      "claim": "consent / RBAC engine contract exists",
+      "command": "test -s consent_agent/__init__.py",
+      "exit_code": 0,
+      "ok": true,
+      "stdout": "consent_agent/__init__.py: 9860 bytes",
+      "stderr": "",
+      "truncated": false,
+      "artifacts": [
+        {
+          "path": "orchestration-kit/consent_agent/__init__.py",
+          "desc": "ConsentEngine: owner-held, parameterized, revocable, audited consent (Bolo-shaped)",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\\consent_agent\\__init__.py",
+          "size": 9860,
+          "excerpt": "\n\nclass ConsentEngine:\n    def __init__(self, owner=\"mom\", bolo=None):\n        \"\"\"`bolo`: a Bolo client adapter over @bolospot/mcp (create_grant / check_access /\n        revoke_grant / request_access). Defaults to an in-memory backend so offline pytest /\n        grade.py stay deterministic; the live app + agent runtime pass the real Bolo MCP client.\"\"\"\n        self.owner = owner\n        self._backend = BoloBackend(bolo) if bolo is not None else InMemoryBackend()\n        self._audit = []\n\n    def _log(self, actor, event, scope, decision, **extra):\n        entry = {\"actor\": actor, \"event\": event, \"scope\": scope, \"decision\": decision}\n        entry.update(extra)\n        self._audit.append(entry)\n        # Mirror every consent transition to the tracer (no-op unless Langfuse is configured).\n        # extra may carry grantee, reason, and a `params` dict (vendor/cap/amount/...).\n        params = extra.get(\"params\") or {}\n        tracer.event(\n            \"consent.\" + event,\n            actor=actor,\n            scope=scope,\n            decision=decision,\n            grantee=extra.get(\"grantee\"),\n            reason=extra.get(\"reason\"),\n            vendor=params.get(\"vendor\"),\n            cap=params.get(\"cap\"),\n            amount=params.get(\"amount\"),\n        )\n        return entry",
+          "excerpt_range": "lines 83-112"
+        }
+      ]
+    },
+    {
+      "id": "rbac-access",
+      "type": "pytest",
+      "tier": 1,
+      "desc": "T1 RBAC: per-actor roles & scopes (Mom full, PCA care:read, agent scoped); owner-held grant/check/revoke effective immediately; audited",
+      "required": true,
+      "weight": 5,
+      "claim": "T1 RBAC: per-actor roles & scopes (Mom full, PCA care:read, agent scoped); owner-held grant/check/revoke effective immediately; audited",
+      "command": "C:\\Python314\\python.exe -m pytest -v tests/test_rbac.py",
+      "exit_code": 0,
+      "ok": true,
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.14.0, pytest-9.0.3, pluggy-1.6.0 -- C:\\Python314\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\nplugins: anyio-4.11.0\ncollecting ... collected 5 items\n\ntests/test_rbac.py::test_owner_has_full_access PASSED                    [ 20%]\ntests/test_rbac.py::test_pca_is_scoped_to_care_read_only PASSED          [ 40%]\ntests/test_rbac.py::test_only_owner_can_grant PASSED                     [ 60%]\ntests/test_rbac.py::test_revoke_takes_effect_immediately PASSED          [ 80%]\ntests/test_rbac.py::test_audit_logs_grant_and_revoke PASSED              [100%]\n\n============================== 5 passed in 0.32s ==============================\n",
+      "stderr": "",
+      "truncated": false,
+      "artifacts": [
+        {
+          "path": "orchestration-kit/tests/test_rbac.py",
+          "desc": "T1 RBAC test suite: per-actor scopes, owner-only grant/revoke, audit",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\\tests\\test_rbac.py",
+          "size": 1390,
+          "excerpt": null,
+          "excerpt_range": null
+        },
+        {
+          "path": "orchestration-kit/consent_agent/__init__.py",
+          "desc": "grant/check/revoke + can_view + audit log that the RBAC tests exercise",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\\consent_agent\\__init__.py",
+          "size": 9860,
+          "excerpt": "            grantee=extra.get(\"grantee\"),\n            reason=extra.get(\"reason\"),\n            vendor=params.get(\"vendor\"),\n            cap=params.get(\"cap\"),\n            amount=params.get(\"amount\"),\n        )\n        return entry\n\n    def _require_owner(self, owner, event, grantee, scope):\n        if owner != self.owner:\n            self._log(owner, event, scope, \"denied\",\n                      grantee=grantee, reason=\"not the resource owner\")\n            raise PermissionError(\n                f\"{owner!r} may not {event} {scope!r}: only the owner {self.owner!r} can\"\n            )\n\n    def grant(self, owner, grantee, scope, **params):\n        \"\"\"Owner grants `grantee` a `scope` with optional params (vendor, cap, payment) \u2014 via Bolo\n        create_grant when a live client is present. Audited. Raises PermissionError if `owner` is\n        not the resource owner.\"\"\"\n        self._require_owner(owner, \"grant\", grantee, scope)\n        self._backend.create_grant(grantee, scope, dict(params))\n        self._log(owner, \"grant\", scope, \"granted\", grantee=grantee, params=dict(params))\n\n    def update_grant(self, owner, grantee, scope, **params):\n        \"\"\"Owner changes a live grant's params on the fly (e.g. cap 30 -> 40). Audited.\"\"\"\n        self._require_owner(owner, \"update\", grantee, scope)\n        if not self._backend.has_grant(grantee, scope):\n            self._log(owner, \"update\", scope, \"denied\",\n                      grantee=grantee, reason=\"no live grant to update\")",
+          "excerpt_range": "lines 106-135"
+        }
+      ]
+    },
+    {
+      "id": "care-companion",
+      "type": "pytest",
+      "tier": 2,
+      "desc": "T2 care companion: instant PCA handoff summary + longitudinal health tracking, gated by RBAC",
+      "required": true,
+      "weight": 4,
+      "claim": "T2 care companion: instant PCA handoff summary + longitudinal health tracking, gated by RBAC",
+      "command": "C:\\Python314\\python.exe -m pytest -v tests/test_care.py",
+      "exit_code": 0,
+      "ok": true,
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.14.0, pytest-9.0.3, pluggy-1.6.0 -- C:\\Python314\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\nplugins: anyio-4.11.0\ncollecting ... collected 3 items\n\ntests/test_care.py::test_handoff_summary_is_short_and_grounded PASSED    [ 33%]\ntests/test_care.py::test_tracking_trend_declines_over_time PASSED        [ 66%]\ntests/test_care.py::test_pca_can_read_todays_handoff_but_not_full_history PASSED [100%]\n\n============================== 3 passed in 0.24s ==============================\n",
+      "stderr": "",
+      "truncated": false,
+      "artifacts": [
+        {
+          "path": "orchestration-kit/tests/test_care.py",
+          "desc": "T2 tests: handoff summary + longitudinal trends, gated by RBAC",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\\tests\\test_care.py",
+          "size": 1190,
+          "excerpt": null,
+          "excerpt_range": null
+        },
+        {
+          "path": "orchestration-kit/consent_agent/care.py",
+          "desc": "CareLog: shift handoff_summary() + longitudinal trends()",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\\consent_agent\\care.py",
+          "size": 2649,
+          "excerpt": "    def handoff_summary(self, day) -> str:\n        \"\"\"A short shift handoff for `day` \u2014 the 20-second briefing that replaces the hour-long one.\n        Grounded in what was actually recorded (meds, food, mood). Always <= 280 chars.\"\"\"\n        entry = self._entries.get(day)\n        if not entry:\n            return f\"No observations recorded for {day}.\"\n\n        parts = [f\"Handoff {day}:\"]\n        if \"mood\" in entry:\n            parts.append(f\"mood {entry['mood']}\")\n        if \"meds\" in entry:\n            parts.append(f\"meds {entry['meds']}\")\n        if \"food_intake\" in entry:\n            parts.append(f\"food intake {int(round(entry['food_intake'] * 100))}%\")\n        if \"hygiene\" in entry:\n            parts.append(f\"hygiene {entry['hygiene']}\")\n        if \"note\" in entry:\n            parts.append(f\"note: {entry['note']}\")\n\n        summary = \"; \".join([parts[0]] + parts[1:]) if len(parts) > 1 else parts[0]\n        return summary[:280]\n\n    def trends(self, metric, window) -> dict:\n        \"\"\"Longitudinal trend for `metric` over the last `window` days, to answer the doctor's\n        'how has she been?'. Returns {'direction': 'up'|'down'|'flat', 'change': float, 'values': [...]}.\"\"\"",
+          "excerpt_range": "lines 21-45"
+        }
+      ]
+    },
+    {
+      "id": "app-surface",
+      "type": "command",
+      "tier": 3,
+      "desc": "T3 the REAL Stead app serves on :8770 offline AND its body contains 'Stead' (a foreign server on another port cannot satisfy this)",
+      "required": true,
+      "weight": 3,
+      "claim": "T3 the REAL Stead app serves on :8770 offline AND its body contains 'Stead' (a foreign server on another port cannot satisfy this)",
+      "command": "python -c \"import urllib.request,sys; b=urllib.request.urlopen('http://localhost:8770/',timeout=5).read().decode('utf-8','ignore'); sys.exit(0 if 'Stead' in b else 1)\"",
+      "exit_code": 0,
+      "ok": true,
+      "stdout": "",
+      "stderr": "",
+      "truncated": false,
+      "artifacts": [
+        {
+          "path": "app/server.py",
+          "desc": "The real Stead PWA server on :8770, wired to the live ConsentEngine",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\app\\server.py",
+          "size": 5425,
+          "excerpt": "\"\"\"Stead \u2014 the care-companion PWA, wired to the REAL consent engine.\n\nServes an installable PWA (manifest + service worker) at http://localhost:8770 and a small consent API\nbacked by orchestration-kit's Bolo-shaped ConsentEngine. This is the real T3 artifact; package it for\nAndroid with PWABuilder (point it at the HTTPS URL) or \"Add to Home Screen\".\n\nRun:  python app/server.py     (stdlib only; consent core must be implemented)\n\"\"\"\nimport json\nimport os\nimport sys\nfrom http.server import BaseHTTPRequestHandler, ThreadingHTTPServer\nfrom pathlib import Path\n\nROOT = Path(__file__).resolve().parent.parent\nSTATIC = Path(__file__).resolve().parent / \"static\"\nsys.path.insert(0, str(ROOT / \"orchestration-kit\"))\n\nfrom consent_agent import ConsentEngine\nfrom consent_agent.care import CareLog\nfrom consent_agent.trace import tracer\n\nPORT = 8770\nOWNER, AGENT, PCA = \"mom\", \"agent:ruby\", \"jane:pca\"\nTODAY = \"2026-06-13\"\n\nconsent = ConsentEngine(owner=OWNER)\nconsent.grant(OWNER, AGENT, \"order:food\", vendor=\"Tony's Pizza\", cap=30, payment=\"card-on-file\")\nconsent.grant(OWNER, PCA, \"care:read\")\n\ncare = CareLog()\ncare.record(\"2026-06-11\", mood=\"ok\", meds=\"on time\", food_intake=0.9)\ncare.record(\"2026-06-12\", mood=\"low\", meds=\"on time\", food_intake=0.6)\ncare.record(TODAY, mood=\"low\", meds=\"on time\", food_intake=0.4, note=\"quiet afternoon\")\n",
+          "excerpt_range": "lines 1-35"
+        },
+        {
+          "path": "app/static/index.html",
+          "desc": "Installable PWA shell (the 'Stead' UI body)",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\app\\static\\index.html",
+          "size": 5406,
+          "excerpt": null,
+          "excerpt_range": null
+        },
+        {
+          "path": "app/static/manifest.json",
+          "desc": "PWA manifest -> Add to Home Screen / PWABuilder",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\app\\static\\manifest.json",
+          "size": 420,
+          "excerpt": null,
+          "excerpt_range": null
+        },
+        {
+          "path": "app/static/sw.js",
+          "desc": "Service worker -> offline serve",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\app\\static\\sw.js",
+          "size": 617,
+          "excerpt": null,
+          "excerpt_range": null
+        }
+      ],
+      "pwa_probes": [
+        {
+          "label": "GET /",
+          "url": "http://localhost:8770/",
+          "ok": true,
+          "detail": "HTTP 200 text/html | 5395 bytes | contains 'Stead': True",
+          "body": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n<meta name=\"theme-color\" content=\"#0c0f14\">\n<link rel=\"manifest\" href=\"/manifest.json\">\n<link rel=\"icon\" href=\"/icon.svg\">\n<title>Stead \u2014 care companion</title>\n<style>\n  :root{color-scheme:dark}\n  *{box-sizing:border-box}\n  body{margin:0;background:#0c0f14;color:#e6edf3;font:16px/1.55 -apple-system,Segoe UI,Roboto,system-ui,sans-serif}\n  .wrap{max-width:520px;margin:0 auto;padding:20px 16px 48px}\n  h1{font-size:22px;margin:0}.tag{color:#8b949e;font-size:13px;margin:2px 0 16px}\n  .actors{display:flex;gap:8px;margin-bottom:18px}\n  .actors button{flex:1;padding:10px;border:1px solid #1c2230;background:#11161f;color:#e6edf3;border-radius:10px;"
+        },
+        {
+          "label": "GET /manifest.json",
+          "url": "http://localhost:8770/manifest.json",
+          "ok": true,
+          "detail": "HTTP 200 application/json | valid JSON",
+          "body": "{\n  \"name\": \"Stead \\u2014 care companion\",\n  \"short_name\": \"Stead\",\n  \"description\": \"Scoped, revocable, owner-held consent for everyone caring for Ruby.\",\n  \"start_url\": \"/\",\n  \"scope\": \"/\",\n  \"display\": \"standalone\",\n  \"orientation\": \"portrait\",\n  \"background_color\": \"#0c0f14\",\n  \"theme_color\": \"#0c0f14\",\n  \"icons\": [\n    {\n      \"src\": \"/icon.svg\",\n      \"sizes\": \"any\",\n      \"type\": \"image/svg+xml\",\n      \"purpose\": \"any maskable\"\n    }\n  ]\n}"
+        },
+        {
+          "label": "GET /api/state?actor=mom",
+          "url": "http://localhost:8770/api/state?actor=mom",
+          "ok": true,
+          "detail": "HTTP 200 application/json | valid JSON",
+          "body": "{\n  \"actor\": \"mom\",\n  \"label\": \"Mom (owner) \\u00b7 full\",\n  \"can_view_today\": true,\n  \"mood\": \"low\",\n  \"handoff\": \"Handoff 2026-06-13:; mood low; meds on time; food intake 40%; note: quiet afternoon\",\n  \"grant\": null,\n  \"trend\": {\n    \"direction\": \"down\",\n    \"change\": -0.5,\n    \"values\": [\n      0.9,\n      0.6,\n      0.4\n    ]\n  }\n}"
+        },
+        {
+          "label": "GET /api/state?actor=jane:pca",
+          "url": "http://localhost:8770/api/state?actor=jane:pca",
+          "ok": true,
+          "detail": "HTTP 200 application/json | valid JSON",
+          "body": "{\n  \"actor\": \"jane:pca\",\n  \"label\": \"PCA \\u00b7 care:read\",\n  \"can_view_today\": true,\n  \"mood\": \"low\",\n  \"handoff\": \"Handoff 2026-06-13:; mood low; meds on time; food intake 40%; note: quiet afternoon\",\n  \"grant\": null,\n  \"trend\": {\n    \"direction\": \"down\",\n    \"change\": -0.5,\n    \"values\": [\n      0.9,\n      0.6,\n      0.4\n    ]\n  }\n}"
+        },
+        {
+          "label": "GET /api/state?actor=agent:ruby",
+          "url": "http://localhost:8770/api/state?actor=agent:ruby",
+          "ok": true,
+          "detail": "HTTP 200 application/json | valid JSON",
+          "body": "{\n  \"actor\": \"agent:ruby\",\n  \"label\": \"agent \\u00b7 order:food\",\n  \"can_view_today\": false,\n  \"mood\": null,\n  \"handoff\": null,\n  \"grant\": null,\n  \"trend\": {\n    \"direction\": \"down\",\n    \"change\": -0.5,\n    \"values\": [\n      0.9,\n      0.6,\n      0.4\n    ]\n  }\n}"
+        }
+      ]
+    },
+    {
+      "id": "act-on-behalf",
+      "type": "pytest",
+      "tier": 4,
+      "desc": "T4 agent acts on Ruby's behalf within grant; HALT on wrong-vendor/over-cap/after-revoke; raise-cap-on-the-fly; zero ungranted actions",
+      "required": false,
+      "weight": 4,
+      "claim": "T4 agent acts on Ruby's behalf within grant; HALT on wrong-vendor/over-cap/after-revoke; raise-cap-on-the-fly; zero ungranted actions",
+      "command": "C:\\Python314\\python.exe -m pytest -v tests/test_agent.py",
+      "exit_code": 0,
+      "ok": true,
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.14.0, pytest-9.0.3, pluggy-1.6.0 -- C:\\Python314\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\nplugins: anyio-4.11.0\ncollecting ... collected 6 items\n\ntests/test_agent.py::test_orders_within_grant PASSED                     [ 16%]\ntests/test_agent.py::test_over_cap_halts PASSED                          [ 33%]\ntests/test_agent.py::test_raise_cap_on_the_fly_then_proceeds PASSED      [ 50%]\ntests/test_agent.py::test_wrong_vendor_halts PASSED                      [ 66%]\ntests/test_agent.py::test_revoke_halts_instantly PASSED                  [ 83%]\ntests/test_agent.py::test_no_action_without_a_logged_grant PASSED        [100%]\n\n============================== 6 passed in 0.30s ==============================\n",
+      "stderr": "",
+      "truncated": false,
+      "artifacts": [
+        {
+          "path": "orchestration-kit/tests/test_agent.py",
+          "desc": "T4 tests: act within grant, HALT on wrong-vendor/over-cap/after-revoke, raise-cap-on-fly",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\\tests\\test_agent.py",
+          "size": 1592,
+          "excerpt": null,
+          "excerpt_range": null
+        },
+        {
+          "path": "orchestration-kit/consent_agent/__init__.py",
+          "desc": "act() -> done|halted with reason; update_grant() raises cap on the fly",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\\consent_agent\\__init__.py",
+          "size": 9860,
+          "excerpt": "        if params is None:\n            return False\n        if context:\n            return self._scope_satisfied(params, context)\n        return True\n\n    def can_view(self, actor, resource) -> bool:\n        \"\"\"True iff `actor`'s read scopes permit viewing `resource`\n        (e.g. care:today needs care:read; care:history / care:trends need more).\"\"\"\n        def _trace(decision, scope=None):\n            tracer.event(\"consent.can_view\", actor=actor, scope=scope,\n                         resource=resource, decision=decision)\n\n        if actor == self.owner:\n            _trace(\"allowed\", scope=\"*\")\n            return True\n        for scope, viewable in _VIEW_RULES.items():\n            if resource in viewable and self._backend.has_grant(actor, scope):\n                _trace(\"allowed\", scope=scope)\n                return True\n        _trace(\"denied\")\n        return False\n\n    def act(self, actor, action, **params) -> dict:\n        \"\"\"Attempt `action` on the owner's behalf. Returns {'status': 'done' | 'halted', 'reason': ...}.\n        'done' ONLY inside a live grant this call satisfies; otherwise 'halted' (the agent pauses and\n        asks). Every attempt is audited with its decision.\"\"\"\n        if actor == self.owner:",
+          "excerpt_range": "lines 165-192"
+        }
+      ]
+    },
+    {
+      "id": "voice-through-mars",
+      "type": "pytest",
+      "tier": 5,
+      "desc": "T5 agent vocalizes negotiation + consent events through MARS (offline transcript; real robot = wow)",
+      "required": false,
+      "weight": 2,
+      "claim": "T5 agent vocalizes negotiation + consent events through MARS (offline transcript; real robot = wow)",
+      "command": "C:\\Python314\\python.exe -m pytest -v tests/test_voice.py",
+      "exit_code": 0,
+      "ok": true,
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.14.0, pytest-9.0.3, pluggy-1.6.0 -- C:\\Python314\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\nplugins: anyio-4.11.0\ncollecting ... collected 1 item\n\ntests/test_voice.py::test_vocalizes_negotiation_and_consent_through_mars PASSED [100%]\n\n============================== 1 passed in 0.22s ==============================\n",
+      "stderr": "",
+      "truncated": false,
+      "artifacts": [
+        {
+          "path": "orchestration-kit/tests/test_voice.py",
+          "desc": "T5 tests: agent vocalizes negotiation + consent events (offline transcript)",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\\tests\\test_voice.py",
+          "size": 625,
+          "excerpt": null,
+          "excerpt_range": null
+        },
+        {
+          "path": "orchestration-kit/consent_agent/voice.py",
+          "desc": "Vocalizer.say(): speak through MARS / record offline transcript",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\\consent_agent\\voice.py",
+          "size": 974,
+          "excerpt": "class Vocalizer:\n    def __init__(self, sink=\"mars\"):\n        self.sink = sink\n        self._spoken = []\n\n    def say(self, text) -> dict:\n        \"\"\"Speak `text` through MARS (or record it offline). Returns {'sink', 'text'}.\"\"\"\n        utterance = {\"sink\": self.sink, \"text\": text}\n        self._spoken.append(utterance)\n        return dict(utterance)\n\n    @property\n    def spoken(self) -> list:",
+          "excerpt_range": "lines 10-22"
+        }
+      ]
+    },
+    {
+      "id": "self-correction-evidence",
+      "type": "file_exists",
+      "tier": 5,
+      "desc": "log excerpt: a verifier caught a failure and the loop self-corrected (Autonomy)",
+      "required": false,
+      "weight": 1,
+      "claim": "log excerpt: a verifier caught a failure and the loop self-corrected (Autonomy)",
+      "command": "test -s evidence/self-correction.md",
+      "exit_code": 0,
+      "ok": true,
+      "stdout": "evidence/self-correction.md: 3800 bytes",
+      "stderr": "",
+      "truncated": false,
+      "artifacts": [
+        {
+          "path": "orchestration-kit/evidence/self-correction.md",
+          "desc": "Captured loop log: a fresh-context verifier caught test-gaming, loop self-corrected",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\\evidence\\self-correction.md",
+          "size": 3800,
+          "excerpt": null,
+          "excerpt_range": null
+        },
+        {
+          "path": "orchestration-kit/workflow/build-verify-loop.js",
+          "desc": "The grade->build->verify->re-grade loop that produced the self-correction",
+          "exists": true,
+          "abs": "C:\\Users\\trico\\Documents\\GitHub\\build-day\\orchestration-kit\\workflow\\build-verify-loop.js",
+          "size": 5007,
+          "excerpt": null,
+          "excerpt_range": null
+        }
+      ]
+    }
+  ]
+}

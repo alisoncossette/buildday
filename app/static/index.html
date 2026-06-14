@@ -1,0 +1,1680 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#f4efe6" />
+<title>Stead — care, with consent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#f4efe6; --cream-2:#efe8db; --card:#fffdf9; --ink:#26241f; --ink-2:#5b574d;
+  --muted:#8c8678; --line:#e7e0d2; --line-2:#efe9dd;
+  --sage:#5e7a64; --sage-deep:#3f5a46; --sage-soft:#e8efe7; --sage-line:#cfe0d1;
+  --gold:#c79a4b; --gold-soft:#f4ead2;
+  --halt:#c0392b; --halt-deep:#8e2018; --halt-soft:#fbeae7;
+  --ok:#3f7a52;
+  --r-lg:26px; --r-md:18px; --r-sm:13px;
+  --sh-1:0 1px 2px rgba(45,40,30,.05), 0 4px 14px rgba(45,40,30,.05);
+  --sh-2:0 2px 6px rgba(45,40,30,.06), 0 18px 40px rgba(45,40,30,.10);
+  --sh-card:0 1px 0 rgba(255,255,255,.7) inset, 0 1px 3px rgba(45,40,30,.05), 0 10px 30px rgba(45,40,30,.07);
+  --maxw:430px;
+  --tab-h:74px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  color:var(--ink);
+  background:radial-gradient(120% 60% at 50% -10%, #faf6ee 0%, var(--cream) 46%, var(--cream-2) 100%) fixed;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+@media (min-width:740px){
+  body{background:radial-gradient(140% 90% at 50% -20%, #f9f4ec 0%, #ece4d6 55%, #e6ddcc 100%) fixed; padding:26px 0 30px}
+}
+h1,h2,h3{font-family:"Fraunces",Georgia,serif; font-weight:600; letter-spacing:-.01em; margin:0}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+#app{position:relative; width:100%; max-width:var(--maxw); margin:0 auto; min-height:100vh; display:flex; flex-direction:column; background:transparent;}
+@media (min-width:740px){
+  #app{
+    min-height:auto; height:min(872px,calc(100vh - 56px)); border-radius:46px; overflow:hidden; background:var(--cream);
+    box-shadow:0 0 0 11px #1f1d18, 0 0 0 13px #2c2a23, 0 40px 90px rgba(31,29,24,.5), 0 14px 30px rgba(31,29,24,.3);
+  }
+}
+
+header{
+  position:sticky; top:0; z-index:40; padding:14px 20px 12px;
+  background:linear-gradient(180deg, rgba(244,239,230,.96), rgba(244,239,230,.82));
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(231,224,210,.7);
+}
+.hrow{display:flex;align-items:center;gap:11px}
+.logo{width:40px;height:40px;border-radius:13px;flex:0 0 auto;display:grid;place-items:center;
+  background:linear-gradient(150deg,var(--sage),var(--sage-deep));
+  box-shadow:0 6px 16px rgba(63,90,70,.32), inset 0 1px 0 rgba(255,255,255,.25);}
+.logo svg{width:21px;height:21px}
+.brand{display:flex;flex-direction:column;line-height:1.05}
+.brand b{font-family:"Fraunces";font-weight:600;font-size:21px;letter-spacing:-.02em}
+.brand span{font-size:11.5px;color:var(--muted);font-weight:500;letter-spacing:.02em;margin-top:1px}
+.who{margin-left:auto;display:flex;align-items:center;gap:8px}
+.role-pill{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--line);
+  padding:6px 9px 6px 8px;border-radius:999px;box-shadow:var(--sh-1);}
+.role-pill .av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff}
+.role-pill .nm{font-size:12px;font-weight:600;color:var(--ink-2);max-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.role-pill .chev{color:var(--muted);font-size:10px;margin-left:-2px}
+
+.sheet-back{position:absolute;inset:0;z-index:60;background:rgba(38,36,31,.34);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .25s}
+.sheet-back.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:61;background:var(--card);
+  border-radius:26px 26px 0 0;padding:10px 16px calc(20px + env(safe-area-inset-bottom));
+  box-shadow:0 -18px 50px rgba(38,36,31,.25);transform:translateY(102%);transition:transform .34s cubic-bezier(.22,1,.36,1)}
+.sheet.on{transform:translateY(0)}
+.grab{width:38px;height:4px;border-radius:4px;background:var(--line);margin:6px auto 12px}
+.sheet h3{font-size:17px;margin:2px 4px 4px}
+.sheet .sub{font-size:12.5px;color:var(--muted);margin:0 4px 12px}
+.role-opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px;border-radius:16px;
+  border:1.5px solid var(--line);background:var(--cream);margin-bottom:9px;transition:.15s}
+.role-opt:active{transform:scale(.99)}
+.role-opt.sel{border-color:var(--sage);background:var(--sage-soft);box-shadow:0 6px 18px rgba(63,90,70,.12)}
+.role-opt .av{width:38px;height:38px;border-radius:12px;flex:0 0 auto;display:grid;place-items:center;font-weight:700;color:#fff;font-size:14px}
+.role-opt .meta b{font-family:"Inter";font-size:14.5px;font-weight:600;display:block}
+.role-opt .meta span{font-size:12px;color:var(--muted)}
+.role-opt .tick{margin-left:auto;color:var(--sage);font-weight:800;opacity:0}
+.role-opt.sel .tick{opacity:1}
+.a-mom{background:linear-gradient(150deg,#6f8c74,#3f5a46)}
+.a-jane{background:linear-gradient(150deg,#c79a4b,#a87b2e)}
+.a-agent{background:linear-gradient(150deg,#7a6fa8,#534784)}
+.a-doc{background:linear-gradient(150deg,#4a8a9e,#2f6173)}
+
+main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  padding:18px 18px calc(var(--tab-h) + 26px + env(safe-area-inset-bottom))}
+.view{display:none;animation:rise .4s cubic-bezier(.22,1,.36,1)}
+.view.active{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.card{background:var(--card);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--sh-card)}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+
+.hero{padding:22px 20px 20px;margin-bottom:14px;position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;right:-50px;top:-60px;width:190px;height:190px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(94,122,100,.16),transparent 70%);pointer-events:none}
+.hero-top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.pulse{width:9px;height:9px;border-radius:50%;background:var(--sage);position:relative}
+.pulse:after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--sage);opacity:.5;animation:pulse 2.4s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.6);opacity:.6}100%{transform:scale(1.8);opacity:0}}
+.hero h1{font-size:27px;line-height:1.13;letter-spacing:-.02em;margin-bottom:7px}
+.hero h1 em{font-style:normal;color:var(--sage-deep)}
+.hero p{font-size:14px;line-height:1.55;color:var(--ink-2);margin:0;max-width:36ch}
+.hero .stamp{font-size:11.5px;color:var(--muted);margin-top:13px;display:flex;align-items:center;gap:6px;font-weight:500}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.stat{padding:15px 15px 14px;display:flex;flex-direction:column;gap:9px;min-height:118px}
+.stat .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(0,0,0,.02)}
+.stat .ic svg{width:19px;height:19px}
+.stat .lbl{font-size:11.5px;font-weight:600;color:var(--muted);letter-spacing:.01em}
+.stat .val{font-family:"Fraunces";font-weight:600;font-size:18px;line-height:1.15;color:var(--ink);letter-spacing:-.01em;margin-top:auto}
+.stat .val.sm{font-size:14.5px;line-height:1.3}
+.ic.tint-ok{background:var(--sage-soft);color:var(--sage-deep)}
+.ic.tint-warn{background:var(--gold-soft);color:#9a6f22}
+.ic.tint-low{background:#f3e7e4;color:#a8493d}
+.ic.tint-neutral{background:#eef0ef;color:#4a5a50}
+.tagdot{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;align-self:flex-start}
+.tagdot.ok{background:var(--sage-soft);color:var(--sage-deep)}
+.tagdot.warn{background:var(--gold-soft);color:#946b1f}
+.tagdot.low{background:var(--halt-soft);color:var(--halt-deep)}
+
+.trend{padding:17px 18px 16px;margin-bottom:14px}
+.trend .hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px}
+.trend .hd .t{font-family:"Fraunces";font-weight:600;font-size:16.5px}
+.trend .hd .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.trend-flag{font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px;display:flex;align-items:center;gap:5px}
+.trend-flag svg{width:14px;height:14px}
+.trend-flag.declining{background:var(--halt-soft);color:var(--halt-deep)}
+.trend-flag.steady{background:var(--sage-soft);color:var(--sage-deep)}
+.spark{margin-top:10px;width:100%;height:74px;display:block}
+.spark-x{display:flex;justify-content:space-between;margin-top:5px;font-size:10.5px;color:var(--muted);font-weight:500}
+
+.askcard{margin-bottom:6px;padding:17px 17px;display:flex;align-items:center;gap:13px;cursor:pointer;
+  background:linear-gradient(135deg,#fffdf9,#f7f2e9);transition:.18s}
+.askcard:active{transform:scale(.99)}
+.askcard .orb{width:46px;height:46px;border-radius:14px;flex:0 0 auto;display:grid;place-items:center;
+  background:linear-gradient(150deg,var(--sage),var(--sage-deep));box-shadow:0 8px 18px rgba(63,90,70,.3);position:relative}
+.askcard .orb:after{content:"";position:absolute;inset:0;border-radius:14px;border:1.5px solid rgba(255,255,255,.25)}
+.askcard .orb svg{width:22px;height:22px}
+.askcard .tx b{font-family:"Fraunces";font-weight:600;font-size:15.5px;display:block;letter-spacing:-.01em}
+.askcard .tx span{font-size:12.5px;color:var(--ink-2);line-height:1.4}
+.askcard .go{margin-left:auto;color:var(--sage);font-size:18px;flex:0 0 auto}
+
+.ask-head{padding:6px 2px 4px;margin-bottom:8px}
+.ask-head .eyebrow{margin-bottom:6px;display:block}
+.ask-head h2{font-size:23px;letter-spacing:-.02em}
+.ask-head p{font-size:13px;color:var(--ink-2);margin:5px 0 0;line-height:1.5}
+.chat{display:flex;flex-direction:column;gap:13px;padding:4px 0 8px}
+.bubble{max-width:86%;padding:13px 15px;border-radius:18px;font-size:14px;line-height:1.52;box-shadow:var(--sh-1);animation:rise .35s ease}
+.bubble.stead{align-self:flex-start;background:var(--card);border:1px solid var(--line-2);border-bottom-left-radius:6px;color:var(--ink)}
+.bubble.me{align-self:flex-end;background:linear-gradient(150deg,var(--sage),var(--sage-deep));color:#fff;border-bottom-right-radius:6px;box-shadow:0 8px 20px rgba(63,90,70,.28)}
+.bubble .by{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--sage-deep);margin-bottom:6px;text-transform:uppercase}
+.bubble .by .mini{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;background:linear-gradient(150deg,var(--sage),var(--sage-deep))}
+.bubble .by .mini svg{width:10px;height:10px}
+.bubble b{font-weight:700}
+.typing{display:flex;gap:4px;padding:4px 2px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--sage);opacity:.55;animation:blink 1.3s infinite}
+.typing i:nth-child(2){animation-delay:.18s}.typing i:nth-child(3){animation-delay:.36s}
+@keyframes blink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:.9;transform:translateY(-3px)}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:6px 0 4px}
+.chip{font-size:12.5px;font-weight:600;color:var(--sage-deep);background:var(--card);border:1.5px solid var(--sage-line);
+  padding:9px 13px;border-radius:999px;box-shadow:var(--sh-1);transition:.15s}
+.chip:active{transform:scale(.96);background:var(--sage-soft)}
+.composer{position:sticky;bottom:0;display:flex;gap:9px;align-items:center;padding:10px 0 2px;
+  background:linear-gradient(180deg,transparent,var(--cream) 34%)}
+.composer .box{flex:1;display:flex;align-items:center;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:4px 4px 4px 16px;box-shadow:var(--sh-1)}
+.composer input{flex:1;border:none;background:none;outline:none;font-size:14.5px;color:var(--ink);padding:9px 0;font-family:inherit}
+.composer input::placeholder{color:var(--muted)}
+.send{width:40px;height:40px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;background:linear-gradient(150deg,var(--sage),var(--sage-deep));box-shadow:0 6px 16px rgba(63,90,70,.34)}
+.send svg{width:18px;height:18px}
+.send:active{transform:scale(.93)}
+.send:disabled{opacity:.5}
+.composer .box{position:relative}
+.ask-mic{width:34px;height:34px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;margin-right:3px;
+  background:var(--cream);border:1.5px solid var(--line);color:var(--sage-deep);transition:.18s;position:relative}
+.ask-mic svg{width:18px;height:18px}
+.ask-mic:active{transform:scale(.9)}
+.ask-mic.rec{background:linear-gradient(150deg,var(--halt),var(--halt-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(192,57,43,.42)}
+.ask-mic.rec:before{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--halt);opacity:.5;animation:pulse 1.4s ease-out infinite}
+.ask-mic.off{opacity:.38;cursor:not-allowed}
+.ask-listening{display:none;align-items:center;gap:9px;margin:2px 4px 0;padding:9px 13px;border-radius:14px;
+  background:var(--halt-soft);border:1px solid #ecc9c3;animation:rise .25s ease}
+.ask-listening.on{display:flex}
+.ask-listening .al-orb{width:30px;height:30px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;position:relative;
+  background:linear-gradient(150deg,var(--halt),var(--halt-deep));box-shadow:0 4px 12px rgba(192,57,43,.4)}
+.ask-listening .al-orb svg{width:15px;height:15px}
+.ask-listening .al-wave{position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--halt);opacity:.5;animation:pulse 1.4s ease-out infinite}
+.ask-listening .al-tx{font-size:12.5px;font-weight:600;color:var(--halt-deep)}
+
+.tl-head{padding:6px 2px 12px}
+.tl-head .eyebrow{display:block;margin-bottom:6px}
+.tl-head h2{font-size:23px;letter-spacing:-.02em}
+.tl-head p{font-size:13px;color:var(--ink-2);margin:5px 0 0}
+.tl{position:relative;padding-left:6px}
+.tl:before{content:"";position:absolute;left:24px;top:8px;bottom:14px;width:2px;background:linear-gradient(var(--line),var(--line-2))}
+.ev{position:relative;display:flex;gap:14px;padding:0 0 16px 0}
+.ev .node{position:absolute;left:13px;top:2px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--card);box-shadow:0 0 0 4px var(--cream),var(--sh-1);z-index:2}
+.ev .node svg{width:13px;height:13px}
+.ev .body{margin-left:42px;background:var(--card);border:1px solid var(--line-2);border-radius:var(--r-md);padding:12px 14px;flex:1;box-shadow:var(--sh-1)}
+.ev .ts{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.03em}
+.ev .ti{font-family:"Fraunces";font-weight:600;font-size:15px;margin:2px 0 3px;letter-spacing:-.01em}
+.ev .de{font-size:13px;color:var(--ink-2);line-height:1.5}
+.ev .who{display:inline-flex;align-items:center;gap:6px;margin-top:9px;font-size:11px;font-weight:600;color:var(--ink-2);
+  background:var(--cream);border:1px solid var(--line);padding:3px 9px 3px 4px;border-radius:999px}
+.ev .who .d{width:16px;height:16px;border-radius:5px;display:grid;place-items:center;color:#fff;font-size:9px;font-weight:800}
+.k-meds .node{color:var(--sage-deep)} .k-meal .node{color:#9a6f22} .k-mood .node{color:#a8493d}
+.k-activity .node{color:#4a5a50} .k-visit .node{color:#534784} .k-note .node{color:#5b574d} .k-order .node{color:var(--sage-deep)}
+.k-appointment .node{color:#534784} .k-doctor .node{color:var(--halt-deep)} .k-pt .node{color:var(--sage-deep)} .k-social .node{color:#9a6f22}
+
+.cs-head{padding:6px 2px 12px}
+.cs-head .eyebrow{display:block;margin-bottom:6px}
+.cs-head h2{font-size:23px;letter-spacing:-.02em}
+.cs-head p{font-size:13px;color:var(--ink-2);margin:5px 0 0;line-height:1.5}
+
+.grant-card{padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.grant-card .gtop{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.grant-card .gav{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;color:#fff;flex:0 0 auto;box-shadow:0 6px 16px rgba(83,71,132,.28)}
+.grant-card .gav svg{width:23px;height:23px}
+.grant-card .gmeta b{font-family:"Fraunces";font-weight:600;font-size:16.5px;display:block;letter-spacing:-.01em}
+.grant-card .gmeta span{font-size:12.5px;color:var(--muted)}
+.state-chip{margin-left:auto;font-size:11px;font-weight:700;padding:5px 11px;border-radius:999px;letter-spacing:.02em}
+.state-chip.live{background:var(--sage-soft);color:var(--sage-deep)}
+.state-chip.off{background:#efeae0;color:var(--muted)}
+
+.scope-row{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink-2);background:var(--cream);
+  border:1px dashed var(--line);border-radius:12px;padding:10px 12px;margin-bottom:18px}
+.scope-row b{color:var(--ink);font-weight:600}
+
+.cap-lab{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.cap-lab .l{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.cap-lab .sublabel{font-size:11.5px;color:var(--muted)}
+.stepper{display:flex;align-items:center;gap:14px;background:var(--cream);border:1px solid var(--line);border-radius:18px;padding:10px 12px}
+.step-btn{width:46px;height:46px;border-radius:14px;flex:0 0 auto;display:grid;place-items:center;background:var(--card);
+  border:1.5px solid var(--line);box-shadow:var(--sh-1);font-size:24px;font-weight:600;color:var(--sage-deep);transition:.12s}
+.step-btn:active{transform:scale(.92);background:var(--sage-soft)}
+.step-btn:disabled{opacity:.4}
+.cap-amt{flex:1;text-align:center}
+.cap-amt .num{font-family:"Fraunces";font-weight:600;font-size:42px;line-height:1;letter-spacing:-.02em;color:var(--ink)}
+.cap-amt .num .cur{font-size:24px;color:var(--sage-deep);vertical-align:8px;margin-right:1px}
+.cap-amt .per{font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:500}
+
+.actions{display:flex;gap:11px;margin-top:18px}
+.btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:15px;border-radius:16px;font-size:14.5px;font-weight:650;transition:.15s;font-family:inherit}
+.btn:active{transform:scale(.98)}
+.btn-save{background:linear-gradient(150deg,var(--sage),var(--sage-deep));color:#fff;box-shadow:0 8px 20px rgba(63,90,70,.3)}
+.btn-save.saved{background:var(--sage-soft);color:var(--sage-deep);box-shadow:none}
+.btn-revoke{background:var(--card);color:var(--halt);border:1.5px solid #ecc9c3;flex:0 0 auto;width:120px}
+.btn-revoke:active{background:var(--halt-soft)}
+.btn-revoke:disabled{opacity:.45}
+.btn svg{width:17px;height:17px}
+
+.order-card{padding:18px;margin-top:14px}
+.order-card .ohd{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.order-card .ohd .vic{width:40px;height:40px;border-radius:13px;background:var(--gold-soft);color:#9a6f22;display:grid;place-items:center;flex:0 0 auto}
+.order-card .ohd .vic svg{width:21px;height:21px}
+.order-card .ohd .t b{font-family:"Fraunces";font-weight:600;font-size:16px;display:block;letter-spacing:-.01em}
+.order-card .ohd .t span{font-size:12px;color:var(--muted)}
+.order-card .od{font-size:13px;color:var(--ink-2);line-height:1.5;margin:6px 0 15px}
+.btn-order{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;padding:16px;border-radius:16px;
+  font-size:15px;font-weight:650;color:#fff;background:linear-gradient(135deg,#6b8a72,var(--sage-deep));
+  box-shadow:0 10px 26px rgba(63,90,70,.34),inset 0 1px 0 rgba(255,255,255,.18);transition:.15s}
+.btn-order:active{transform:scale(.985)}
+.btn-order:disabled{opacity:.55;box-shadow:none}
+.btn-order svg{width:18px;height:18px}
+
+.result{margin-top:14px;border-radius:var(--r-lg);overflow:hidden;display:none}
+.result.show{display:block;animation:popres .42s cubic-bezier(.22,1.3,.4,1)}
+@keyframes popres{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:none}}
+.result.done{background:linear-gradient(150deg,#eef4ec,#e2eee2);border:1.5px solid var(--sage-line);box-shadow:0 14px 36px rgba(63,90,70,.18)}
+.result.done .ri{padding:18px;display:flex;gap:13px;align-items:flex-start}
+.result.done .badge{width:42px;height:42px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;background:var(--sage);color:#fff;box-shadow:0 6px 16px rgba(63,90,70,.4)}
+.result.done .badge svg{width:22px;height:22px}
+.result.done b{font-family:"Fraunces";font-weight:600;font-size:16px;color:var(--sage-deep);display:block;margin-bottom:3px}
+.result.done .msg{font-size:13px;color:#3f5644;line-height:1.5}
+.result.halt{background:linear-gradient(155deg,#c0392b,#9b2417);border:1.5px solid #7e1c12;
+  box-shadow:0 0 0 4px rgba(192,57,43,.14),0 18px 44px rgba(155,36,23,.42)}
+.result.halt.show{animation:haltshake .5s cubic-bezier(.36,.07,.19,.97),popres .42s}
+@keyframes haltshake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(3px)}30%,50%,70%{transform:translateX(-5px)}40%,60%{transform:translateX(5px)}}
+.result.halt .ri{padding:20px 18px;color:#fff}
+.result.halt .htop{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+.result.halt .stop{width:46px;height:46px;border-radius:13px;flex:0 0 auto;display:grid;place-items:center;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.4)}
+.result.halt .stop svg{width:25px;height:25px}
+.result.halt .htitle{font-family:"Fraunces";font-weight:700;font-size:22px;letter-spacing:.04em;color:#fff;line-height:1}
+.result.halt .hsub{font-size:11.5px;color:rgba(255,255,255,.82);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
+.result.halt .msg{font-size:13.5px;line-height:1.55;color:#fff;background:rgba(0,0,0,.16);border:1px solid rgba(255,255,255,.18);padding:12px 13px;border-radius:13px}
+
+.locked{padding:30px 22px;text-align:center;margin-bottom:14px}
+.locked .lic{width:64px;height:64px;border-radius:20px;margin:0 auto 16px;display:grid;place-items:center}
+.locked.read .lic{background:var(--gold-soft);color:#9a6f22}
+.locked.scope .lic{background:#eee9f3;color:#534784}
+.locked .lic svg{width:30px;height:30px}
+.locked h3{font-size:19px;margin-bottom:7px;letter-spacing:-.01em}
+.locked p{font-size:13.5px;color:var(--ink-2);line-height:1.55;max-width:30ch;margin:0 auto}
+.locked .pill{display:inline-flex;align-items:center;gap:7px;margin-top:15px;font-size:12px;font-weight:600;color:var(--ink-2);
+  background:var(--cream);border:1px solid var(--line);padding:7px 13px;border-radius:999px}
+
+.audit-note{font-size:11.5px;color:var(--muted);text-align:center;margin-top:16px;line-height:1.5;padding:0 12px}
+.audit-note svg{width:13px;height:13px;vertical-align:-2px;margin-right:3px;opacity:.7}
+
+.sk{background:linear-gradient(90deg,var(--line-2) 25%,#f3eee4 37%,var(--line-2) 63%);background-size:400% 100%;
+  animation:shimmer 1.4s infinite;border-radius:8px;color:transparent!important}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+
+nav{position:absolute;left:0;right:0;bottom:0;z-index:50;height:calc(var(--tab-h) + env(safe-area-inset-bottom));
+  padding:0 8px env(safe-area-inset-bottom);display:flex;align-items:center;justify-content:space-around;gap:2px;
+  background:linear-gradient(180deg,rgba(252,250,245,.78),rgba(248,244,236,.97));
+  backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);
+  border-top:1px solid rgba(231,224,210,.85);}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px;border-radius:14px;color:var(--muted);transition:.18s;position:relative}
+.tab svg{width:23px;height:23px;transition:.2s}
+.tab .tl{font-size:10px;font-weight:600;letter-spacing:.01em}
+.tab.on{color:var(--sage-deep)}
+.tab.on svg{transform:translateY(-1px)}
+.tab.on:before{content:"";position:absolute;top:5px;width:32px;height:32px;border-radius:11px;background:var(--sage-soft);z-index:-1;animation:rise .3s ease}
+.tab .dot{position:absolute;top:7px;right:calc(50% - 16px);width:7px;height:7px;border-radius:50%;background:var(--halt);box-shadow:0 0 0 2px var(--cream);display:none}
+.tab.alert .dot{display:block}
+
+.toast{position:absolute;left:50%;bottom:calc(var(--tab-h) + 18px);transform:translateX(-50%) translateY(20px);z-index:70;
+  background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:11px 17px;border-radius:13px;box-shadow:var(--sh-2);
+  opacity:0;pointer-events:none;transition:.3s;white-space:nowrap;max-width:88%;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== detail bottom-sheet (universal clickable rows) ===== */
+.clickable{cursor:pointer;transition:transform .14s ease, box-shadow .18s ease}
+.clickable:active{transform:scale(.988)}
+.sheet.detail{max-height:84%;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.dt-hd{display:flex;align-items:flex-start;gap:13px;padding:2px 4px 12px}
+.dt-hd .dic{width:48px;height:48px;border-radius:15px;flex:0 0 auto;display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(0,0,0,.02)}
+.dt-hd .dic svg{width:23px;height:23px}
+.dt-hd .meta{flex:1;min-width:0}
+.dt-hd .meta .k{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.dt-hd .meta h3{font-size:19px;margin:3px 0 2px;letter-spacing:-.01em}
+.dt-hd .meta .ts{font-size:12px;color:var(--muted);font-weight:500}
+.dt-body{padding:0 4px}
+.dt-line{font-size:14px;line-height:1.6;color:var(--ink-2);margin:0 0 14px}
+.dt-kv{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-2);font-size:13.5px}
+.dt-kv:last-child{border-bottom:none}
+.dt-kv .k{color:var(--muted);font-weight:600}
+.dt-kv .v{color:var(--ink);font-weight:600;text-align:right}
+.dt-sec{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:8px 4px 9px}
+.dt-mini{display:flex;align-items:center;gap:11px;padding:10px 12px;background:var(--cream);border:1px solid var(--line-2);border-radius:14px;margin-bottom:8px}
+.dt-mini .dn{width:30px;height:30px;border-radius:9px;flex:0 0 auto;display:grid;place-items:center;background:var(--card);box-shadow:var(--sh-1)}
+.dt-mini .dn svg{width:15px;height:15px}
+.dt-mini .tx{flex:1;min-width:0}
+.dt-mini .tx b{font-size:13px;font-weight:600;display:block;font-family:"Inter"}
+.dt-mini .tx span{font-size:11.5px;color:var(--muted)}
+.dt-mini .vv{font-size:12px;font-weight:700;color:var(--sage-deep);flex:0 0 auto}
+
+/* ===== generic list row (calendar) ===== */
+.day-group{margin-bottom:18px}
+.day-label{display:flex;align-items:baseline;gap:8px;padding:2px 2px 9px}
+.day-label b{font-family:"Fraunces";font-weight:600;font-size:15.5px;letter-spacing:-.01em}
+.day-label span{font-size:12px;color:var(--muted);font-weight:500}
+.day-label .today-pill{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.04em;color:var(--sage-deep);background:var(--sage-soft);padding:3px 9px;border-radius:999px}
+.appt{display:flex;align-items:center;gap:13px;padding:14px;margin-bottom:10px}
+.appt .when{flex:0 0 auto;text-align:center;width:52px}
+.appt .when .tm{font-family:"Fraunces";font-weight:600;font-size:15px;line-height:1.1;color:var(--ink)}
+.appt .when .ap{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.04em}
+.appt .bar{width:3px;align-self:stretch;border-radius:3px;flex:0 0 auto}
+.appt .ai{width:40px;height:40px;border-radius:12px;flex:0 0 auto;display:grid;place-items:center}
+.appt .ai svg{width:20px;height:20px}
+.appt .ax{flex:1;min-width:0}
+.appt .ax b{font-family:"Inter";font-weight:600;font-size:14.5px;display:block;letter-spacing:-.005em}
+.appt .ax span{font-size:12px;color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.appt .chev{color:var(--muted);font-size:16px;flex:0 0 auto}
+.kind-doctor .bar{background:var(--halt)} .kind-doctor .ai{background:var(--halt-soft);color:var(--halt-deep)}
+.kind-pt .bar{background:var(--sage)} .kind-pt .ai{background:var(--sage-soft);color:var(--sage-deep)}
+.kind-social .bar{background:var(--gold)} .kind-social .ai{background:var(--gold-soft);color:#9a6f22}
+.kind-care .bar{background:#7a6fa8} .kind-care .ai{background:#eee9f3;color:#534784}
+.add-fab{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:16px;
+  font-size:14px;font-weight:650;color:var(--sage-deep);background:var(--card);border:1.5px dashed var(--sage-line);transition:.15s;margin-top:4px}
+.add-fab:active{transform:scale(.99);background:var(--sage-soft)}
+.add-fab svg{width:18px;height:18px}
+
+/* ===== view head (shared) ===== */
+.vhead{padding:6px 2px 12px}
+.vhead .eyebrow{display:block;margin-bottom:6px}
+.vhead h2{font-size:23px;letter-spacing:-.02em}
+.vhead p{font-size:13px;color:var(--ink-2);margin:5px 0 0;line-height:1.5}
+
+/* ===== form fields (sheets) ===== */
+.field{margin-bottom:12px}
+.field label{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);display:block;margin:0 2px 7px}
+.field input,.field select,.field textarea{width:100%;font-family:inherit;font-size:14.5px;color:var(--ink);background:var(--cream);
+  border:1.5px solid var(--line);border-radius:14px;padding:13px 14px;outline:none;transition:.15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--sage);background:var(--card)}
+.field textarea{resize:none;min-height:74px;line-height:1.5}
+.field-row{display:flex;gap:10px}.field-row .field{flex:1}
+.kind-pick{display:flex;gap:8px;flex-wrap:wrap}
+.kind-pick button{flex:1;min-width:72px;font-size:12.5px;font-weight:600;padding:11px 8px;border-radius:13px;border:1.5px solid var(--line);background:var(--cream);color:var(--ink-2);transition:.15s}
+.kind-pick button.sel{border-color:var(--sage);background:var(--sage-soft);color:var(--sage-deep)}
+
+/* ===== trends (doctor) ===== */
+.trend-summary{padding:18px;margin-bottom:14px}
+.trend-summary .eyebrow{display:block;margin-bottom:8px}
+.trend-summary p{font-size:14.5px;line-height:1.6;color:var(--ink);margin:0;font-family:"Fraunces";font-weight:500;letter-spacing:-.005em}
+.chart-card{padding:17px 18px 15px;margin-bottom:13px}
+.chart-card .chd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:3px}
+.chart-card .chd .t{font-family:"Fraunces";font-weight:600;font-size:16px}
+.chart-card .chd .sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+.bars{display:flex;align-items:flex-end;gap:3px;height:62px;margin-top:13px}
+.bars .b{flex:1;border-radius:4px 4px 2px 2px;min-height:3px;transition:height .5s cubic-bezier(.22,1,.36,1)}
+.bars-x{display:flex;justify-content:space-between;margin-top:6px;font-size:10.5px;color:var(--muted);font-weight:500}
+.dots-row{display:flex;gap:4px;margin-top:13px;flex-wrap:wrap}
+.dots-row .md{width:15px;height:15px;border-radius:5px;display:grid;place-items:center}
+.dots-row .md.ok{background:var(--sage-soft);color:var(--sage-deep)} .dots-row .md.no{background:var(--halt-soft);color:var(--halt-deep)}
+.dots-row .md svg{width:9px;height:9px}
+.docask{padding:16px;margin-bottom:14px;background:linear-gradient(135deg,#fffdf9,#f7f2e9)}
+.docask .dah{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.docask .dah .orb{width:40px;height:40px;border-radius:12px;flex:0 0 auto;display:grid;place-items:center;background:linear-gradient(150deg,var(--sage),var(--sage-deep));box-shadow:0 6px 16px rgba(63,90,70,.3)}
+.docask .dah .orb svg{width:20px;height:20px}
+.docask .dah b{font-family:"Fraunces";font-weight:600;font-size:15px;display:block}
+.docask .dah span{font-size:12px;color:var(--muted)}
+.docask .dbox{display:flex;gap:9px;align-items:center}
+.docask .dbox input{flex:1;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:12px 16px;font-size:14px;font-family:inherit;outline:none}
+.docask .dbox input:focus{border-color:var(--sage)}
+.docask-ans{font-size:13.5px;line-height:1.55;color:var(--ink);background:var(--card);border:1px solid var(--line-2);border-radius:14px;padding:13px 14px;margin-top:12px;display:none}
+.docask-ans.show{display:block;animation:rise .35s ease}
+
+/* ===== MARS card ===== */
+.mars-card{padding:17px 18px 16px;margin-bottom:14px;position:relative;overflow:hidden;
+  background:linear-gradient(150deg,#f3f1f8,#ece8f5)}
+.mars-card:before{content:"";position:absolute;right:-40px;top:-50px;width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(83,71,132,.18),transparent 70%);pointer-events:none}
+.mars-hd{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+.mars-bot{width:48px;height:48px;border-radius:15px;flex:0 0 auto;display:grid;place-items:center;position:relative;
+  background:linear-gradient(150deg,#7a6fa8,#534784);box-shadow:0 8px 20px rgba(83,71,132,.34),inset 0 1px 0 rgba(255,255,255,.22)}
+.mars-bot svg{width:25px;height:25px}
+.mars-bot .eye{position:absolute;width:5px;height:5px;border-radius:50%;background:#bff;top:18px;box-shadow:0 0 6px #9ff;animation:botblink 4s infinite}
+.mars-bot .eye.l{left:15px}.mars-bot .eye.r{right:15px}
+@keyframes botblink{0%,92%,100%{opacity:1}95%{opacity:.15}}
+.mars-hd .mt b{font-family:"Fraunces";font-weight:600;font-size:16px;display:block;letter-spacing:-.01em;color:#3a3160}
+.mars-hd .mt span{font-size:12px;color:#6b6293;font-weight:500}
+.mars-hd .live{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.04em;color:#534784;background:rgba(255,255,255,.7);padding:4px 10px;border-radius:999px;display:flex;align-items:center;gap:5px}
+.mars-hd .live .ld{width:6px;height:6px;border-radius:50%;background:#534784;animation:blink 1.6s infinite}
+.mars-sense{background:rgba(255,255,255,.66);border:1px solid rgba(83,71,132,.14);border-radius:15px;padding:13px 14px;margin-bottom:12px}
+.mars-sense .sl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6b6293;margin-bottom:6px}
+.mars-sense .sv{font-size:14px;line-height:1.5;color:#3a3160;font-family:"Fraunces";font-weight:500}
+.mars-sense .meta{font-size:11px;color:#8079a8;margin-top:7px}
+.mars-spoken{font-size:13px;line-height:1.5;color:#3a3160;background:rgba(255,255,255,.86);border:1px solid rgba(83,71,132,.18);border-radius:14px;padding:12px 13px;margin-bottom:12px;display:none;position:relative}
+.mars-spoken.show{display:block;animation:rise .35s ease}
+.mars-spoken .q{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#7a6fa8;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.mars-spoken .q svg{width:13px;height:13px}
+.mars-actions{display:flex;gap:10px}
+.btn-mars{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:14px;font-size:13.5px;font-weight:650;
+  color:#fff;background:linear-gradient(150deg,#7a6fa8,#534784);box-shadow:0 8px 20px rgba(83,71,132,.3);transition:.15s}
+.btn-mars:active{transform:scale(.98)}
+.btn-mars:disabled{opacity:.6}
+.btn-mars svg{width:16px;height:16px}
+.btn-mars.ghost{background:rgba(255,255,255,.7);color:#534784;box-shadow:none;border:1.5px solid rgba(83,71,132,.2)}
+
+/* ===== consent request (money shot) ===== */
+.req-card{padding:18px;margin-bottom:14px;position:relative;overflow:hidden;
+  background:linear-gradient(150deg,#fdf3e3,#f9ead0);border:1.5px solid #ecd9ad;
+  box-shadow:0 0 0 4px rgba(199,154,75,.1),0 16px 40px rgba(154,111,34,.18)}
+.req-card.show{animation:popres .42s cubic-bezier(.22,1.3,.4,1)}
+.req-hd{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+.req-hd .ri{width:46px;height:46px;border-radius:14px;flex:0 0 auto;display:grid;place-items:center;background:linear-gradient(150deg,var(--gold),#a87b2e);color:#fff;box-shadow:0 6px 16px rgba(168,123,46,.4);position:relative}
+.req-hd .ri svg{width:24px;height:24px}
+.req-hd .ri:after{content:"";position:absolute;inset:-4px;border-radius:18px;border:2px solid var(--gold);opacity:.4;animation:pulse 2.2s ease-out infinite}
+.req-hd .rt{flex:1}
+.req-hd .rt .eyebrow{color:#9a6f22}
+.req-hd .rt b{font-family:"Fraunces";font-weight:600;font-size:18px;display:block;letter-spacing:-.01em;color:#5c441a;margin-top:3px;line-height:1.15}
+.req-detail{display:flex;gap:10px;margin-bottom:15px}
+.req-detail .rb{flex:1;background:rgba(255,255,255,.7);border:1px solid rgba(168,123,46,.18);border-radius:13px;padding:11px 12px;text-align:center}
+.req-detail .rb .l{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9a6f22}
+.req-detail .rb .v{font-family:"Fraunces";font-weight:600;font-size:21px;color:#5c441a;margin-top:3px}
+.req-detail .arrow{align-self:center;color:#a87b2e;font-size:18px}
+.req-actions{display:flex;gap:10px}
+.btn-approve{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:14px;font-size:13.5px;font-weight:650;
+  color:#fff;background:linear-gradient(150deg,var(--sage),var(--sage-deep));box-shadow:0 8px 20px rgba(63,90,70,.3);transition:.15s}
+.btn-approve:active{transform:scale(.98)}
+.btn-deny{flex:0 0 auto;width:96px;display:flex;align-items:center;justify-content:center;gap:7px;padding:14px;border-radius:14px;font-size:14px;font-weight:650;
+  color:var(--halt);background:rgba(255,255,255,.7);border:1.5px solid #ecc9c3;transition:.15s}
+.btn-deny:active{background:var(--halt-soft)}
+.btn-approve svg,.btn-deny svg{width:16px;height:16px}
+
+/* ===== mic / voice logging ===== */
+.mic-wrap{display:flex;gap:9px;align-items:flex-end;margin-bottom:8px}
+.mic-wrap textarea{flex:1;font-family:inherit;font-size:14.5px;color:var(--ink);background:var(--card);border:1.5px solid var(--line);
+  border-radius:18px;padding:13px 15px;outline:none;resize:none;min-height:48px;line-height:1.4;transition:.15s}
+.mic-wrap textarea:focus{border-color:var(--sage)}
+.mic-btn{width:48px;height:48px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;background:var(--card);border:1.5px solid var(--line);
+  box-shadow:var(--sh-1);color:var(--sage-deep);transition:.18s;position:relative}
+.mic-btn svg{width:21px;height:21px}
+.mic-btn:active{transform:scale(.93)}
+.mic-btn.rec{background:linear-gradient(150deg,var(--halt),var(--halt-deep));color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(192,57,43,.4)}
+.mic-btn.rec:before{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--halt);opacity:.5;animation:pulse 1.4s ease-out infinite}
+.log-card{padding:16px;margin-bottom:14px}
+.log-card .lh{display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.log-card .lh .lic2{width:38px;height:38px;border-radius:12px;flex:0 0 auto;display:grid;place-items:center;background:var(--sage-soft);color:var(--sage-deep)}
+.log-card .lh .lic2 svg{width:19px;height:19px}
+.log-card .lh b{font-family:"Fraunces";font-weight:600;font-size:15px;display:block;letter-spacing:-.01em}
+.log-card .lh span{font-size:11.5px;color:var(--muted)}
+.log-send{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:14px;font-size:14px;font-weight:650;
+  color:#fff;background:linear-gradient(150deg,var(--sage),var(--sage-deep));box-shadow:0 8px 20px rgba(63,90,70,.28);transition:.15s}
+.log-send:active{transform:scale(.99)}
+.log-send:disabled{opacity:.5}
+.log-send svg{width:16px;height:16px}
+.mic-hint{font-size:11.5px;color:var(--muted);text-align:center}
+
+.action-row{display:flex;gap:10px;margin-top:4px}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="hrow">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10Z" fill="#fff" opacity=".95"/></svg>
+      </div>
+      <div class="brand"><b>Stead</b><span>care, with consent</span></div>
+      <div class="who">
+        <button class="role-pill" id="rolePill" onclick="openSheet()">
+          <span class="av a-mom" id="pillAv">M</span>
+          <span class="nm" id="pillName">Mom</span>
+          <span class="chev">&#9662;</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="view active" id="view-home"></section>
+
+    <section class="view" id="view-ask">
+      <div class="ask-head">
+        <span class="eyebrow">Your companion</span>
+        <h2>Ask Stead</h2>
+        <p id="askIntro">A calm, always-on companion who knows Ruby's day. Ask anything.</p>
+      </div>
+      <div class="chat" id="chat"></div>
+      <div class="chips" id="chips"></div>
+      <div class="composer" id="composer">
+        <div class="box">
+          <input id="askInput" placeholder="Ask about Ruby…" autocomplete="off" />
+          <button class="ask-mic" id="askMicBtn" onclick="toggleAskMic()" aria-label="Speak your question" title="Tap to speak">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" stroke-width="1.9"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <button class="send" id="sendBtn" onclick="sendAsk()" aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h13M12 5l7 7-7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="ask-listening" id="askListening" aria-live="polite">
+        <span class="al-orb"><span class="al-wave"></span><svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" stroke="#fff" stroke-width="1.9"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="#fff" stroke-width="1.9" stroke-linecap="round"/></svg></span>
+        <span class="al-tx">Listening… tap the mic to send</span>
+      </div>
+    </section>
+
+    <section class="view" id="view-timeline">
+      <div class="tl-head">
+        <span class="eyebrow">Today &middot; Sat, Jun 13</span>
+        <h2>Ruby's day</h2>
+        <p id="tlIntro">Everything logged today, and who logged it.</p>
+      </div>
+      <div id="logSlot"></div>
+      <div id="tlBody"></div>
+    </section>
+
+    <section class="view" id="view-calendar">
+      <div class="vhead">
+        <span class="eyebrow">Upcoming</span>
+        <h2>Calendar</h2>
+        <p id="calIntro">Doctor visits, therapy and social time — grouped by day.</p>
+      </div>
+      <div id="calBody"></div>
+    </section>
+
+    <section class="view" id="view-trends">
+      <div class="vhead">
+        <span class="eyebrow">Longitudinal</span>
+        <h2>Trends</h2>
+        <p id="trIntro">How Ruby has been over the last few weeks.</p>
+      </div>
+      <div id="trBody"></div>
+    </section>
+
+    <section class="view" id="view-consent">
+      <div class="cs-head">
+        <span class="eyebrow">Permissions</span>
+        <h2>Consent</h2>
+        <p id="csIntro">You decide exactly what Ruby's agent can do — and you can pull it back anytime.</p>
+      </div>
+      <div id="csBody"></div>
+    </section>
+  </main>
+
+  <nav>
+    <button class="tab on" data-tab="home" onclick="go('home')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 10.5 12 3l9 7.5M5.5 9.5V20h13V9.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="tl">Home</span>
+    </button>
+    <button class="tab" data-tab="timeline" onclick="go('timeline')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M8 6h12M8 12h12M8 18h12" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><circle cx="4" cy="6" r="1.6" fill="currentColor"/><circle cx="4" cy="12" r="1.6" fill="currentColor"/><circle cx="4" cy="18" r="1.6" fill="currentColor"/></svg>
+      <span class="tl">Day</span>
+    </button>
+    <button class="tab" data-tab="calendar" onclick="go('calendar')">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.9"/><path d="M4 9.5h16M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+      <span class="tl">Calendar</span>
+    </button>
+    <button class="tab" data-tab="trends" onclick="go('trends')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 17l5-5 3.5 3 6-7.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20h16" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+      <span class="tl">Trends</span>
+    </button>
+    <button class="tab" data-tab="consent" onclick="go('consent')">
+      <span class="dot"></span>
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v5.5c0 4.3 3 7.6 7 9 4-1.4 7-4.7 7-9V6l-7-3Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M9.2 12l2 2 3.6-4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="tl">Consent</span>
+    </button>
+  </nav>
+
+  <div class="sheet-back" id="sheetBack" onclick="closeSheet()"></div>
+  <div class="sheet" id="sheet">
+    <div class="grab"></div>
+    <h3>Who's looking?</h3>
+    <p class="sub">Switch role to see Stead's consent boundaries in action.</p>
+    <button class="role-opt" data-actor="mom" onclick="pickRole('mom')">
+      <span class="av a-mom">M</span>
+      <span class="meta"><b>Mom</b><span>Owner · full control of consent</span></span>
+      <span class="tick">&#10003;</span>
+    </button>
+    <button class="role-opt" data-actor="jane:pca" onclick="pickRole('jane:pca')">
+      <span class="av a-jane">J</span>
+      <span class="meta"><b>Jane · PCA</b><span>Care aide · can log, can't change consent</span></span>
+      <span class="tick">&#10003;</span>
+    </button>
+    <button class="role-opt" data-actor="agent:ruby" onclick="pickRole('agent:ruby')">
+      <span class="av a-agent">R</span>
+      <span class="meta"><b>Ruby's agent</b><span>Autonomous · scoped to approved tasks</span></span>
+      <span class="tick">&#10003;</span>
+    </button>
+    <button class="role-opt" data-actor="doc:smith" onclick="pickRole('doc:smith')">
+      <span class="av a-doc">D</span>
+      <span class="meta"><b>Dr. Smith</b><span>Clinician · trends only, no daily details</span></span>
+      <span class="tick">&#10003;</span>
+    </button>
+  </div>
+
+  <div class="sheet-back" id="detailBack" onclick="closeDetail()"></div>
+  <div class="sheet detail" id="detailSheet">
+    <div class="grab"></div>
+    <div id="detailBody"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const ACTORS={
+  "mom":{av:"M",cls:"a-mom"},
+  "jane:pca":{av:"J",cls:"a-jane"},
+  "agent:ruby":{av:"R",cls:"a-agent"},
+  "doc:smith":{av:"D",cls:"a-doc"}
+};
+
+const ICON={
+  meds:'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="9" width="18" height="6" rx="3" stroke="currentColor" stroke-width="1.9"/><path d="M12 9v6" stroke="currentColor" stroke-width="1.9"/></svg>',
+  meal:'<svg viewBox="0 0 24 24" fill="none"><path d="M6 3v8m0 0a2 2 0 0 0 2-2V3M4 3v6M18 3c-1.5 0-2 2-2 5s.5 4 2 4m0 0v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  mood:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.4" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 14.5c1 .9 5 .9 7 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="10" r="1.1" fill="currentColor"/><circle cx="15" cy="10" r="1.1" fill="currentColor"/></svg>',
+  activity:'<svg viewBox="0 0 24 24" fill="none"><path d="M13 4a1.7 1.7 0 1 0 0-.01M7 21l2.5-5L8 12l-2 1.5M11 10l3 1 1.5 3 2.5 1M9 13l3.5-1 .5-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  visit:'<svg viewBox="0 0 24 24" fill="none"><path d="M3 21v-2a4 4 0 0 1 4-4h3M14 21v-2a4 4 0 0 1 4-4h0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8.5" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/><circle cx="17" cy="9" r="2.4" stroke="currentColor" stroke-width="1.8"/></svg>',
+  note:'<svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l4 4v14H6V3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 11h7M9 15h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  order:'<svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14l-1.2 11.5a1.5 1.5 0 0 1-1.5 1.4H7.7a1.5 1.5 0 0 1-1.5-1.4L5 7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 7a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.8"/></svg>',
+  appointment:'<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M4 9.5h16M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  doctor:'<svg viewBox="0 0 24 24" fill="none"><path d="M12 3v6m-3-3h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M5 12a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="20" r="1.6" stroke="currentColor" stroke-width="1.8"/></svg>',
+  pt:'<svg viewBox="0 0 24 24" fill="none"><circle cx="13" cy="4.5" r="1.8" stroke="currentColor" stroke-width="1.7"/><path d="M7 21l2.5-5L8 12l-2 1.5M11 10l3 1 1.5 3 2.5 1M9 13l3.5-1 .5-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  social:'<svg viewBox="0 0 24 24" fill="none"><path d="M3 21v-2a4 4 0 0 1 4-4h3M14 21v-2a4 4 0 0 1 4-4h0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8.5" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/><circle cx="17" cy="9" r="2.4" stroke="currentColor" stroke-width="1.8"/></svg>',
+  care:'<svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  mic:'<svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" stroke-width="1.9"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>'
+};
+const APPT_KINDS=["doctor","pt","social","care"];
+const APPT_KIND_LABEL={doctor:"Doctor",pt:"Therapy",social:"Social",care:"Care"};
+
+let STATE={actor:"mom",data:null,_timeline:[],_appts:[]};
+let CAP=30, GRANT_LIVE=false, ASKED=false;
+let APPETITE_VALS=[0.9,0.6,0.4];
+let PENDING=[];
+let SEEN_REQ_IDS=new Set();
+let MARS_LATEST=null;
+let POLL_T=null;
+
+async function api(path,opts){
+  try{
+    const r=await fetch(path,opts);
+    let json={};
+    try{ json=await r.json(); }catch(e){}
+    return {ok:r.ok,status:r.status,json};
+  }catch(e){ return {ok:false,status:0,json:{}}; }
+}
+
+function openSheet(){ syncSheet(); $("#sheet").classList.add("on"); $("#sheetBack").classList.add("on"); }
+function closeSheet(){ $("#sheet").classList.remove("on"); $("#sheetBack").classList.remove("on"); }
+function syncSheet(){ $$(".role-opt").forEach(o=>o.classList.toggle("sel",o.dataset.actor===STATE.actor)); }
+async function pickRole(actor){
+  STATE.actor=actor; closeSheet();
+  const a=ACTORS[actor]||ACTORS.mom;
+  $("#pillAv").className="av "+a.cls; $("#pillAv").textContent=a.av;
+  ASKED=false;
+  await loadState();
+  // land roles on a sensible first screen
+  if(actor==="doc:smith") go("trends");
+  else go("home");
+}
+
+function go(tab){
+  if(typeof stopAskMic==="function") stopAskMic(false);
+  if(typeof REC!=="undefined" && REC){ try{ REC.stop(); }catch(e){} }
+  $$(".tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===tab));
+  $$(".view").forEach(v=>v.classList.remove("active"));
+  const v=$("#view-"+tab); if(v) v.classList.add("active");
+  $("#main").scrollTo({top:0,behavior:"auto"});
+  if(tab==="ask") initAsk();
+  if(tab==="timeline") loadTimeline();
+  if(tab==="calendar") loadCalendar();
+  if(tab==="trends") loadTrends();
+  if(tab==="consent") renderConsent();
+}
+function toast(msg){
+  const t=$("#toast"); t.textContent=msg; t.classList.add("on");
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),2300);
+}
+
+/* ============ detail bottom-sheet ============ */
+function openDetail(html){
+  $("#detailBody").innerHTML=html;
+  $("#detailSheet").classList.add("on"); $("#detailBack").classList.add("on");
+}
+function closeDetail(){ $("#detailSheet").classList.remove("on"); $("#detailBack").classList.remove("on"); }
+function detailHead(kind,title,ts,tintClass){
+  return `<div class="dt-hd">
+    <div class="dic ${tintClass||'tint-neutral'}">${ICON[kind]||ICON.note}</div>
+    <div class="meta"><div class="k">${esc(APPT_KIND_LABEL[kind]||kind||'Detail')}</div><h3>${esc(title||'')}</h3>${ts?`<div class="ts">${esc(ts)}</div>`:''}</div>
+  </div>`;
+}
+function miniRow(e){
+  const v=(e.value!=null)?`<span class="vv">${Math.round(e.value*100)}%</span>`:"";
+  return `<div class="dt-mini"><div class="dn">${ICON[e.kind]||ICON.note}</div>
+    <div class="tx"><b>${esc(e.title||"")}</b><span>${esc(e.ts||"")} · ${esc(e.logged_by||"")}</span></div>${v}</div>`;
+}
+function openStat(which){
+  const d=STATE.data||{}, day=d.day||{}, ev=(STATE._timeline||[]);
+  if(which==="meds"){
+    const meds=ev.filter(e=>e.kind==="meds");
+    openDetail(detailHead("meds","Medications",day.meds||"",day.meds_ok?"tint-ok":"tint-warn")
+      +`<div class="dt-body"><p class="dt-line">${day.meds_ok?"Ruby's medications are on schedule today.":"One or more doses still need attention."} Stead only reports what a caregiver has logged.</p>`
+      +`<div class="dt-kv"><span class="k">Status</span><span class="v">${day.meds_ok?'On schedule':'Needs a check'}</span></div>`
+      +(meds.length?`<div class="dt-sec" style="margin-top:14px">Logged today</div>`+meds.map(miniRow).join(""):`<p class="dt-line" style="margin-top:12px">No medication entries logged yet.</p>`)
+      +`</div>`);
+  }else if(which==="meal"){
+    const meals=ev.filter(e=>e.kind==="meal");
+    openDetail(detailHead("meal","Appetite today",day.meals||"",day.meals_ok?"tint-ok":"tint-warn")
+      +`<div class="dt-body"><p class="dt-line">${day.trend==="declining"?"Her appetite has been lighter than usual — worth a gentle eye.":"Eating well today."}</p>`
+      +(meals.length?`<div class="dt-sec">Meals logged</div>`+meals.map(miniRow).join(""):`<p class="dt-line">No meals logged yet.</p>`)
+      +`</div>`);
+  }else if(which==="mood"){
+    const moods=ev.filter(e=>e.kind==="mood");
+    openDetail(detailHead("mood","Mood & spirits",day.mood||"",day.mood_low?"tint-low":"tint-ok")
+      +`<div class="dt-body"><p class="dt-line">${day.mood_low?"Ruby seemed a little low today.":"Ruby was in good spirits today."}</p>`
+      +(moods.length?`<div class="dt-sec">Check-ins</div>`+moods.map(miniRow).join(""):"")
+      +`</div>`);
+  }else if(which==="trend"){
+    openDetail(detailHead("meal","Appetite trend",day.trend==="declining"?"Declining":"Steady",day.trend==="declining"?"tint-low":"tint-ok")
+      +`<div class="dt-body"><p class="dt-line">${day.trend==="declining"?"Across recent meals, Ruby's intake is trending down — about a third lighter than a few weeks ago.":"Ruby's appetite has held steady recently."}</p>`
+      +`<div style="margin:4px 0 6px">${sparkline(APPETITE_VALS, day.trend==="declining")}</div>`
+      +`<div class="spark-x" style="padding:0 4px"><span>Earlier</span><span>Now</span></div>`
+      +(canSeeTrends()?`<div class="dt-sec" style="margin-top:18px">Want the full picture?</div><button class="add-fab" onclick="closeDetail();go('trends')"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17l5-5 3.5 3 6-7.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg> Open Trends</button>`:'')
+      +`</div>`);
+  }
+}
+function openEvent(e){
+  if(!e) return;
+  const who=loggerAvatar(e.logged_by);
+  openDetail(detailHead(e.kind||"note",e.title||"",e.ts||"")
+    +`<div class="dt-body">`
+    +(e.detail?`<p class="dt-line">${esc(e.detail)}</p>`:"")
+    +`<div class="dt-kv"><span class="k">When</span><span class="v">${esc(e.ts||"—")}</span></div>`
+    +`<div class="dt-kv"><span class="k">Type</span><span class="v">${esc(((e.kind||"note")[0]||"").toUpperCase()+(e.kind||"note").slice(1))}</span></div>`
+    +(e.value!=null?`<div class="dt-kv"><span class="k">Reading</span><span class="v">${Math.round(e.value*100)}%</span></div>`:"")
+    +`<div class="dt-kv"><span class="k">Logged by</span><span class="v"><span class="d ${who.cls}" style="display:inline-grid;place-items:center;width:18px;height:18px;border-radius:6px;color:#fff;font-size:9px;font-weight:800;vertical-align:-3px;margin-right:5px">${who.in}</span>${esc(e.logged_by||"—")}</span></div>`
+    +`</div>`);
+}
+
+async function loadState(){
+  renderHomeSkeleton();
+  const {json}=await api("/api/state?actor="+encodeURIComponent(STATE.actor));
+  STATE.data=json||{};
+  $("#pillName").textContent=STATE.data.label||STATE.actor;
+  if(STATE.data.grant){ CAP=Math.round(STATE.data.grant.cap||30); GRANT_LIVE=true; }
+  else { GRANT_LIVE=false; }
+  await refreshRequests();
+  await prefetchTimeline();
+  renderHome();
+  if($("#view-timeline").classList.contains("active")) loadTimeline();
+  if($("#view-calendar").classList.contains("active")) loadCalendar();
+  if($("#view-trends").classList.contains("active")) loadTrends();
+  if($("#view-consent").classList.contains("active")) renderConsent();
+  if($("#view-ask").classList.contains("active")){ ASKED=false; initAsk(); }
+  startPolling();
+}
+
+function canSeeTrends(){ return STATE.actor==="mom" || STATE.actor==="doc:smith"; }
+function canLog(){ return !!(STATE.data && STATE.data.can_log); }
+
+async function prefetchTimeline(){
+  if(!(STATE.data&&STATE.data.can_view_today)){ STATE._timeline=[]; MARS_LATEST=null; return; }
+  const {json}=await api("/api/timeline?actor="+encodeURIComponent(STATE.actor));
+  const ev=(json&&json.events)||[];
+  STATE._timeline=ev;
+  MARS_LATEST=ev.find(e=>e.kind==="mood" && /mars/i.test(e.logged_by||"")) || null;
+  const meals=ev.filter(e=>e.kind==="meal"&&e.value!=null).map(e=>e.value);
+  if(meals.length) APPETITE_VALS=[0.9,0.6].concat(meals).slice(-5);
+}
+
+function syncConsentAlert(){
+  const alert = !!(STATE.data && STATE.data.is_owner && PENDING.length>0);
+  $$(".tab").forEach(t=>{ if(t.dataset.tab==="consent") t.classList.toggle("alert", alert); });
+}
+async function refreshRequests(){
+  const {json}=await api("/api/requests?actor="+encodeURIComponent(STATE.actor));
+  PENDING=((json&&json.requests)||[]).filter(r=>(r.status||"pending")==="pending");
+  syncConsentAlert();
+  return PENDING;
+}
+function startPolling(){
+  if(POLL_T) return;
+  POLL_T=setInterval(async ()=>{
+    if(!(STATE.data&&STATE.data.is_owner)) return;
+    const before=PENDING.length;
+    await refreshRequests();
+    if(PENDING.length>before){
+      const fresh=PENDING.find(r=>!SEEN_REQ_IDS.has(r.id));
+      if(fresh){ toast("Stead is asking to raise the cap to $"+fresh.amount); }
+    }
+    PENDING.forEach(r=>SEEN_REQ_IDS.add(r.id));
+    if($("#view-consent").classList.contains("active")) renderConsent();
+    if($("#view-home").classList.contains("active")) renderHomeRequests();
+  },3500);
+}
+
+function renderHomeSkeleton(){
+  $("#view-home").innerHTML=`
+    <div class="card hero">
+      <div class="hero-top"><span class="pulse"></span><span class="eyebrow">Loading…</span></div>
+      <h1 class="sk" style="width:80%;height:30px">&nbsp;</h1>
+      <p class="sk" style="height:38px;margin-top:8px">&nbsp;</p>
+    </div>
+    <div class="grid">
+      ${'<div class="card stat"><div class="ic sk" style="border-radius:12px"></div><div class="lbl sk" style="width:60%">x</div><div class="val sk" style="width:75%;height:18px">x</div></div>'.repeat(4)}
+    </div>`;
+}
+function trendIcon(dir){
+  return dir==="declining"
+    ? '<svg viewBox="0 0 24 24" fill="none"><path d="M4 7l6 6 4-4 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 15h4v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none"><path d="M4 16l5-5 4 3 7-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+function sparkline(vals,declining){
+  const W=290,H=64,pad=7;
+  let v=(vals&&vals.length)?vals.slice():[0.5];
+  const n=v.length, span=Math.max(1,n-1);
+  const x=i=>pad+(i/span)*(W-pad*2);
+  const y=val=>H-pad-(Math.max(0,Math.min(1,val)))*(H-pad*2);
+  const pts=v.map((val,i)=>[x(i),y(val)]);
+  const d=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  const area=d+" L "+x(n-1).toFixed(1)+" "+H+" L "+pad+" "+H+" Z";
+  const col=declining?"var(--halt)":"var(--sage)";
+  const colSoft=declining?"#e98b7e":"#9bbfa3";
+  const dots=pts.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===n-1?4:2.6}" fill="${i===n-1?col:'#fff'}" stroke="${col}" stroke-width="2"/>`).join("");
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${colSoft}" stop-opacity=".34"/><stop offset="1" stop-color="${colSoft}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${area}" fill="url(#sg)"/>
+    <path d="${d}" fill="none" stroke="${col}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}
+  </svg>`;
+}
+function renderHome(){
+  const d=STATE.data||{};
+  if(!d.can_view_today){
+    if(STATE.actor==="doc:smith"){
+      $("#view-home").innerHTML=`
+        <div class="card hero">
+          <div class="hero-top"><span class="pulse" style="background:#2f6173"></span><span class="eyebrow">Dr. Smith · clinician</span></div>
+          <h1>Welcome, <em>Dr. Smith</em>.</h1>
+          <p>You're scoped to Ruby's longitudinal trends — not her minute-to-minute day. That's consent working as designed: clinical insight without wholesale access.</p>
+        </div>
+        <div class="card locked scope clickable" onclick="go('trends')">
+          <div class="lic"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17l5-5 3.5 3 6-7.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20h16" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></div>
+          <h3>See Ruby's trends</h3>
+          <p>Appetite, mood and medication adherence over the last three weeks — and ask grounded questions about her history.</p>
+          <span class="pill">Open Trends &rarr;</span>
+        </div>`;
+      return;
+    }
+    $("#view-home").innerHTML=`
+      <div class="card hero">
+        <div class="hero-top"><span class="pulse" style="background:var(--muted)"></span><span class="eyebrow">${esc(d.label||"Agent")}</span></div>
+        <h1>Out of scope.</h1>
+        <p>Ruby's day-to-day care details aren't part of this role's permissions. The agent can act only on tasks Mom has explicitly approved — nothing more.</p>
+      </div>
+      <div class="card locked scope">
+        <div class="lic"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2.4" stroke="currentColor" stroke-width="1.9"/><path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.9"/></svg></div>
+        <h3>Daily details are private</h3>
+        <p>This is consent working as designed — access is scoped to purpose, not handed over wholesale.</p>
+        <span class="pill">Open Consent to see what the agent <em>can</em> do &rarr;</span>
+      </div>`;
+    return;
+  }
+  const day=d.day||{};
+  const trend=day.trend==="declining"?"declining":"steady";
+  const heroLine = trend==="declining"
+    ? `Ruby's having a <em>quieter</em> day. Meds are on track and she's resting — her appetite is the one thing worth a gentle eye.`
+    : `Ruby's having a <em>steady</em> day. Meds on track, eating well, and in good spirits.`;
+  const moodLow=!!day.mood_low;
+  const mealsOk=!!day.meals_ok;
+  const owner=!!d.is_owner;
+
+  $("#view-home").innerHTML=`
+    <div class="card hero">
+      <div class="hero-top"><span class="pulse"></span><span class="eyebrow">Stead is watching over Ruby</span></div>
+      <h1>${heroLine}</h1>
+      <p class="stamp"><svg viewBox="0 0 24 24" width="13" height="13" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--muted)" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Updated just now &middot; ${day.event_count||0} care notes today</p>
+    </div>
+
+    ${owner?'<div id="homeReq"></div>':''}
+
+    <div class="grid">
+      <div class="card stat clickable" onclick="openStat('meds')">
+        <div class="ic tint-ok">${ICON.meds}</div>
+        <div class="lbl">Medications</div>
+        <div class="val">${esc(day.meds||"—")}</div>
+        <span class="tagdot ${day.meds_ok?'ok':'warn'}">${day.meds_ok?'On schedule':'Check'}</span>
+      </div>
+      <div class="card stat clickable" onclick="openStat('meal')">
+        <div class="ic ${mealsOk?'tint-ok':'tint-warn'}">${ICON.meal}</div>
+        <div class="lbl">Appetite today</div>
+        <div class="val sm">${esc(day.meals||"—")}</div>
+        <span class="tagdot ${mealsOk?'ok':'warn'}">${mealsOk?'Eating well':'Light intake'}</span>
+      </div>
+      <div class="card stat clickable" style="grid-column:span 2" onclick="openStat('mood')">
+        <div style="display:flex;gap:13px;align-items:flex-start">
+          <div class="ic ${moodLow?'tint-low':'tint-ok'}">${ICON.mood}</div>
+          <div style="flex:1">
+            <div class="lbl" style="margin-bottom:5px">Mood &amp; spirits</div>
+            <div class="val sm" style="margin-top:0">${esc(day.mood||"Not logged")}</div>
+          </div>
+          <span class="tagdot ${moodLow?'low':'ok'}">${moodLow?'A little low':'Bright'}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card trend clickable" onclick="openStat('trend')">
+      <div class="hd">
+        <div><div class="t">Appetite trend</div><div class="sub">Recent meals logged</div></div>
+        <span class="trend-flag ${trend}">${trendIcon(trend)} ${trend==="declining"?"Declining":"Steady"}</span>
+      </div>
+      ${sparkline(APPETITE_VALS, trend==="declining")}
+      <div class="spark-x"><span>Earlier</span><span>Now</span></div>
+    </div>
+
+    <div class="card mars-card" id="marsCard"></div>
+
+    <div class="card askcard" onclick="go('ask')">
+      <div class="orb">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3a7 7 0 0 1 7 7c0 2-1 3.6-2.5 4.8L16 19l-2.2-1.2a7 7 0 1 1-1.8-13.8Z" fill="#fff" opacity=".95"/><circle cx="9" cy="10" r="1" fill="var(--sage-deep)"/><circle cx="12" cy="10" r="1" fill="var(--sage-deep)"/><circle cx="15" cy="10" r="1" fill="var(--sage-deep)"/></svg>
+      </div>
+      <div class="tx">
+        <b>Talk to Stead</b>
+        <span>${trend==="declining"?'&ldquo;Her appetite dipped again — want me to help?&rdquo;':'Ask anything about Ruby&rsquo;s day.'}</span>
+      </div>
+      <span class="go">&rarr;</span>
+    </div>`;
+  renderMarsCard();
+  if(owner) renderHomeRequests();
+}
+function renderHomeRequests(){
+  const slot=$("#homeReq"); if(!slot) return;
+  slot.innerHTML=PENDING.length?PENDING.map(r=>reqCardHTML(r)).join(""):"";
+}
+
+/* ============ MARS card ============ */
+function renderMarsCard(){
+  const card=$("#marsCard"); if(!card) return;
+  const m=MARS_LATEST;
+  const senseHTML=m
+    ? `<div class="mars-sense"><div class="sl">Ruby's latest check-in</div>
+        <div class="sv">${esc(m.detail||m.title||"Ruby checked in with MARS.")}</div>
+        <div class="meta">${esc(m.ts||"")} · sensed by MARS</div></div>`
+    : `<div class="mars-sense"><div class="sl">Ruby's latest check-in</div>
+        <div class="sv">MARS is nearby and ready. Ask Ruby how she's feeling to capture a check-in.</div></div>`;
+  const can=!!(STATE.data&&STATE.data.can_view_today);
+  card.innerHTML=`
+    <div class="mars-hd">
+      <div class="mars-bot">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="8" width="16" height="11" rx="3.5" stroke="#fff" stroke-width="1.8"/><path d="M12 4v4M9 19v2M15 19v2" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="4" r="1.4" fill="#fff"/></svg>
+        <span class="eye l"></span><span class="eye r"></span>
+      </div>
+      <div class="mt"><b>MARS</b><span>Ruby's companion robot</span></div>
+      <span class="live"><span class="ld"></span>Present</span>
+    </div>
+    ${senseHTML}
+    <div class="mars-spoken" id="marsSpoken"></div>
+    <div class="mars-actions">
+      <button class="btn-mars" id="marsAskBtn" onclick="marsAsk()" ${can?'':'disabled'}>
+        ${ICON.mic}<span>Ask Ruby how she's feeling</span>
+      </button>
+    </div>
+    <div class="action-row" style="margin-top:10px">
+      <button class="btn-mars ghost" onclick="marsOrder()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14l-1 11.5a1.5 1.5 0 0 1-1.5 1.4H7.5A1.5 1.5 0 0 1 6 18.5L5 7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 7a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.8"/></svg>
+        <span>Order Tony's from MARS</span>
+      </button>
+    </div>`;
+}
+function marsSpeak(slot,line){
+  if(!slot) return;
+  slot.innerHTML=`<div class="q"><svg viewBox="0 0 24 24" fill="none"><path d="M11 5 6 9H3v6h3l5 4V5Z" stroke="#7a6fa8" stroke-width="1.8" stroke-linejoin="round"/><path d="M16 9a4 4 0 0 1 0 6" stroke="#7a6fa8" stroke-width="1.8" stroke-linecap="round"/></svg>MARS spoke aloud</div>${esc(line)}`;
+  slot.classList.add("show");
+}
+async function marsAsk(){
+  const btn=$("#marsAskBtn"); if(btn){ btn.disabled=true; btn.querySelector("span").textContent="MARS is speaking…"; }
+  const {json}=await api("/api/mars/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({})});
+  if(btn){ btn.disabled=false; btn.querySelector("span").textContent="Ask Ruby how she's feeling"; }
+  const line=(json&&(json.spoken||json.message))||"Hi Ruby, how are you feeling today?";
+  marsSpeak($("#marsSpoken"),line);
+  toast("MARS spoke to Ruby");
+}
+async function marsOrder(){
+  const vendor=(STATE.data&&STATE.data.grant&&STATE.data.grant.vendor)||"Tony's Pizza";
+  const amount=CAP;
+  toast("MARS is placing the order…");
+  const {json}=await api("/api/mars/order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({vendor,amount})});
+  if(json&&json.spoken) marsSpeak($("#marsSpoken"),json.spoken);
+  handleOrderResponse(json,amount);
+}
+function handleOrderResponse(json,amount){
+  const status=json&&json.status;
+  if(status==="needs_consent"){
+    const req=(json&&json.request)||{};
+    toast("Stead is asking to raise the cap to $"+(req.amount||amount||""));
+    refreshRequests().then(()=>{ go("consent"); });
+    return;
+  }
+  if(status==="halted"){ toast("Halted — outside the live grant"); return; }
+  if(status==="done"){ toast("Within consent — order placed"); loadState(); return; }
+  toast("Stead couldn't reach the order service");
+}
+
+/* ============ consent request card (money shot) ============ */
+function reqCardHTML(r){
+  return `<div class="card req-card show" data-rid="${esc(r.id)}">
+    <div class="req-hd">
+      <div class="ri"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v4M12 17v4M3 12h4M17 12h4" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3.4" stroke="#fff" stroke-width="2"/></svg></div>
+      <div class="rt"><span class="eyebrow">Consent requested</span>
+        <b>Stead is asking to raise the cap to $${esc(r.amount)}</b></div>
+    </div>
+    <div class="req-detail">
+      <div class="rb"><div class="l">Current cap</div><div class="v">$${esc(r.cap!=null?r.cap:CAP)}</div></div>
+      <div class="arrow">&rarr;</div>
+      <div class="rb"><div class="l">Order needs</div><div class="v">$${esc(r.amount)}</div></div>
+    </div>
+    <div class="req-actions">
+      <button class="btn-approve" onclick="approveReq('${esc(r.id)}',${Number(r.amount)||0})">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-11" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Approve &amp; raise to $${esc(r.amount)}
+      </button>
+      <button class="btn-deny" onclick="denyReq('${esc(r.id)}')">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>
+        Deny
+      </button>
+    </div>
+  </div>`;
+}
+async function approveReq(id,newCap){
+  toast("Approving…");
+  const {json}=await api("/api/requests/approve",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,cap:newCap})});
+  if(json&&json.grant&&json.grant.cap!=null){ CAP=Math.round(json.grant.cap); GRANT_LIVE=true; }
+  else if(newCap){ CAP=Math.round(newCap); GRANT_LIVE=true; }
+  await refreshRequests();
+  await loadState();
+  const vendor=(STATE.data&&STATE.data.grant&&STATE.data.grant.vendor)||"Tony's Pizza";
+  toast("Approved — retrying the order at $"+CAP);
+  const r=await api("/api/order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({vendor,amount:CAP})});
+  if(r.json&&r.json.status==="done") toast("Order placed at $"+CAP+" ✓");
+  await loadState();
+  if($("#view-consent").classList.contains("active")) renderConsent();
+}
+async function denyReq(id){
+  await api("/api/requests/deny",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
+  await refreshRequests();
+  toast("Request denied — cap unchanged");
+  if($("#view-consent").classList.contains("active")) renderConsent();
+  if($("#view-home").classList.contains("active")) renderHomeRequests();
+}
+
+const STEAD_MARK='<svg viewBox="0 0 24 24" fill="none"><path d="M12 3a7 7 0 0 1 5 12l.6 3.2L14.6 17A7 7 0 1 1 12 3Z" fill="#fff"/></svg>';
+function steadBubble(html){
+  return `<div class="bubble stead"><div class="by"><span class="mini">${STEAD_MARK}</span>Stead</div>${html}</div>`;
+}
+function initAsk(){
+  const d=STATE.data||{};
+  const can=!!d.can_view_today;
+  $("#askIntro").textContent = can
+    ? "A calm, always-on companion who knows Ruby's day. Ask anything."
+    : "This role can't see Ruby's daily details, so Stead can't discuss them here.";
+  const inp=$("#askInput"), sb=$("#sendBtn");
+  inp.disabled=!can; sb.disabled=!can;
+  inp.placeholder=can?"Ask about Ruby…":"Out of scope for this role";
+  const mic=$("#askMicBtn");
+  if(mic){
+    if(!SR_CTOR){
+      mic.classList.add("off"); mic.disabled=true;
+      mic.title="Voice input needs Chrome or Edge";
+      mic.setAttribute("aria-disabled","true");
+    }else if(!can){
+      mic.classList.add("off"); mic.disabled=true;
+      mic.title="Out of scope for this role";
+    }else{
+      mic.classList.remove("off"); mic.disabled=false;
+      mic.title="Tap to speak";
+    }
+  }
+  if(ASKED) return;
+  ASKED=true;
+  const chat=$("#chat"); chat.innerHTML="";
+  if(!can){
+    chat.innerHTML=steadBubble(`<div>I'm here for the family, but Ruby's day-to-day details aren't in this role's scope. Switch to <b>Mom</b> or <b>Jane</b> to chat about her care.</div>`);
+    $("#chips").innerHTML="";
+    return;
+  }
+  const day=d.day||{};
+  const open = day.trend==="declining"
+    ? `Hi — I'm <b>Stead</b>. I've been keeping Ruby company today. She's doing okay: meds on time and she rested well. Her appetite dipped a little again, so that's the one thing I'm gently watching. What's on your mind?`
+    : `Hi — I'm <b>Stead</b>. Ruby's had a steady day: meds on time, eating well, in good spirits. Ask me anything.`;
+  chat.innerHTML=steadBubble(`<div>${open}</div>`);
+  renderChips(["Did she take her meds?","Is she eating enough?","How's her mood?", day.trend==="declining"?"Should I be worried?":"Anything I should know?"]);
+}
+function renderChips(list){
+  $("#chips").innerHTML=(list||[]).map(c=>`<button class="chip" data-q="${esc(c)}">${esc(c)}</button>`).join("");
+  $$("#chips .chip").forEach(b=>b.onclick=()=>{ $("#askInput").value=b.dataset.q; sendAsk(); });
+}
+const SR_CTOR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let ASK_REC=null, ASK_RECORDING=false, ASK_BASE="";
+function setAskMicState(rec){
+  const b=$("#askMicBtn"), li=$("#askListening");
+  if(b) b.classList.toggle("rec",!!rec);
+  if(li) li.classList.toggle("on",!!rec);
+}
+function stopAskMic(send){
+  if(ASK_REC){
+    ASK_REC._send=!!send;
+    try{ ASK_REC.stop(); }catch(e){}
+  }
+}
+function toggleAskMic(){
+  const inp=$("#askInput");
+  if(!SR_CTOR){ toast("Voice input needs Chrome or Edge"); if(inp) inp.focus(); return; }
+  if(inp && inp.disabled){ return; }
+  if(ASK_RECORDING){ stopAskMic(true); return; }
+  ASK_REC=new SR_CTOR(); ASK_REC.lang="en-US"; ASK_REC.interimResults=true; ASK_REC.continuous=false;
+  ASK_REC._send=false;
+  ASK_BASE=inp&&inp.value?inp.value.trim()+" ":"";
+  ASK_REC.onstart=()=>{ ASK_RECORDING=true; setAskMicState(true); };
+  ASK_REC.onresult=(e)=>{
+    let s=""; for(let i=0;i<e.results.length;i++) s+=e.results[i][0].transcript;
+    if(inp) inp.value=ASK_BASE+s;
+  };
+  ASK_REC.onerror=(e)=>{
+    const err=e&&e.error;
+    if(err==="not-allowed"||err==="service-not-allowed"){ toast("Mic permission needed — allow it in the browser"); }
+    else if(err!=="no-speech"&&err!=="aborted"){ toast("Couldn't hear that — try again or type"); }
+  };
+  ASK_REC.onend=()=>{
+    const wantSend=ASK_REC&&ASK_REC._send;
+    ASK_RECORDING=false; setAskMicState(false); ASK_REC=null;
+    if(wantSend && inp && (inp.value||"").trim()){ sendAsk(); }
+  };
+  try{ ASK_REC.start(); }
+  catch(e){ ASK_RECORDING=false; setAskMicState(false); ASK_REC=null; }
+}
+async function sendAsk(){
+  stopAskMic(false);
+  const inp=$("#askInput"); const q=(inp.value||"").trim();
+  if(!q || inp.disabled) return;
+  const chat=$("#chat");
+  chat.insertAdjacentHTML("beforeend",`<div class="bubble me">${esc(q)}</div>`);
+  inp.value=""; $("#chips").innerHTML="";
+  const tw=document.createElement("div"); tw.className="bubble stead"; tw.id="typing";
+  tw.innerHTML=`<div class="by"><span class="mini">${STEAD_MARK}</span>Stead</div><div class="typing"><i></i><i></i><i></i></div>`;
+  chat.appendChild(tw);
+  $("#main").scrollTo({top:99999,behavior:"smooth"});
+  const {json}=await api("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({q,actor:STATE.actor})});
+  const t=$("#typing"); if(t) t.remove();
+  const ans=esc(json.answer||"I'm here, but I didn't catch that.").replace(/\n+/g,"<br><br>");
+  chat.insertAdjacentHTML("beforeend",steadBubble(`<div>${ans}</div>`));
+  renderChips(json.suggestions&&json.suggestions.length?json.suggestions:["Is she eating enough?","How's her mood?"]);
+  $("#main").scrollTo({top:99999,behavior:"smooth"});
+}
+
+/* ============ Day / timeline + voice logging ============ */
+function renderLogCard(){
+  const slot=$("#logSlot"); if(!slot) return;
+  if(!canLog()){ slot.innerHTML=""; return; }
+  slot.innerHTML=`
+    <div class="card log-card">
+      <div class="lh"><div class="lic2">${ICON.note}</div><div><b>Log a care note</b><span>Type, or tap the mic to dictate</span></div></div>
+      <div class="mic-wrap">
+        <textarea id="logText" placeholder="e.g. Ruby ate half her lunch and seemed tired…"></textarea>
+        <button class="mic-btn" id="micBtn" onclick="toggleMic()" aria-label="Dictate">${ICON.mic}</button>
+      </div>
+      <div class="mic-hint" id="micHint"></div>
+      <button class="log-send" id="logSend" onclick="submitLog()" style="margin-top:10px"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h13M12 5l7 7-7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Add note to Ruby's day</button>
+    </div>`;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  $("#micHint").textContent = SR ? "Tip: tap the mic and speak your note." : "Voice input isn't supported here — just type your note.";
+  const mb=$("#micBtn"); if(!SR && mb) mb.style.opacity=".4";
+}
+async function submitLog(){
+  const ta=$("#logText"); const txt=(ta.value||"").trim();
+  if(!txt){ toast("Write or dictate a note first"); return; }
+  const btn=$("#logSend"); if(btn) btn.disabled=true;
+  const {ok}=await api("/api/checkin",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({actor:STATE.actor,kind:"note",title:"Care note",detail:txt})});
+  if(btn) btn.disabled=false;
+  if(ok){ ta.value=""; toast("Note added to Ruby's day"); loadTimeline(); }
+  else toast("Couldn't add note — check your role");
+}
+let REC=null, RECORDING=false;
+function toggleMic(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ toast("Voice input isn't supported — please type"); $("#logText").focus(); return; }
+  if(RECORDING){ if(REC) REC.stop(); return; }
+  REC=new SR(); REC.lang="en-US"; REC.interimResults=true; REC.continuous=false;
+  const ta=$("#logText"); const base=ta.value?ta.value.trim()+" ":"";
+  REC.onstart=()=>{ RECORDING=true; $("#micBtn").classList.add("rec"); $("#micHint").textContent="Listening… tap the mic again to stop."; };
+  REC.onresult=(e)=>{ let s=""; for(let i=0;i<e.results.length;i++) s+=e.results[i][0].transcript; ta.value=base+s; };
+  REC.onerror=(e)=>{
+    const err=e&&e.error;
+    if(err==="not-allowed"||err==="service-not-allowed"){ toast("Mic permission needed — allow it in the browser"); }
+    else if(err!=="no-speech"&&err!=="aborted"){ toast("Couldn't hear that — try again or type"); }
+  };
+  REC.onend=()=>{ RECORDING=false; const b=$("#micBtn"); if(b) b.classList.remove("rec"); const h=$("#micHint"); if(h) h.textContent="Got it — review and add the note."; };
+  try{ REC.start(); }catch(e){ RECORDING=false; }
+}
+function skelTl(){
+  $("#tlBody").innerHTML='<div class="tl">'+Array(4).fill('<div class="ev"><div class="body sk" style="height:74px;margin-left:42px;border-radius:18px"></div></div>').join("")+'</div>';
+}
+async function loadTimeline(){
+  renderLogCard();
+  skelTl();
+  const {json}=await api("/api/timeline?actor="+encodeURIComponent(STATE.actor));
+  if((json&&json.scoped_out) || (STATE.data && !STATE.data.can_view_today)){
+    $("#tlIntro").textContent="This role can't view Ruby's care timeline.";
+    $("#logSlot").innerHTML="";
+    $("#tlBody").innerHTML=`<div class="card locked scope">
+      <div class="lic"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2.4" stroke="currentColor" stroke-width="1.9"/><path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.9"/></svg></div>
+      <h3>Timeline is private</h3>
+      <p>Ruby's care events aren't in this role's scope.</p></div>`;
+    return;
+  }
+  const ev=(json&&json.events)||[];
+  STATE._timeline=ev;
+  MARS_LATEST=ev.find(e=>e.kind==="mood" && /mars/i.test(e.logged_by||"")) || null;
+  if($("#view-home").classList.contains("active")) renderMarsCard();
+  const meals=ev.filter(e=>e.kind==="meal"&&e.value!=null).map(e=>e.value);
+  if(meals.length){
+    APPETITE_VALS=[0.9,0.6].concat(meals).slice(-5);
+    if($("#view-home").classList.contains("active")) renderHome();
+  }
+  $("#tlIntro").textContent=ev.length+" events · tap any to see the full detail.";
+  if(!ev.length){ $("#tlBody").innerHTML=`<div class="card locked"><p>Nothing logged yet today.</p></div>`; return; }
+  $("#tlBody").innerHTML='<div class="tl">'+ev.map((e,i)=>{
+    const k=e.kind||"note";
+    const who=loggerAvatar(e.logged_by);
+    return `<div class="ev k-${esc(k)} clickable" onclick="openEvent(STATE._timeline[${i}])">
+      <div class="node">${ICON[k]||ICON.note}</div>
+      <div class="body">
+        <div class="ts">${esc(e.ts||"")}</div>
+        <div class="ti">${esc(e.title||"")}</div>
+        <div class="de">${esc(e.detail||"")}</div>
+        <span class="who"><span class="d ${who.cls}">${who.in}</span>${esc(e.logged_by||"—")}</span>
+      </div></div>`;
+  }).join("")+'</div>'
+    +`<div class="audit-note"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v5.5c0 4.3 3 7.6 7 9 4-1.4 7-4.7 7-9V6l-7-3Z" stroke="currentColor" stroke-width="1.8"/></svg>Every entry is attributed. Stead never logs care it didn't witness.</div>`;
+}
+function loggerAvatar(name){
+  const n=(name||"").toLowerCase();
+  if(n.includes("jane")||n.includes("pca")) return {cls:"a-jane",in:"J"};
+  if(n.includes("mars")) return {cls:"a-agent",in:"M"};
+  if(n.includes("agent")||n.includes("ruby")||n.includes("stead")) return {cls:"a-agent",in:"R"};
+  if(n.includes("smith")||n.includes("dr")) return {cls:"a-doc",in:"D"};
+  return {cls:"a-mom",in:((name||"·")[0]||"·").toUpperCase()};
+}
+
+/* ============ Calendar ============ */
+function skelCal(){ $("#calBody").innerHTML='<div class="day-group">'+Array(3).fill('<div class="card appt"><div class="ai sk" style="border-radius:12px;width:40px;height:40px"></div><div class="ax" style="flex:1"><b class="sk" style="width:60%;display:block;height:14px">x</b><span class="sk" style="width:40%;display:block;height:11px;margin-top:6px">x</span></div></div>').join("")+'</div>'; }
+async function loadCalendar(){
+  skelCal();
+  const {json}=await api("/api/appointments?actor="+encodeURIComponent(STATE.actor));
+  const appts=(json&&json.appointments)||[];
+  STATE._appts=appts;
+  const can=canLog();
+  if(!appts.length && !can){
+    $("#calBody").innerHTML=`<div class="card locked scope"><div class="lic">${ICON.appointment}</div><h3>Nothing scheduled</h3><p>No upcoming appointments are in this role's view.</p></div>`;
+    return;
+  }
+  const groups={};
+  appts.forEach(a=>{ (groups[a.date]=groups[a.date]||[]).push(a); });
+  const dates=Object.keys(groups).sort();
+  let html="";
+  dates.forEach(dt=>{
+    const list=groups[dt].slice().sort((a,b)=>(a.time||"").localeCompare(b.time||""));
+    const isToday=dt==="2026-06-13";
+    html+=`<div class="day-group"><div class="day-label"><b>${esc(prettyDate(dt))}</b><span>${esc(weekday(dt))}</span>${isToday?'<span class="today-pill">Today</span>':''}</div>`;
+    html+=list.map(apptRow).join("");
+    html+=`</div>`;
+  });
+  if(can){
+    html+=`<button class="add-fab" onclick="openAddAppt()"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Add appointment</button>`;
+  }
+  $("#calBody").innerHTML=html||`<div class="card locked"><p>No upcoming appointments.</p></div>`;
+}
+function apptRow(a){
+  const k=APPT_KINDS.includes(a.kind)?a.kind:"care";
+  const tt=splitTime(a.time);
+  return `<div class="card appt kind-${k} clickable" onclick='openAppt(${JSON.stringify(a).replace(/'/g,"&#39;")})'>
+    <div class="when"><div class="tm">${esc(tt.h)}</div><div class="ap">${esc(tt.ap)}</div></div>
+    <div class="bar"></div>
+    <div class="ai">${ICON[k]||ICON.appointment}</div>
+    <div class="ax"><b>${esc(a.title||"Appointment")}</b><span>${esc(a.who||APPT_KIND_LABEL[k])}</span></div>
+    <span class="chev">&rsaquo;</span>
+  </div>`;
+}
+function openAppt(a){
+  const k=APPT_KINDS.includes(a.kind)?a.kind:"care";
+  openDetail(detailHead(k,a.title||"Appointment",prettyDate(a.date)+" · "+(a.time||""),"tint-neutral")
+    +`<div class="dt-body">`
+    +(a.notes?`<p class="dt-line">${esc(a.notes)}</p>`:`<p class="dt-line">No additional notes for this appointment.</p>`)
+    +`<div class="dt-kv"><span class="k">When</span><span class="v">${esc(prettyDate(a.date))}, ${esc(a.time||"")}</span></div>`
+    +`<div class="dt-kv"><span class="k">Type</span><span class="v">${esc(APPT_KIND_LABEL[k]||k)}</span></div>`
+    +(a.who?`<div class="dt-kv"><span class="k">With</span><span class="v">${esc(a.who)}</span></div>`:"")
+    +`</div>`);
+}
+let ADD_KIND="doctor";
+function openAddAppt(){
+  ADD_KIND="doctor";
+  openDetail(`<div class="dt-hd"><div class="dic tint-ok">${ICON.appointment}</div><div class="meta"><div class="k">New</div><h3>Add appointment</h3></div></div>
+    <div class="dt-body">
+      <div class="field"><label>Title</label><input id="apTitle" placeholder="e.g. Dr. Smith — follow-up" autocomplete="off"></div>
+      <div class="field-row">
+        <div class="field"><label>Date</label><input id="apDate" type="date" value="2026-06-15"></div>
+        <div class="field"><label>Time</label><input id="apTime" type="time" value="10:00"></div>
+      </div>
+      <div class="field"><label>Type</label><div class="kind-pick" id="apKind">
+        ${APPT_KINDS.map(k=>`<button data-k="${k}" class="${k===ADD_KIND?'sel':''}" onclick="pickApKind('${k}')">${APPT_KIND_LABEL[k]}</button>`).join("")}
+      </div></div>
+      <div class="field"><label>With</label><input id="apWho" placeholder="e.g. Dr. Smith" autocomplete="off"></div>
+      <div class="field"><label>Notes</label><textarea id="apNotes" placeholder="Anything to remember…"></textarea></div>
+      <button class="log-send" onclick="saveAppt()"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-11" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Save appointment</button>
+    </div>`);
+}
+function pickApKind(k){ ADD_KIND=k; $$("#apKind button").forEach(b=>b.classList.toggle("sel",b.dataset.k===k)); }
+async function saveAppt(){
+  const title=($("#apTitle").value||"").trim();
+  if(!title){ toast("Add a title first"); return; }
+  const body={actor:STATE.actor,date:$("#apDate").value,time:$("#apTime").value,title,kind:ADD_KIND,who:($("#apWho").value||"").trim(),notes:($("#apNotes").value||"").trim()};
+  const {json,ok}=await api("/api/appointments",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  if(ok&&json&&json.ok){ closeDetail(); toast("Appointment added"); loadCalendar(); }
+  else toast("Couldn't add appointment");
+}
+
+/* ============ Trends (doctor) ============ */
+function skelTr(){ $("#trBody").innerHTML='<div class="card trend-summary"><div class="sk" style="height:48px"></div></div>'+Array(2).fill('<div class="card chart-card"><div class="sk" style="height:80px"></div></div>').join(""); }
+async function loadTrends(){
+  $("#trIntro").textContent = canSeeTrends()
+    ? "How Ruby has been over the last few weeks."
+    : "Longitudinal trends are limited to the family and Ruby's clinician.";
+  if(!canSeeTrends()){
+    $("#trBody").innerHTML=`<div class="card locked scope">
+      <div class="lic"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2.4" stroke="currentColor" stroke-width="1.9"/><path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.9"/></svg></div>
+      <h3>Trends are scoped out</h3>
+      <p>This role can't view Ruby's longitudinal health trends. Only Mom and Dr. Smith have this view.</p>
+      <span class="pill">Switch to <em>Dr. Smith</em> to see the clinical trends &rarr;</span></div>`;
+    return;
+  }
+  skelTr();
+  const {json}=await api("/api/trends?actor="+encodeURIComponent(STATE.actor));
+  if(!json||json.ok===false||json.scoped_out){
+    $("#trBody").innerHTML=`<div class="card locked scope"><div class="lic">${ICON.mood}</div><h3>No trend data yet</h3><p>Trends will appear once enough daily care has been logged.</p></div>`;
+    return;
+  }
+  const tr=json.trends||{};
+  const appetite=(tr.appetite||[]).map(p=>({date:p.date,v:clamp01(p.value0to1!=null?p.value0to1:p.value)}));
+  const mood=(tr.mood||[]).map(p=>({date:p.date,v:clamp01(p.score0to1!=null?p.score0to1:p.value)}));
+  const meds=(tr.meds||[]).map(p=>({date:p.date,ok:!!p.ok}));
+  const adher=meds.length?Math.round(meds.filter(m=>m.ok).length/meds.length*100):0;
+  $("#trBody").innerHTML=`
+    <div class="card trend-summary">
+      <span class="eyebrow">Clinician summary · synthetic data</span>
+      <p>${esc(json.summary||"Ruby's appetite has declined over the past three weeks while mood and medication adherence have held.")}</p>
+    </div>
+    ${chartCard("Appetite","Daily intake · last 3 weeks",appetite,true)}
+    ${chartCard("Mood","Daily mood score",mood,false)}
+    ${meds.length?`<div class="card chart-card">
+      <div class="chd"><div><div class="t">Medication adherence</div><div class="sub">Doses taken on time</div></div>
+        <span class="trend-flag ${adher>=80?'steady':'declining'}">${adher}%</span></div>
+      <div class="dots-row">${meds.map(m=>`<span class="md ${m.ok?'ok':'no'}">${m.ok?'<svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-11" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>':'<svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>'}</span>`).join("")}</div>
+    </div>`:""}
+    <div class="card docask">
+      <div class="dah"><div class="orb"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a7 7 0 0 1 7 7c0 2-1 3.6-2.5 4.8L16 19l-2.2-1.2a7 7 0 1 1-1.8-13.8Z" fill="#fff" opacity=".95"/></svg></div>
+        <div><b>Ask about Ruby's history</b><span>Grounded only in stored trends</span></div></div>
+      <div class="dbox"><input id="docAskInput" placeholder="How has Ruby been feeling?" autocomplete="off">
+        <button class="send" onclick="docAsk()"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h13M12 5l7 7-7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      <div class="docask-ans" id="docAskAns"></div>
+    </div>
+    <div class="audit-note"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v5.5c0 4.3 3 7.6 7 9 4-1.4 7-4.7 7-9V6l-7-3Z" stroke="currentColor" stroke-width="1.8"/></svg>All figures are synthetic. No real patient data is shown.</div>`;
+  const inp=$("#docAskInput"); if(inp) inp.addEventListener("keydown",e=>{ if(e.key==="Enter") docAsk(); });
+}
+function chartCard(title,sub,pts,declining){
+  if(!pts.length) return "";
+  const last=pts[pts.length-1].v, first=pts[0].v;
+  const down=declining || last<first-0.05;
+  const flag=down?`<span class="trend-flag declining">${trendIcon('declining')} Declining</span>`:`<span class="trend-flag steady">${trendIcon('steady')} Steady</span>`;
+  const col=down?"var(--halt)":"var(--sage)", soft=down?"#e98b7e":"#9bbfa3";
+  const bars=pts.map(p=>`<span class="b" style="height:${Math.max(5,Math.round(p.v*100))}%;background:linear-gradient(180deg,${col},${soft})"></span>`).join("");
+  return `<div class="card chart-card">
+    <div class="chd"><div><div class="t">${esc(title)}</div><div class="sub">${esc(sub)}</div></div>${flag}</div>
+    <div class="bars">${bars}</div>
+    <div class="bars-x"><span>3 wks ago</span><span>Now</span></div>
+  </div>`;
+}
+async function docAsk(){
+  const inp=$("#docAskInput"); const q=(inp.value||"").trim()||"How has Ruby been feeling lately?";
+  const box=$("#docAskAns"); if(box){ box.classList.add("show"); box.innerHTML='<span style="color:var(--muted)">Thinking…</span>'; }
+  const {json}=await api("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({q,actor:STATE.actor})});
+  if(box){ box.innerHTML=esc((json&&json.answer)||"I can only speak to Ruby's recorded trends.").replace(/\n+/g,"<br><br>"); }
+  if(inp) inp.value="";
+}
+
+/* ============ Consent ============ */
+function renderConsent(){
+  const d=STATE.data||{};
+  $("#csBody").innerHTML="";
+  if(d.is_owner){ renderOwnerConsent(d); $("#csIntro").textContent="You decide exactly what Ruby's agent can do — and you can pull it back anytime."; }
+  else if(STATE.actor==="jane:pca"){ renderReadOnly(); $("#csIntro").textContent="Care aides can see the boundaries, but only the family can change them."; }
+  else if(STATE.actor==="doc:smith"){ renderDocConsent(); $("#csIntro").textContent="Your clinical access is scoped to Ruby's trends — nothing more."; }
+  else { renderAgentConsent(); $("#csIntro").textContent="What the agent itself sees about its own permissions."; }
+}
+function renderOwnerConsent(d){
+  const live=GRANT_LIVE;
+  const vendor=(d.grant&&d.grant.vendor)||"Tony's Pizza";
+  const reqHTML=PENDING.length?PENDING.map(r=>reqCardHTML(r)).join(""):"";
+  $("#csBody").innerHTML=reqHTML+`
+    <div class="card grant-card">
+      <div class="gtop">
+        <div class="gav a-agent">${ICON.order}</div>
+        <div class="gmeta"><b>Ruby's agent</b><span>Acting on Ruby's behalf</span></div>
+        <span class="state-chip ${live?'live':'off'}">${live?'● Live grant':'○ No grant'}</span>
+      </div>
+      <div class="scope-row">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 7h14l-1 11.5a1.5 1.5 0 0 1-1.5 1.4H7.5A1.5 1.5 0 0 1 6 18.5L5 7Z" stroke="var(--sage-deep)" stroke-width="1.7"/></svg>
+        <span>Scope: <b>order:food</b> at <b>${esc(vendor)}</b>, on the card Mom shared.</span>
+      </div>
+
+      <div class="cap-lab"><span class="l">Spending limit</span><span class="sublabel">per order</span></div>
+      <div class="stepper">
+        <button class="step-btn" id="minus" onclick="stepCap(-5)">&minus;</button>
+        <div class="cap-amt"><div class="num"><span class="cur">$</span><span id="capNum">${CAP}</span></div><div class="per">maximum the agent may spend</div></div>
+        <button class="step-btn" id="plus" onclick="stepCap(5)">+</button>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-save" id="saveBtn" onclick="saveCap()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-11" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="saveTxt">${live?'Update limit':'Set limit & enable'}</span>
+        </button>
+        <button class="btn btn-revoke" id="revokeBtn" onclick="revoke()" ${live?'':'disabled'}>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>
+          Revoke
+        </button>
+      </div>
+    </div>
+
+    <div class="card order-card">
+      <div class="ohd">
+        <div class="vic">${ICON.meal}</div>
+        <div class="t"><b>Order dinner on Ruby's behalf</b><span>The agent attempts a real order</span></div>
+      </div>
+      <div class="od">The agent will try to spend <b>$<span id="tryAmt">${CAP}</span></b> at ${esc(vendor)}. Stead checks it against your live grant <b>before</b> any money moves — within the cap it proceeds, over it Stead <b>asks you</b>, and with no grant it <b>halts</b>.</div>
+      <button class="btn-order" id="orderBtn" onclick="placeOrder()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14l-1 11.5a1.5 1.5 0 0 1-1.5 1.4H7.5A1.5 1.5 0 0 1 6 18.5L5 7Z" stroke="#fff" stroke-width="1.9" stroke-linejoin="round"/><path d="M9 7a3 3 0 0 1 6 0" stroke="#fff" stroke-width="1.9"/></svg>
+        <span id="orderTxt">Place order — $${CAP}</span>
+      </button>
+      <button class="add-fab" style="margin-top:10px" onclick="orderOver()"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Try a $${CAP+12} order (over the cap)</button>
+      <div class="result" id="result"></div>
+    </div>
+
+    <div class="audit-note"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v5.5c0 4.3 3 7.6 7 9 4-1.4 7-4.7 7-9V6l-7-3Z" stroke="currentColor" stroke-width="1.8"/></svg>Every consent change and agent action is written to a tamper-evident audit.</div>`;
+  syncCapUI();
+}
+function syncCapUI(){
+  const cn=$("#capNum"); if(cn) cn.textContent=CAP;
+  const ta=$("#tryAmt"); if(ta) ta.textContent=CAP;
+  const ot=$("#orderTxt"); if(ot) ot.textContent="Place order — $"+CAP;
+  const m=$("#minus"); if(m) m.disabled=CAP<=5;
+}
+function stepCap(n){
+  CAP=Math.max(5,Math.min(200,CAP+n));
+  syncCapUI();
+  const b=$("#saveBtn"); if(b){ b.classList.remove("saved"); const t=$("#saveTxt"); if(t) t.textContent=GRANT_LIVE?"Update limit":"Set limit & enable"; }
+  const r=$("#result"); if(r) r.classList.remove("show");
+}
+async function saveCap(){
+  const t=$("#saveTxt"); if(t) t.textContent="Saving…";
+  const {json}=await api("/api/cap",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount:CAP})});
+  CAP=Math.round((json&&json.cap)||CAP); GRANT_LIVE=true;
+  await loadState();
+  renderConsent();
+  const nb=$("#saveBtn"); if(nb){ nb.classList.add("saved"); const nt=$("#saveTxt"); if(nt) nt.textContent="Saved ✓"; }
+  toast("Limit set to $"+CAP+" · grant is live");
+}
+async function revoke(){
+  await api("/api/revoke",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
+  GRANT_LIVE=false;
+  await loadState();
+  renderConsent();
+  toast("Consent revoked — the agent can't act");
+}
+async function placeOrder(){
+  const ob=$("#orderBtn"), ot=$("#orderTxt"), res=$("#result");
+  if(!res) return;
+  res.classList.remove("show"); ob.disabled=true; ot.textContent="Checking consent…";
+  const vendor=(STATE.data&&STATE.data.grant&&STATE.data.grant.vendor)||"Tony's Pizza";
+  const {json}=await api("/api/order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({vendor,amount:CAP})});
+  ob.disabled=false; ot.textContent="Place order — $"+CAP;
+  const msg=cleanMsg((json&&json.message)||"");
+  if(json&&json.status==="needs_consent"){
+    res.classList.remove("show");
+    toast("Stead is asking to raise the cap to $"+((json.request&&json.request.amount)||CAP));
+    await refreshRequests();
+    renderConsent();
+    $("#csBody").scrollIntoView({behavior:"smooth",block:"start"});
+    return;
+  }
+  if(json&&json.status==="done"){
+    res.className="result done";
+    res.innerHTML=`<div class="ri">
+      <div class="badge"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-11" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><b>Order authorized</b><div class="msg">${esc(msg)}</div></div></div>`;
+    void res.offsetWidth; res.classList.add("show");
+    toast("Within consent — order placed");
+  }else{
+    res.className="result halt";
+    res.innerHTML=`<div class="ri">
+      <div class="htop">
+        <div class="stop"><svg viewBox="0 0 24 24" fill="none"><path d="M8.2 3h7.6L21 8.2v7.6L15.8 21H8.2L3 15.8V8.2L8.2 3Z" stroke="#fff" stroke-width="1.9" stroke-linejoin="round"/><path d="M12 8v5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16.4" r="1.1" fill="#fff"/></svg></div>
+        <div><div class="htitle">HALTED</div><div class="hsub">Blocked before any money moved</div></div>
+      </div>
+      <div class="msg">${esc(msg)}</div></div>`;
+    void res.offsetWidth; res.classList.add("show");
+    toast("Halted — outside the live grant");
+  }
+  res.scrollIntoView({behavior:"smooth",block:"center"});
+}
+async function orderOver(){
+  const vendor=(STATE.data&&STATE.data.grant&&STATE.data.grant.vendor)||"Tony's Pizza";
+  const amount=CAP+12;
+  const res=$("#result"); if(res) res.classList.remove("show");
+  toast("Agent attempting $"+amount+"…");
+  const {json}=await api("/api/order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({vendor,amount})});
+  if(json&&json.status==="needs_consent"){
+    await refreshRequests(); renderConsent();
+    $("#csBody").scrollIntoView({behavior:"smooth",block:"start"});
+    toast("Stead is asking to raise the cap to $"+((json.request&&json.request.amount)||amount));
+    return;
+  }
+  if(json&&json.status==="halted"){ toast("Halted — outside the live grant"); return; }
+  if(json&&json.status==="done"){ toast("Order placed at $"+amount); await loadState(); renderConsent(); }
+}
+function cleanMsg(m){
+  return String(m||"")
+    .replace(/^[^A-Za-z0-9$]+/,"")
+    .replace(/^HALTED:\s*/i,"")
+    .replace(/\(Set VAPI[^)]*\)\s*/,"")
+    .trim() || "The request was outside the live grant. Adjust the limit or re-enable consent.";
+}
+function renderReadOnly(){
+  $("#csBody").innerHTML=`
+    <div class="card grant-card">
+      <div class="gtop">
+        <div class="gav a-agent">${ICON.order}</div>
+        <div class="gmeta"><b>Ruby's agent</b><span>order:food · Tony's Pizza</span></div>
+        <span class="state-chip ${GRANT_LIVE?'live':'off'}">${GRANT_LIVE?'● Live grant':'○ No grant'}</span>
+      </div>
+      <div class="scope-row" style="margin-bottom:0">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 7h14l-1 11.5a1.5 1.5 0 0 1-1.5 1.4H7.5A1.5 1.5 0 0 1 6 18.5L5 7Z" stroke="var(--sage-deep)" stroke-width="1.7"/></svg>
+        <span>Spending limit: <b>${GRANT_LIVE?'$'+CAP+' / order':'not set'}</b></span>
+      </div>
+    </div>
+    <div class="card locked read">
+      <div class="lic"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="10.5" width="14" height="9.5" rx="2.4" stroke="currentColor" stroke-width="1.9"/><path d="M8.2 10.5V8a3.8 3.8 0 0 1 7.6 0v2.5" stroke="currentColor" stroke-width="1.9"/><circle cx="12" cy="15" r="1.4" fill="currentColor"/></svg></div>
+      <h3>View only for care aides</h3>
+      <p>Jane can log Ruby's care, but consent and spending limits belong to the family. Only Mom can change or revoke them.</p>
+      <span class="pill"><span class="d a-jane" style="width:18px;height:18px;border-radius:6px;font-size:9px;display:grid;place-items:center;color:#fff;font-weight:800">J</span> Signed in as Jane · PCA</span>
+    </div>`;
+}
+function renderAgentConsent(){
+  $("#csBody").innerHTML=`
+    <div class="card grant-card">
+      <div class="gtop">
+        <div class="gav a-agent">${ICON.order}</div>
+        <div class="gmeta"><b>My permissions</b><span>What I'm allowed to do</span></div>
+        <span class="state-chip ${GRANT_LIVE?'live':'off'}">${GRANT_LIVE?'● Active':'○ Suspended'}</span>
+      </div>
+      <div class="scope-row" style="margin-bottom:0">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 7h14l-1 11.5a1.5 1.5 0 0 1-1.5 1.4H7.5A1.5 1.5 0 0 1 6 18.5L5 7Z" stroke="var(--sage-deep)" stroke-width="1.7"/></svg>
+        <span>I may <b>order food</b> up to <b>${GRANT_LIVE?'$'+CAP:'$0'}</b> — and nothing else.</span>
+      </div>
+    </div>
+    <div class="card locked scope">
+      <div class="lic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a7 7 0 0 1 5 12l.6 3.2L14.6 17A7 7 0 1 1 12 3Z" stroke="currentColor" stroke-width="1.8"/></svg></div>
+      <h3>I act only with consent</h3>
+      <p>Mom sets my limits; Stead checks every action against them before it happens. I can't see Ruby's private day, and I can't spend beyond my grant.</p>
+    </div>`;
+}
+function renderDocConsent(){
+  $("#csBody").innerHTML=`
+    <div class="card grant-card">
+      <div class="gtop">
+        <div class="gav a-doc"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17l5-5 3.5 3 6-7.5" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20h16" stroke="#fff" stroke-width="1.9" stroke-linecap="round"/></svg></div>
+        <div class="gmeta"><b>Dr. Smith</b><span>Clinician access</span></div>
+        <span class="state-chip live">● Trends only</span>
+      </div>
+      <div class="scope-row" style="margin-bottom:0">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M4 17l5-5 3.5 3 6-7.5" stroke="var(--sage-deep)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Scope: <b>care:trends</b> — longitudinal health only, not the daily timeline.</span>
+      </div>
+    </div>
+    <div class="card locked scope clickable" onclick="go('trends')">
+      <div class="lic"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17l5-5 3.5 3 6-7.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20h16" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></div>
+      <h3>Clinical, not custodial</h3>
+      <p>You can review Ruby's trends and ask grounded questions — but you can't see her hour-by-hour care or change any consent.</p>
+      <span class="pill">Open Trends &rarr;</span>
+    </div>`;
+}
+
+/* ============ date helpers ============ */
+const WD=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function parseD(s){ const m=/(\d{4})-(\d{2})-(\d{2})/.exec(s||""); return m?new Date(+m[1],+m[2]-1,+m[3]):null; }
+function prettyDate(s){ const d=parseD(s); return d?`${MO[d.getMonth()]} ${d.getDate()}`:s||""; }
+function weekday(s){ const d=parseD(s); return d?WD[d.getDay()]:""; }
+function splitTime(t){
+  const m=/(\d{1,2}):(\d{2})/.exec(t||"");
+  if(!m) return {h:t||"",ap:""};
+  let h=+m[1]; const ap=h>=12?"PM":"AM"; let hh=h%12; if(hh===0) hh=12;
+  return {h:hh+":"+m[2],ap};
+}
+function clamp01(v){ v=Number(v); if(isNaN(v)) return 0; return Math.max(0,Math.min(1,v)); }
+
+$("#askInput").addEventListener("keydown",e=>{ if(e.key==="Enter") sendAsk(); });
+(async function(){ syncSheet(); await loadState(); })();
+</script>
+</body>
+</html>

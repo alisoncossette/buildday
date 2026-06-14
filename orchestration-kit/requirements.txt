@@ -1,0 +1,8 @@
+# Stead consent engine — runtime deps.
+#
+# langfuse is OPTIONAL. The tracing shim (consent_agent/trace.py) is a silent no-op when langfuse
+# is not installed or when LANGFUSE_PUBLIC_KEY / LANGFUSE_SECRET_KEY are unset, so the engine,
+# pytest, and grade.py all run with zero extra deps. Install it only to send real traces:
+#     pip install langfuse
+# then set LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY, and (optionally) LANGFUSE_HOST.
+langfuse

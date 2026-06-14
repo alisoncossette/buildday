@@ -1,39 +1,79 @@
 {
-  "name": "Red Rover — definition of done (revocable voice-clone consent)",
-  "note": "Swap these per project. grade.py runs every check with NO human and exits 0 only when all required pass.",
+  "name": "Stead — definition of done (SUBJECT to PRD.md)",
+  "note": "Every check derives from PRD.md. grade.py runs each with NO human and exits 0 only when all REQUIRED pass. `tier` is the verifiable spiral: build T1, keep it green, then T2, ... A tier banks only when it AND every tier below it are green. T1-T3 required = the shippable care companion; T4-T5 = scored stretch.",
+  "prd": "../PRD.md",
   "checks": [
     {
-      "id": "skeleton",
+      "id": "consent-contract",
       "type": "file_exists",
       "path": "consent_agent/__init__.py",
-      "desc": "consent state-machine contract exists",
+      "desc": "consent / RBAC engine contract exists",
+      "tier": 1,
       "weight": 1,
       "required": true
     },
     {
-      "id": "consent-state-machine",
+      "id": "rbac-access",
       "type": "pytest",
-      "path": "tests",
-      "desc": "grant -> speak-as-clone; REVOKE -> shift-to-generic; zero clone utterances after revoke; audit logs grant+revoke",
+      "path": "tests/test_rbac.py",
+      "desc": "T1 RBAC: per-actor roles & scopes (Mom full, PCA care:read, agent scoped); owner-held grant/check/revoke effective immediately; audited",
+      "tier": 1,
+      "weight": 5,
+      "required": true
+    },
+    {
+      "id": "care-companion",
+      "type": "pytest",
+      "path": "tests/test_care.py",
+      "desc": "T2 care companion: instant PCA handoff summary + longitudinal health tracking, gated by RBAC",
+      "tier": 2,
       "weight": 4,
       "required": true
     },
     {
-      "id": "service-up",
-      "type": "http",
-      "url": "http://localhost:8000/",
-      "expect_status": 200,
-      "desc": "Red Rover demo responds 200 offline (own-your-network, no venue wifi)",
-      "weight": 2,
+      "id": "app-surface",
+      "type": "command",
+      "cmd": "python -c \"import urllib.request,sys; b=urllib.request.urlopen('http://localhost:8770/',timeout=5).read().decode('utf-8','ignore'); sys.exit(0 if 'Stead' in b else 1)\"",
+      "desc": "T3 the REAL Stead app serves on :8770 offline AND its body contains 'Stead' (a foreign server on another port cannot satisfy this)",
+      "tier": 3,
+      "weight": 3,
       "required": true
+    },
+    {
+      "id": "act-on-behalf",
+      "type": "pytest",
+      "path": "tests/test_agent.py",
+      "desc": "T4 agent acts on Ruby's behalf within grant; HALT on wrong-vendor/over-cap/after-revoke; raise-cap-on-the-fly; zero ungranted actions",
+      "tier": 4,
+      "weight": 4,
+      "required": false
+    },
+    {
+      "id": "voice-through-mars",
+      "type": "pytest",
+      "path": "tests/test_voice.py",
+      "desc": "T5 agent vocalizes negotiation + consent events through MARS (offline transcript; real robot = wow)",
+      "tier": 5,
+      "weight": 2,
+      "required": false
     },
     {
       "id": "self-correction-evidence",
       "type": "file_exists",
       "path": "evidence/self-correction.md",
-      "desc": "log excerpt: a verifier sub-agent caught a failure and the loop self-corrected (Autonomy 15%)",
-      "weight": 2,
+      "desc": "log excerpt: a verifier caught a failure and the loop self-corrected (Autonomy)",
+      "tier": 5,
+      "weight": 1,
       "required": false
+    },
+    {
+      "id": "request-approve-act",
+      "type": "pytest",
+      "path": "tests/test_request.py",
+      "desc": "T6 request->approve->act: agent/Ruby requests a NOVEL capability -> parks PENDING -> owner approves to mint a scoped grant (deny blocks) -> agent acts; spawned sub-agent grants ATTENUATE (never widen); audited",
+      "tier": 6,
+      "weight": 3,
+      "required": true
     }
   ]
 }

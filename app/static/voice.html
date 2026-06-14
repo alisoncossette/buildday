@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Talk to Stead</title>
+<style>
+  :root { --cream:#faf6f0; --ink:#2c2622; --sage:#6f7d6a; --terra:#c4674f; --card:#fffdfa; --line:#ece3d8; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:-apple-system,"Segoe UI",Inter,sans-serif; background:var(--cream); color:var(--ink);
+         min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:28px 18px 40px; }
+  h1 { font-family:Fraunces,Georgia,serif; font-weight:600; font-size:26px; margin:6px 0 2px; }
+  .sub { color:var(--sage); font-size:14px; margin-bottom:22px; text-align:center; max-width:340px; }
+  .mic { width:148px; height:148px; border-radius:50%; border:none; cursor:pointer; color:#fff;
+         background:radial-gradient(circle at 35% 30%, #d8795f, var(--terra)); box-shadow:0 10px 30px rgba(196,103,79,.35);
+         font-size:54px; transition:transform .12s, box-shadow .2s; }
+  .mic:active { transform:scale(.96); }
+  .mic.listening { animation:pulse 1.2s infinite; box-shadow:0 0 0 0 rgba(196,103,79,.5); }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(196,103,79,.45)} 70%{box-shadow:0 0 0 26px rgba(196,103,79,0)} 100%{box-shadow:0 0 0 0 rgba(196,103,79,0)} }
+  .hint { margin-top:14px; color:var(--sage); font-size:13px; min-height:18px; }
+  .convo { width:100%; max-width:440px; margin-top:26px; display:flex; flex-direction:column; gap:12px; }
+  .bubble { padding:13px 16px; border-radius:16px; font-size:15px; line-height:1.4; border:1px solid var(--line); }
+  .you { align-self:flex-end; background:#efe7db; border-bottom-right-radius:5px; }
+  .stead { align-self:flex-start; background:var(--card); border-bottom-left-radius:5px; }
+  .stead b { color:var(--terra); }
+  form { width:100%; max-width:440px; margin-top:16px; display:flex; gap:8px; }
+  input { flex:1; padding:12px 14px; border:1px solid var(--line); border-radius:12px; font-size:15px; background:var(--card); }
+  button.send { padding:0 16px; border:none; border-radius:12px; background:var(--sage); color:#fff; font-size:15px; cursor:pointer; }
+  .ex { margin-top:10px; color:var(--sage); font-size:12.5px; text-align:center; }
+</style>
+</head>
+<body>
+  <h1>Talk to Stead</h1>
+  <div class="sub">Ruby's own agent. Tap, say what you'd like — Stead does it for you, inside what your family allowed.</div>
+  <button id="mic" class="mic" aria-label="Tap to talk">🎙️</button>
+  <div id="hint" class="hint">Tap the mic and speak</div>
+  <div id="convo" class="convo"></div>
+  <form id="typed"><input id="text" placeholder="…or type it here" autocomplete="off" /><button class="send" type="submit">Send</button></form>
+  <div class="ex">Try: "Schedule art with Jane Wednesday morning" · "Order a pizza from Tony's for $25" · "Move swimming to Sunday"</div>
+
+<script>
+const micBtn = document.getElementById('mic');
+const hint = document.getElementById('hint');
+const convo = document.getElementById('convo');
+const form = document.getElementById('typed');
+const textIn = document.getElementById('text');
+
+function add(role, text) {
+  const d = document.createElement('div');
+  d.className = 'bubble ' + (role === 'you' ? 'you' : 'stead');
+  d.innerHTML = (role === 'you' ? '' : '<b>Stead:</b> ') + text;
+  convo.appendChild(d);
+  d.scrollIntoView({behavior:'smooth', block:'end'});
+}
+
+function speak(text) {
+  try { const u = new SpeechSynthesisUtterance(text); u.rate = 1.0; u.pitch = 1.05; speechSynthesis.speak(u); } catch (e) {}
+}
+
+async function sendToStead(text) {
+  if (!text) return;
+  add('you', text);
+  hint.textContent = 'Stead is on it…';
+  try {
+    const r = await fetch('/api/voice', {method:'POST', headers:{'Content-Type':'application/json'},
+                                         body: JSON.stringify({text, actor:'agent:ruby'})});
+    const j = await r.json();
+    const reply = j.spoken || "Okay.";
+    add('stead', reply);
+    speak(reply);
+  } catch (e) {
+    add('stead', "I couldn't reach my brain just now.");
+  }
+  hint.textContent = 'Tap the mic and speak';
+}
+
+form.addEventListener('submit', (e) => { e.preventDefault(); const t = textIn.value.trim(); textIn.value=''; sendToStead(t); });
+
+// Browser speech-to-text (Chrome/Edge). Falls back to typing if unsupported.
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SR) {
+  const rec = new SR();
+  rec.lang = 'en-US'; rec.interimResults = false; rec.maxAlternatives = 1;
+  let listening = false;
+  micBtn.addEventListener('click', () => { if (listening) { rec.stop(); return; } try { rec.start(); } catch(e){} });
+  rec.onstart = () => { listening = true; micBtn.classList.add('listening'); hint.textContent = 'Listening… tap again to stop'; };
+  rec.onend   = () => { listening = false; micBtn.classList.remove('listening'); hint.textContent = 'Tap the mic and speak'; };
+  rec.onerror = (e) => { hint.textContent = 'Mic error: ' + e.error + ' — you can type instead'; };
+  rec.onresult = (e) => { sendToStead(e.results[0][0].transcript.trim()); };
+} else {
+  micBtn.addEventListener('click', () => { hint.textContent = 'Voice not supported here — type below'; textIn.focus(); });
+}
+</script>
+</body>
+</html>

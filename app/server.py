@@ -61,6 +61,7 @@ consent.grant(OWNER, AGENT, "order:food", vendor="Tony's Pizza", cap=30, payment
               card_cvv=os.environ.get("STEAD_CARD_CVV"), card_zip=os.environ.get("STEAD_CARD_ZIP"))
 consent.grant(OWNER, PCA, "care:read")
 consent.grant(OWNER, DOC, "care:trends")  # Dr. Smith: longitudinal trends only, no daily handoff
+consent.grant(OWNER, AGENT, "call:make")  # Ruby's agent may place calls on her behalf — Mom can revoke to disable all calling
 
 # MARS voice (Vocalizer): real rosbridge if ROSBRIDGE_URL is set, else a recorded no-op.
 mars = Vocalizer(sink="mars")
@@ -288,6 +289,89 @@ def _run_order(vendor, amount, items="a pizza"):
     return {"status": "halted", "message": msg, "reason": reason}
 
 
+def voice_agent(text, actor=AGENT):
+    """Ruby speaks (live call, voice message, or in-app mic) -> Stead works out what she wants and DOES
+    it, on her behalf, ALWAYS within the consent her family set. Returns {'ok','spoken'}. The same
+    consent gate as /api/order: in-grant -> done; over cap -> asks Mom; otherwise HALTS. Needs ANTHROPIC_API_KEY."""
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return {"ok": False, "spoken": "Stead's voice brain is offline right now (set ANTHROPIC_API_KEY)."}
+    try:
+        import anthropic
+        from anthropic import beta_tool
+        sys.path.insert(0, str(ROOT / "agent" / "tools"))
+        from scheduling import SCHEDULING_TOOLS  # Ruby's own scheduling, inside Mom's envelope
+        from tavily_tool import web_search        # discover things to do / research providers on the live web
+
+        @beta_tool
+        def order_food(vendor: str, amount: float, items: str = "a pizza") -> str:
+            """Order food for Ruby within Mom's consent grant. If over the cap it asks Mom; wrong vendor / no
+            grant HALTS. Never pretend it was ordered.
+
+            Args:
+                vendor: the restaurant.
+                amount: total dollars.
+                items: what to order.
+            """
+            return _run_order(vendor, amount, items=items)["message"]
+
+        @beta_tool
+        def make_call(phone_number: str, purpose: str, recipient: str = "") -> str:
+            """Place a phone call on Ruby's behalf to accomplish a task — e.g. call a specialist's office to
+            verify they take her insurance, are accepting new patients, and what the intake criteria are; or
+            call a venue to check hours / book. Put the SPECIFIC questions to ask in `purpose`. Allowed only
+            within Mom's 'call:make' consent; otherwise it asks Mom and does NOT call. Confirm with Ruby first.
+
+            Args:
+                phone_number: number to call, E.164 if possible (e.g. +18025551212).
+                purpose: exactly what to accomplish + the questions to ask, in plain language.
+                recipient: who is being called (e.g. "Dr. Lee's office").
+            """
+            who = recipient or phone_number
+            d = consent.act(AGENT, "call:make", recipient=who, purpose=purpose)
+            if d["status"] != "done":
+                consent.request_access(AGENT, "call:make", recipient=who, purpose=purpose)
+                store.write_audit(AGENT, "call", "call:make", "needs_consent", reason=purpose[:120], ts=_now())
+                return f"I need Mom's okay before I call {who}. I've asked her and won't call until she approves."
+            sysp_call = (f"You are Stead, a warm, concise assistant calling on behalf of Ruby. Purpose: {purpose}. "
+                         f"Greet, say you're calling for Ruby, ask your questions clearly, confirm what you learned, "
+                         f"thank them, and end. Do not share private details unless asked and relevant.")
+            try:
+                res = phone_tool.place_call(phone_number, sysp_call, "Hi! I'm calling on behalf of Ruby.") \
+                    if phone_tool else {"mock": True}
+                store.write_audit(AGENT, "call", "call:make", res.get("status", "queued"),
+                                  reason=f"{who}: {purpose}"[:120], ts=_now())
+            except Exception as e:
+                return f"I tried to call {who} but hit a problem: {str(e)[:120]}"
+            if res.get("mock"):
+                return f"(Demo) I'd call {phone_number} for Ruby to: {purpose}"
+            return f"Calling {who} now on Ruby's behalf to {purpose}. I'll share what I learn."
+
+        tools = list(SCHEDULING_TOOLS) + [order_food, web_search, make_call]
+        sysp = ("You are Stead, Ruby's warm personal agent (Ruby has cerebral palsy). Act ON HER BEHALF, always "
+                "inside the consent her family set. You can: schedule activities with her caregivers; order food; "
+                "SEARCH THE WEB (web_search) to find interesting things for her to do AND to research providers / "
+                "specialists; and PLACE CALLS (make_call) for her — e.g. call a specialist's office to verify they "
+                "take her insurance, are accepting new patients, and the intake criteria, then report back what you "
+                "learned. When you research providers, gather real options with phone numbers and offer to call to "
+                "verify. If a tool needs Mom's approval or HALTED, say so plainly and never pretend it happened. "
+                "Reply in 1-3 short, kind, spoken sentences.")
+        client = anthropic.Anthropic()
+        model = os.environ.get("STEAD_MODEL", "claude-opus-4-8")
+        runner = client.beta.messages.tool_runner(
+            model=model, max_tokens=1024, system=sysp, tools=tools,
+            messages=[{"role": "user", "content": text}])
+        out = []
+        for m in runner:
+            for b in m.content:
+                if getattr(b, "type", "") == "text":
+                    out.append(b.text)
+        spoken = " ".join(t.strip() for t in out if t.strip()) or "Okay."
+        store.write_audit(actor, "voice", "voice:request", "handled", reason=text[:120], ts=_now())
+        return {"ok": True, "spoken": spoken}
+    except Exception as e:
+        return {"ok": False, "spoken": f"Sorry, I ran into a problem: {str(e)[:140]}"}
+
+
 class H(BaseHTTPRequestHandler):
     def log_message(self, *a):
         pass
@@ -400,6 +484,13 @@ class H(BaseHTTPRequestHandler):
             vendor = body.get("vendor", "Tony's Pizza")
             amount = float(body.get("amount", 0))
             return self._send(200, _run_order(vendor, amount))
+
+        # Ruby's voice -> her agent does the thing (the inbound path: phone call, voice message, or app mic).
+        if self.path == "/api/voice":
+            text = (body.get("text") or "").strip()
+            if not text:
+                return self._send(200, {"ok": False, "spoken": "I didn't catch that — can you say it again?"})
+            return self._send(200, voice_agent(text, body.get("actor", AGENT)))
 
         # --- Consent requests: owner approves/denies grant-up asks (shared brain) ---
         if self.path == "/api/requests/approve":

@@ -36,11 +36,26 @@ The bridge between them is consent.
 
 ## Demo
 
+**▶ Live app:** https://reef-night-across-pets.trycloudflare.com
+
+> ⚠️ That link is a **temporary Cloudflare quick-tunnel** to the local server — it's only up while the
+> laptop is running, and free quick-tunnels drop on any network blip (which is exactly what bit us on
+> demo day — judges hit a dead tunnel, not a dead app). **The reliable way to see Stead is to run it
+> yourself — it's a one-command start (see [Run it](#run-it)).** Everything below is real and verifiable
+> locally: the consent engine, the Neon-backed shared brain, the real Vapi pizza call, and the MARS
+> skill + agent.
+
 <!-- DEMO VIDEO: drag the .mp4 into GitHub's README editor (it hosts it and gives a player URL),
      or commit it to docs/demo.mp4 and replace the line below with:
      <video src="https://github.com/alisoncossette/buildday/raw/main/docs/demo.mp4" controls width="640"></video> -->
 
 > 📹 _Demo short coming — it'll be embedded here._
+
+### On the robot (MARS)
+The pizza order also runs **from the robot**: `robot/skills/order_pizza.py` + `robot/skills/log_mood.py`
+deploy to `~/skills/`, and `robot/agents/ruby_agent.py` to `~/innate-os/agents/`. Ruby tells MARS how
+she's feeling → it's logged to her care timeline; she says she's hungry → MARS offers Tony's and places
+the consent-gated call. Point the robot at the laptop with `STEAD_URL=http://<laptop-ip>:8770`.
 
 ## Architecture
 

@@ -3,3 +3,4 @@ psycopg[binary]      # Neon Postgres (the shared consent brain + care timeline)
 anthropic            # "Ask Stead" + doctor Q&A
 httpx                # outbound Vapi calls (agent/tools/phone.py)
 python-dotenv        # local .env loading (no-op in cloud where envs are set in the dashboard)
+composio   # Mom/Ruby calendar+email via /connect.html (managed OAuth)

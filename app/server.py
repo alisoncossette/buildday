@@ -47,7 +47,7 @@ try:
 except Exception:
     phone_tool = None
 
-PORT = 8770
+PORT = int(os.environ.get("PORT", "8770"))  # cloud hosts inject $PORT; defaults to 8770 locally
 OWNER, AGENT, PCA, DOC = "mom", "agent:ruby", "jane:pca", "doc:smith"
 TODAY = "2026-06-13"
 

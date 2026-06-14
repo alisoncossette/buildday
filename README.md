@@ -84,6 +84,21 @@ python app/server.py          # http://localhost:8770   ·   Ruby's screen: /rub
 python orchestration-kit/grade.py   # the scorecard (exits 0 when done)
 ```
 
+## Deploy (always-on, no laptop)
+
+Stead runs against **Neon (already cloud)**, so the only thing tying it to a laptop was the local
+process. Host the server and it's permanently live — app **and** robot point at one stable URL:
+
+```
+render.com → New → Blueprint → connect this repo (reads render.yaml)
+          → paste your secrets in the dashboard (never committed)
+          → deploy → https://stead-XXXX.onrender.com
+```
+
+Then on the Jetson: `export STEAD_URL=https://stead-XXXX.onrender.com` and the robot orders through the
+cloud, not the laptop. (Render free tier sleeps when idle; Starter/Railway/Fly keep it warm.) The server
+binds `$PORT` automatically. `Procfile` + `requirements.txt` work on any PaaS with the same start command.
+
 ## Configuration
 
 All secrets live in `.env` (gitignored — **never commit real keys**). See [`.env.example`](.env.example):

@@ -1,0 +1,48 @@
+# One-click-ish deploy to Render (render.com) — gives Stead a permanent HTTPS URL,
+# running from this GitHub repo against your Neon DB. No laptop required.
+#
+# Steps:
+#   1. render.com -> New -> Blueprint -> connect the alisoncossette/buildday repo (it reads this file).
+#   2. Fill the secret env vars below in the Render dashboard (they're marked sync:false so they
+#      are NEVER stored in git). Copy the values from your local .env.
+#   3. Deploy. Render builds, runs `python app/server.py`, and gives you https://stead-XXXX.onrender.com
+#   4. Point the robot at it on the Jetson:  export STEAD_URL=https://stead-XXXX.onrender.com
+#
+# Note: Render's FREE web service sleeps after ~15 min idle and cold-starts (~30s) on the next hit.
+# For always-warm, use the Starter plan, or Railway/Fly.io with the same start command.
+services:
+  - type: web
+    name: stead
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app/server.py
+    envVars:
+      - key: DATABASE_URL          # your Neon Postgres string (the shared brain persists here)
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: VAPI_API_KEY
+        sync: false
+      - key: VAPI_PHONE_NUMBER_ID
+        sync: false
+      - key: VAPI_TARGET_PHONE
+        sync: false
+      - key: STEAD_VOICE_PROVIDER
+        value: vapi
+      - key: STEAD_DELIVERY_ADDRESS
+        sync: false
+      - key: STEAD_CALLBACK_PHONE
+        sync: false
+      - key: STEAD_CARD_NUMBER
+        sync: false
+      - key: STEAD_CARD_EXP
+        sync: false
+      - key: STEAD_CARD_CVV
+        sync: false
+      - key: STEAD_CARD_ZIP
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: STEAD_VOICE_ID
+        sync: false

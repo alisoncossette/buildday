@@ -1,0 +1,8 @@
+#cloud-config
+users:
+  - name: ruby
+    groups: sudo
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINgi3TgTioXs1Esmr7/3khCNnMOGdh1l24u3TzBUd814 trico@LAPTOP-TQ3FR1QM

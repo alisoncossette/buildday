@@ -29,7 +29,7 @@ except Exception:  # pragma: no cover - lets the module import for offline unit 
     def beta_tool(fn):
         return fn
 
-TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY")
+TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY") or os.environ.get("TAVILY_APIKEY")
 BASE = "https://api.tavily.com"
 
 # Confirmed 2026-06 against https://docs.tavily.com : POST {BASE}/search and {BASE}/extract,

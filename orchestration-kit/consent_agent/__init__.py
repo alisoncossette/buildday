@@ -18,6 +18,8 @@ Model (from the PRD):
 - every transition (grant / update / revoke / action / halt) is audited.
 """
 
+import math
+
 from consent_agent.trace import tracer
 
 # Read scopes -> the resources they may view. A read scope gates VIEWS, not actions.
@@ -215,8 +217,12 @@ class ConsentEngine:
         cap = params.get("cap")
         if cap is not None:
             amount = context.get("amount")
-            if amount is None or amount > cap:
-                return False
+            try:
+                amount = float(amount)
+            except (TypeError, ValueError):
+                return False  # non-numeric amount -> not satisfied (HALT), never crash (red-team fix)
+            if not math.isfinite(amount) or amount <= 0 or amount > cap:
+                return False  # NaN/inf, non-positive, or over cap -> not satisfied (red-team fix)
         return True
 
     def check(self, actor, scope, **context) -> bool:

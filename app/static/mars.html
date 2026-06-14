@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MARS (on this laptop)</title>
+<style>
+  :root { --cream:#faf6f0; --ink:#2c2622; --sage:#6f7d6a; --terra:#c4674f; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; background:radial-gradient(circle at 50% 30%, #fff, var(--cream));
+         font-family:-apple-system,"Segoe UI",Inter,sans-serif; color:var(--ink);
+         display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; }
+  .tag { color:var(--sage); font-size:13px; letter-spacing:.08em; text-transform:uppercase; }
+  .robot { font-size:118px; line-height:1; transition:transform .25s; filter:drop-shadow(0 10px 20px rgba(0,0,0,.12)); }
+  .robot.move { animation:bob .6s ease-in-out 2; }
+  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+  .face { font-family:Fraunces,Georgia,serif; font-size:22px; color:var(--terra); min-height:26px; }
+  .bubble { max-width:440px; min-height:30px; background:#fff; border:1px solid #ece3d8; border-radius:18px;
+            padding:14px 18px; font-size:18px; line-height:1.4; box-shadow:0 8px 24px rgba(0,0,0,.06);
+            opacity:0; transition:opacity .2s; text-align:center; }
+  .bubble.show { opacity:1; }
+  .status { position:fixed; bottom:14px; color:var(--sage); font-size:12px; }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:#cdd5c8; margin-right:6px; }
+  .dot.live { background:#7aa06f; }
+</style>
+</head>
+<body>
+  <div class="tag">MARS · Ruby's companion</div>
+  <div id="robot" class="robot">🤖</div>
+  <div id="face" class="face"></div>
+  <div id="bubble" class="bubble"></div>
+  <div class="status"><span id="dot" class="dot"></span><span id="stat">connecting…</span></div>
+
+<script>
+const FACES = { happy:"😊 happy", excited:"🤩 excited", sad:"🥺 sad", thinking:"🤔 thinking",
+  surprised:"😮 surprised", confused:"😕 confused", proud:"😌 proud", sleepy:"😴 sleepy",
+  agreeing:"🙂 agreeing", disagreeing:"😐 disagreeing", angry:"😠 concerned" };
+const ROBOT = { happy:"😊", excited:"🤩", sad:"🥺", thinking:"🤔", surprised:"😮", confused:"😕",
+  proud:"😌", sleepy:"😴" };
+const robot = document.getElementById('robot'), face = document.getElementById('face'),
+      bubble = document.getElementById('bubble'), stat = document.getElementById('stat'), dot = document.getElementById('dot');
+let lastTs = "";
+
+function speak(t){ try{ const u=new SpeechSynthesisUtterance(t); u.rate=1; u.pitch=1.08; speechSynthesis.speak(u);}catch(e){} }
+function render(ev){
+  if (ev.kind === 'speak') {
+    bubble.textContent = ev.text; bubble.classList.add('show'); speak(ev.text);
+  } else if (ev.kind === 'emotion') {
+    face.textContent = FACES[ev.emotion] || ev.emotion;
+    robot.textContent = ROBOT[ev.emotion] || "🤖";
+  } else if (ev.kind === 'move') {
+    robot.classList.remove('move'); void robot.offsetWidth; robot.classList.add('move');
+  }
+}
+async function poll(){
+  try {
+    const r = await fetch('/api/mars/events', {cache:'no-store'});
+    const j = await r.json();
+    const evs = j.events || [];
+    stat.textContent = evs.length ? 'MARS is live (mock)' : 'MARS ready — waiting for Stead';
+    dot.classList.add('live');
+    for (const ev of evs) { if (ev.ts > lastTs) { render(ev); lastTs = ev.ts; } }
+  } catch(e) { stat.textContent = 'waiting for Stead server…'; dot.classList.remove('live'); }
+}
+setInterval(poll, 600); poll();
+</script>
+</body>
+</html>

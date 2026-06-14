@@ -71,7 +71,7 @@ class RubyMemory:
         if self._client is not None:
             self._live = True
         else:
-            key = api_key or os.environ.get("MEM0_API_KEY")
+            key = api_key or os.environ.get("MEM0_API_KEY") or os.environ.get("MEM0_APIKEY")
             if key:
                 self._client = self._connect_mem0(key)
                 self._live = self._client is not None

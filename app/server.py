@@ -66,6 +66,21 @@ consent.grant(OWNER, AGENT, "call:make")  # Ruby's agent may place calls on her 
 # MARS voice (Vocalizer): real rosbridge if ROSBRIDGE_URL is set, else a recorded no-op.
 mars = Vocalizer(sink="mars")
 
+# Live MARS event feed for the on-laptop MARS mock (static/mars.html). The SAME events would publish to
+# rosbridge (/brain/tts + /execute_skill) on the real robot once ROSBRIDGE_URL points at the Jetson.
+_MARS_EVENTS = []
+
+
+def _mars_event(kind, **data):
+    ev = {"ts": _now(), "kind": kind, **data}
+    _MARS_EVENTS.append(ev)
+    del _MARS_EVENTS[:-50]
+    try:
+        store.add_mars_event(kind, data, ts=ev["ts"])  # Neon-backed: survives restarts + shared across processes
+    except Exception:
+        pass  # in-memory cache still serves the live demo if the DB write hiccups
+    return ev
+
 LABELS = {OWNER: "Mom", PCA: "Jane · PCA", AGENT: "Ruby's agent", DOC: "Dr. Smith"}
 CTYPES = {".html": "text/html", ".json": "application/json", ".js": "text/javascript", ".svg": "image/svg+xml"}
 
@@ -204,6 +219,7 @@ def speak_through_mars(text):
     try:
         with tracer.span("mars.say", actor=AGENT, text=text):
             u = mars.say(text)
+        _mars_event("speak", text=text, live=bool(u.get("live")))
         return u
     except Exception:
         return {"sink": "mars", "text": text, "live": False}
@@ -346,14 +362,32 @@ def voice_agent(text, actor=AGENT):
                 return f"(Demo) I'd call {phone_number} for Ruby to: {purpose}"
             return f"Calling {who} now on Ruby's behalf to {purpose}. I'll share what I learn."
 
-        tools = list(SCHEDULING_TOOLS) + [order_food, web_search, make_call]
+        @beta_tool
+        def mars_express(emotion: str, say: str = "") -> str:
+            """Express an emotion through Ruby's MARS robot and optionally speak a short line, so the room
+            SEES and HEARS MARS react. Use it to make warm moments and consent moments present and embodied.
+
+            Args:
+                emotion: one of happy, sad, excited, thinking, surprised, confused, proud, sleepy.
+                say: a short line for MARS to speak aloud (optional).
+            """
+            _mars_event("emotion", emotion=emotion)
+            if say:
+                speak_through_mars(say)
+            return f"MARS expressed {emotion}" + (f" and said: {say}" if say else "")
+
+        try:
+            from composio_tool import COMPOSIO_TOOLS  # real Google Calendar + Gmail (live when COMPOSIO_API_KEY set)
+        except Exception:
+            COMPOSIO_TOOLS = []
+        tools = list(SCHEDULING_TOOLS) + [order_food, web_search, make_call, mars_express] + list(COMPOSIO_TOOLS)
         sysp = ("You are Stead, Ruby's warm personal agent (Ruby has cerebral palsy). Act ON HER BEHALF, always "
                 "inside the consent her family set. You can: schedule activities with her caregivers; order food; "
-                "SEARCH THE WEB (web_search) to find interesting things for her to do AND to research providers / "
-                "specialists; and PLACE CALLS (make_call) for her — e.g. call a specialist's office to verify they "
-                "take her insurance, are accepting new patients, and the intake criteria, then report back what you "
-                "learned. When you research providers, gather real options with phone numbers and offer to call to "
-                "verify. If a tool needs Mom's approval or HALTED, say so plainly and never pretend it happened. "
+                "SEARCH THE WEB (web_search) to find things to do AND research providers / specialists; PLACE CALLS "
+                "(make_call) for her — e.g. call a specialist's office to verify they take her insurance, are "
+                "accepting new patients, and the intake criteria, then report back; and EXPRESS through MARS "
+                "(mars_express) so she sees/hears her companion react. Lead warm moments with a MARS expression. "
+                "If a tool needs Mom's approval or HALTED, say so plainly and never pretend it happened. "
                 "Reply in 1-3 short, kind, spoken sentences.")
         client = anthropic.Anthropic()
         model = os.environ.get("STEAD_MODEL", "claude-opus-4-8")
@@ -409,6 +443,30 @@ class H(BaseHTTPRequestHandler):
             return self._send(200, {"events": store.timeline(TODAY)})
         if path == "/api/audit":
             return self._send(200, {"audit": store.recent_audit()})
+        if path == "/api/mars/events":
+            try:
+                return self._send(200, {"events": store.recent_mars_events(25)})
+            except Exception:
+                return self._send(200, {"events": _MARS_EVENTS[-25:]})
+        if path == "/api/composio/status":
+            try:
+                sys.path.insert(0, str(ROOT / "agent" / "tools"))
+                import composio_tool
+                return self._send(200, {"configured": bool(composio_tool.COMPOSIO_API_KEY)})
+            except Exception:
+                return self._send(200, {"configured": False})
+        if path == "/api/composio/connect":
+            # ?who=mom|ruby & toolkit=gmail|googlecalendar -> hosted-OAuth link (Composio holds the token)
+            qs = dict(p.split("=", 1) for p in (self.path.split("?", 1)[1] if "?" in self.path else "").split("&") if "=" in p)
+            who = qs.get("who", "mom")
+            toolkit = qs.get("toolkit", "googlecalendar")
+            try:
+                sys.path.insert(0, str(ROOT / "agent" / "tools"))
+                from composio_tool import connect_account
+                res = connect_account(toolkit, user_id=f"stead:{who}")
+            except Exception as e:
+                res = {"status": "error", "error": str(e)[:200]}
+            return self._send(200, res)
         if path == "/api/requests":
             actor = self._actor()
             # Owner sees pending grant-up asks; others see an empty list (not their decision to make).

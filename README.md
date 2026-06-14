@@ -6,6 +6,40 @@ Stead is a phone-first care companion for **Ruby** — 84, lives at home, has ce
 
 > Agents are starting to act on people's behalf. They need the same scoped, revocable, audited governance we'd demand of a human aide. Stead is **OAuth/IAM for agents** — demoed in the highest-stakes, most human context there is.
 
+## 🌍 The bigger thesis: sovereign AI for the people AI forgot
+
+General AI literally **cannot hear Ruby.** Off-the-shelf speech models were never trained on dysarthric
+(cerebral-palsy) speech, so they mis-hear her — and the millions like her are invisible to the AI
+revolution. The fix isn't a bigger general model. It's a **sovereign** one: a model trained on *her* data,
+owned by *her family*, running under *their* control — never folded into a hyperscaler's training set.
+
+Sovereign AI for vulnerable people needs three things big tech doesn't hand them. We built on all three:
+
+### ⚡ Nebius — the key to disability empowerment
+Sovereign model development requires **on-demand, dedicated GPU you control.** We fine-tuned Ruby's
+**personalized voice model** (a Whisper LoRA) on a **Nebius H100** — her own recordings trained a model that
+understands *her*, on compute we owned for the hour and then tore down. Her voice never became someone
+else's product. The **same** on-demand GPU is what **robotic skill training** needs (MARS learning new
+tasks). For vulnerable populations this is the unlock: **train a model on your own data, sovereignly,
+without surrendering it.** → [`model/`](model/) — *the loss fell 2.12 → 0.53 on her real audio.*
+
+### 🖐️ Composio — the sovereign action layer
+A voice she can use is only half of agency; she also has to *do things*. **Composio** lets her agent act
+across real apps — calendar, email, calls — while her guardian holds **scoped, revocable, owner-held**
+permission over every action. Power she can exercise, safely, because the people who love her hold the keys.
+
+### 🔌 DGX Spark — ongoing sovereign inference
+Train sovereign on Nebius → **serve sovereign on a DGX Spark.** Once her model exists, it runs for ongoing
+inference on a local NVIDIA DGX Spark — on-prem / at the edge — so day to day, **her voice and intent never
+leave her control.** Cloud to train, edge to live.
+
+> **Train sovereign (Nebius) · act safely (Composio) · serve sovereign (DGX Spark).**
+> That's the stack that turns "AI for everyone" into AI for the people it forgot.
+
+**Sister project:** [**Plumbline**](https://github.com/alisoncossette/plumbline) — the open-source
+*intent-boundary analyzer* that hardens any agent acting on someone's behalf (it found, and we fixed,
+real authority bugs in Stead itself).
+
 <p align="center">
   <img src="docs/ruby.png" width="300" alt="Ruby's screen — one tap orders dinner">
   &nbsp;&nbsp;

@@ -1,0 +1,50 @@
+{
+  "backend": "aicloud",
+  "command": "nebius compute instance create --name stead-ruby-asr-finetune --resources-platform gpu-h100-sxm --resources-preset 1gpu-16vcpu-200gb --boot-disk-image-family ubuntu24.04-cuda13.0 --boot-disk-size 200GiB --cloud-init-user-data-file C:\\Users\\trico\\Documents\\GitHub\\build-day\\model\\artifacts\\cloud_init.yaml --network-interfaces [{\"subnet_id\": \"<NEBIUS_SUBNET_ID>\", \"ip_address\": {}, \"public_ip_address\": {}}]",
+  "argv": [
+    "nebius",
+    "compute",
+    "instance",
+    "create",
+    "--name",
+    "stead-ruby-asr-finetune",
+    "--resources-platform",
+    "gpu-h100-sxm",
+    "--resources-preset",
+    "1gpu-16vcpu-200gb",
+    "--boot-disk-image-family",
+    "ubuntu24.04-cuda13.0",
+    "--boot-disk-size",
+    "200GiB",
+    "--cloud-init-user-data-file",
+    "C:\\Users\\trico\\Documents\\GitHub\\build-day\\model\\artifacts\\cloud_init.yaml",
+    "--network-interfaces",
+    "[{\"subnet_id\": \"<NEBIUS_SUBNET_ID>\", \"ip_address\": {}, \"public_ip_address\": {}}]"
+  ],
+  "hparams": {
+    "base_model": "openai/whisper-large-v3",
+    "method": "lora",
+    "lora_r": 16,
+    "lora_alpha": 16,
+    "lora_dropout": 0.05,
+    "learning_rate": 1e-05,
+    "n_epochs": 5,
+    "batch_size": 8,
+    "warmup_ratio": 0.05,
+    "language": "en",
+    "task": "transcribe",
+    "freeze_encoder": true
+  },
+  "env_needed": [
+    "NEBIUS_SUBNET_ID",
+    "NEBIUS_SSH_PUBKEY"
+  ],
+  "post_create": {
+    "1_get_ip": "export IP=$(nebius compute instance get --name stead-ruby-asr-finetune --format json | jq -r '.status.network_interfaces[0].public_ip_address.address' | cut -d/ -f1)",
+    "2_upload": "rsync -avz model/artifacts model/data/audio model/scripts ruby@$IP:~/stead/",
+    "3_train": "ssh ruby@$IP \"pip install -q 'transformers>=4.44' datasets accelerate peft evaluate jiwer soundfile librosa torch && python ~/stead/scripts/train_whisper.py --train ~/stead/train.jsonl --config ~/stead/finetune_config.json --out ~/stead/ckpt\"",
+    "4_fetch_ckpt": "rsync -avz ruby@$IP:~/stead/ckpt model/artifacts/ckpt"
+  },
+  "note": "H100 VM path (default). The trainer is scripts/train_whisper.py (standard HF Whisper LoRA fine-tune). It writes a LoRA adapter to ckpt/; eval.py loads it as the fine-tuned model. CLI shape: https://docs.nebius.com/compute/quickstart",
+  "planned": true
+}

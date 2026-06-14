@@ -13,3 +13,9 @@ orchestration-kit/grade-report.json
 app/shot.png
 app/ruby-shot.png
 *.mp3
+
+# Ruby's private data — sensitive personal video/audio/transcripts. NEVER commit.
+model/data/
+*.mov
+*.MOV
+*.wav

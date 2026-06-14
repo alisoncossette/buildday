@@ -1,0 +1,11 @@
+.git/
+.env
+.env.*
+__pycache__/
+*.pyc
+*.db
+model/
+node_modules/
+.claude/
+.pytest_cache/
+*.bak.html

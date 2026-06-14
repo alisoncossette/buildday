@@ -83,6 +83,10 @@ def init_db():
     _run(f"""CREATE TABLE IF NOT EXISTS trend_points(
         {PK}, date TEXT NOT NULL, metric TEXT NOT NULL, value REAL,
         UNIQUE(date, metric))""")
+    # MARS event feed (speak / emotion / move) persisted so the on-laptop mock (and a deployed
+    # instance) survive restarts and share the same feed — the same shared-brain pattern as grants.
+    _run(f"""CREATE TABLE IF NOT EXISTS mars_events(
+        {PK}, ts TEXT, kind TEXT NOT NULL, data_json TEXT)""")
     if (_run("SELECT COUNT(*) AS n FROM care_events", fetch="one") or {}).get("n", 0) == 0:
         _seed()
     if (_run("SELECT COUNT(*) AS n FROM appointments", fetch="one") or {}).get("n", 0) == 0:
@@ -351,3 +355,22 @@ def write_audit(actor, action, scope, decision, reason="", vendor="", amount=Non
 def recent_audit(n=20):
     return _run("SELECT ts,actor,action,scope,decision,reason,vendor,amount,cap FROM audit "
                 "ORDER BY id DESC LIMIT ?", (n,), fetch="all")
+
+
+# --- MARS event feed (Neon-backed shared brain for the embodiment mock) ------------------
+
+def add_mars_event(kind, data, ts=""):
+    _run("INSERT INTO mars_events(ts,kind,data_json) VALUES(?,?,?)",
+         (ts, kind, json.dumps(data or {})))
+
+
+def recent_mars_events(n=25):
+    rows = _run("SELECT id,ts,kind,data_json FROM mars_events ORDER BY id DESC LIMIT ?", (n,), fetch="all")
+    out = []
+    for r in reversed(rows or []):  # chronological ascending for the UI
+        try:
+            data = json.loads(r["data_json"]) if r.get("data_json") else {}
+        except Exception:
+            data = {}
+        out.append({"seq": r["id"], "ts": r["ts"], "kind": r["kind"], **data})
+    return out

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stead — she runs her own day</title>
+<style>
+  :root{--cream:#faf6f0;--ink:#2c2622;--sage:#6f7d6a;--terra:#c4674f;--card:#fffdfa;--line:#ece3d8;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--cream);color:var(--ink);font-family:-apple-system,"Segoe UI",Inter,sans-serif;line-height:1.55;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 22px;}
+  h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.15;}
+  a{color:var(--terra);}
+  .btn{display:inline-block;padding:13px 22px;border-radius:13px;font-weight:600;text-decoration:none;font-size:16px;}
+  .btn.primary{background:var(--terra);color:#fff;}
+  .btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);}
+  .hero{text-align:center;padding:74px 0 40px;}
+  .kicker{color:var(--sage);letter-spacing:.14em;text-transform:uppercase;font-size:13px;}
+  .hero h1{font-size:52px;margin:14px 0 10px;}
+  .hero p.sub{font-size:20px;color:#54493f;max-width:620px;margin:0 auto 26px;}
+  .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .trust{margin-top:18px;color:var(--sage);font-size:13.5px;}
+  section{padding:42px 0;border-top:1px solid var(--line);}
+  .pain{text-align:center;font-size:23px;font-family:Fraunces,Georgia,serif;color:#3b342d;max-width:680px;margin:0 auto;}
+  .pain b{color:var(--terra);}
+  h2.center{text-align:center;font-size:30px;margin-bottom:8px;}
+  .lead{text-align:center;color:var(--sage);margin-bottom:26px;}
+  .videos{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .videos .v{background:#000;border-radius:14px;overflow:hidden;aspect-ratio:16/9;}
+  .videos iframe{width:100%;height:100%;border:0;}
+  .vcap{text-align:center;color:var(--sage);font-size:13px;margin-top:6px;}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;}
+  .step .n{font-family:Fraunces,Georgia,serif;color:var(--terra);font-size:30px;}
+  .step h3{font-size:18px;margin:6px 0 6px;}
+  .step p{font-size:14.5px;color:#54493f;}
+  .strip{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px;}
+  .pill{background:#eef1ea;color:var(--sage);border-radius:99px;padding:7px 14px;font-size:13.5px;font-weight:600;}
+  .quote{background:#f4efe7;border-left:4px solid var(--terra);border-radius:0 12px 12px 0;padding:16px 18px;margin:0 auto;max-width:680px;color:#3b342d;font-size:16px;}
+  .who{text-align:center;color:#54493f;font-size:17px;max-width:640px;margin:0 auto;}
+  footer{padding:40px 0 60px;text-align:center;color:var(--sage);font-size:14px;}
+  footer a{margin:0 8px;}
+  @media(max-width:680px){.hero h1{font-size:38px;}.videos,.steps{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="hero"><div class="wrap">
+  <div class="kicker">Stead · powered by Bolo</div>
+  <h1>Ruby runs her own day.</h1>
+  <p class="sub">Stead is a voice agent for the people the world's AI can't hear. It understands her, acts on her behalf, and only ever inside the consent her family controls.</p>
+  <div class="cta">
+    <a class="btn primary" href="/index.html">Open the live app →</a>
+    <a class="btn ghost" href="#demo">Watch the demo</a>
+  </div>
+  <div class="trust">Owner-held · Revocable · Audited · Sovereign — her voice never leaves her control.</div>
+</div></div>
+
+<section><div class="wrap">
+  <p class="pain">Caring for someone who can't fully speak for themselves is a second full-time job — and the AI revolution <b>can't even hear them.</b></p>
+</div></section>
+
+<section id="demo"><div class="wrap">
+  <h2 class="center">See it</h2>
+  <p class="lead">The app is the control panel. MARS is the interaction point.</p>
+  <div class="videos">
+    <div><div class="v"><iframe src="https://www.youtube.com/embed/d_RkBjJgrlU" allowfullscreen loading="lazy"></iframe></div><div class="vcap">Walkthrough — the app + the live calendar</div></div>
+    <div><div class="v"><iframe src="https://www.youtube.com/embed/fz0p6OF4ywY" allowfullscreen loading="lazy"></iframe></div><div class="vcap">Voice demo — her agent acting on her behalf</div></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2 class="center">How it works</h2>
+  <p class="lead">Be understood → then act → always in your control.</p>
+  <div class="steps">
+    <div class="step"><div class="n">1</div><h3>It understands her</h3><p>A speech model <b>fine-tuned on her own voice</b> (on a Nebius H100) hears her cerebral-palsy speech when off-the-shelf AI can't.</p></div>
+    <div class="step"><div class="n">2</div><h3>It acts for her</h3><p>Her agent schedules care, orders dinner, even calls a specialist to verify insurance — on her behalf, across real apps.</p></div>
+    <div class="step"><div class="n">3</div><h3>Family stays in control</h3><p>Every action is scoped, revocable, and audited. The moment it reaches past what's allowed, it stops and asks — grant or revoke, live.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap" style="text-align:center;">
+  <h2 class="center">Sovereign by design</h2>
+  <p class="lead">Nebius makes the sovereign model possible → the model gives Ruby a voice → Composio turns that voice into action → a DGX Spark keeps it sovereign.</p>
+  <div class="strip">
+    <span class="pill">⚡ Nebius — sovereign GPU</span>
+    <span class="pill">🖐️ Composio — real-world actions</span>
+    <span class="pill">👁️ Tavily — live grounding</span>
+    <span class="pill">⚖️ Bolo — owner-held consent</span>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <p class="quote">"The instant she reaches past what her family allowed, it stops and asks Mom — who grants or revokes, live. Power she can use, because the people who love her hold the keys."</p>
+  <p class="who" style="margin-top:22px;">Built for Ruby — by someone who's sat on her side of the table.</p>
+</div></section>
+
+<footer><div class="wrap">
+  <a class="btn primary" href="/index.html">Open the live app →</a>
+  <div style="margin-top:18px;">
+    <a href="/index.html">Control panel</a> · <a href="/voice.html">Talk to Stead</a> · <a href="/mars.html">MARS</a> · <a href="/connect.html">Connect</a> · <a href="https://github.com/alisoncossette/buildday">GitHub</a> · <a href="https://github.com/alisoncossette/plumbline">Plumbline</a>
+  </div>
+  <div style="margin-top:16px;color:#b3a999;">Stead · powered by Bolo · AI for the people it forgot.</div>
+</div></div></footer>
+</body>
+</html>

@@ -485,7 +485,7 @@ class H(BaseHTTPRequestHandler):
             series = store.trend_series()
             return self._send(200, {"ok": True, "trends": series,
                                     "summary": store.trend_summary(series)})
-        name = "index.html" if path == "/" else path.lstrip("/")
+        name = "landing.html" if path == "/" else path.lstrip("/")  # / = marketing landing; /index.html = control panel
         f = STATIC / name
         if f.exists() and f.is_file():
             return self._send(200, f.read_bytes(), CTYPES.get(f.suffix, "application/octet-stream"))
